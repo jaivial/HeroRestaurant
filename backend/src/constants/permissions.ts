@@ -181,7 +181,7 @@ export function removeFlag(flags: bigint, flag: bigint): bigint {
 /**
  * Toggle a flag
  */
-export function toggleFlag(flags: bigint, flag: bigint): boolean {
+export function toggleFlag(flags: bigint, flag: bigint): bigint {
   return flags ^ flag;
 }
 

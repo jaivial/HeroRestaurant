@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { db } from '../database/kysely';
 import type { Membership, NewMembership, MembershipUpdate } from '../types/database.types';
 
@@ -113,7 +114,8 @@ export class MembershipRepository {
 
   static async countOwnersByRestaurant(restaurantId: string): Promise<number> {
     // Assuming owner role has CAN_DELETE_RESTAURANT permission
-    const OWNER_FLAG = 1n << 22n; // CAN_DELETE_RESTAURANT
+    // Use raw SQL for bitwise operations on bigint
+    const OWNER_FLAG = 1n << 27n; // CAN_DELETE_RESTAURANT (bit 27)
 
     const result = await db
       .selectFrom('memberships')
@@ -121,12 +123,7 @@ export class MembershipRepository {
       .where('restaurant_id', '=', restaurantId)
       .where('deleted_at', 'is', null)
       .where('status', '=', 'active')
-      .where(({ eb, and }) =>
-        and([
-          eb('access_flags', '&', OWNER_FLAG.toString()),
-          eb('access_flags', '!=', '0'),
-        ])
-      )
+      .where(sql<boolean>`access_flags & ${OWNER_FLAG.toString()} != 0`)
       .executeTakeFirst();
 
     return Number(result?.count ?? 0);

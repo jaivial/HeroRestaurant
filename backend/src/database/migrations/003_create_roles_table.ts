@@ -14,9 +14,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('restaurant_id', 'char(36)') // NULL for system roles
     .addColumn('name', 'varchar(100)', (col) => col.notNull())
     .addColumn('description', 'text')
-    .addColumn('permissions', 'bigint unsigned', (col) => col.notNull().defaultTo(0))
+    .addColumn('permissions', sql`bigint unsigned`, (col) => col.notNull().defaultTo(0))
     .addColumn('is_system_role', 'boolean', (col) => col.notNull().defaultTo(false))
-    .addColumn('display_order', 'int', (col) => col.notNull().defaultTo(0))
+    .addColumn('display_order', 'integer', (col) => col.notNull().defaultTo(0))
     .addColumn('color', 'varchar(7)') // Hex color code
     .addColumn('created_at', 'timestamp', (col) =>
       col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`)

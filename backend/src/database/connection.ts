@@ -2,10 +2,10 @@
  * MySQL Connection Pool
  *
  * Creates and manages a connection pool for MySQL database connections.
- * Uses mysql2/promise for async/await support.
+ * Uses mysql2 (not mysql2/promise) for Kysely compatibility.
  */
 
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2';
 
 // Environment configuration with defaults
 const config = {
@@ -27,21 +27,29 @@ export const pool = mysql.createPool(config);
 /**
  * Test database connection on startup
  */
-export async function testConnection(): Promise<void> {
-  try {
-    const connection = await pool.getConnection();
-    console.log('✓ MySQL connection established successfully');
-    connection.release();
-  } catch (error) {
-    console.error('✗ MySQL connection failed:', error);
-    throw error;
-  }
+export function testConnection(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, connection) => {
+      if (err) {
+        console.error('✗ MySQL connection failed:', err);
+        reject(err);
+        return;
+      }
+      console.log('✓ MySQL connection established successfully');
+      connection.release();
+      resolve();
+    });
+  });
 }
 
 /**
  * Close all connections in the pool
  */
-export async function closePool(): Promise<void> {
-  await pool.end();
-  console.log('MySQL connection pool closed');
+export function closePool(): Promise<void> {
+  return new Promise((resolve) => {
+    pool.end(() => {
+      console.log('MySQL connection pool closed');
+      resolve();
+    });
+  });
 }

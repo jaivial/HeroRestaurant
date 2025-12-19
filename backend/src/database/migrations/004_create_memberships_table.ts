@@ -14,7 +14,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('user_id', 'char(36)', (col) => col.notNull())
     .addColumn('restaurant_id', 'char(36)', (col) => col.notNull())
     .addColumn('role_id', 'char(36)')
-    .addColumn('access_flags', 'bigint unsigned', (col) => col.notNull().defaultTo(0))
+    .addColumn('access_flags', sql`bigint unsigned`, (col) => col.notNull().defaultTo(0))
     .addColumn('display_name', 'varchar(255)')
     .addColumn('joined_at', 'timestamp', (col) =>
       col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`)

@@ -20,7 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('status', sql`enum('active', 'suspended', 'pending')`, (col) =>
       col.notNull().defaultTo('pending')
     )
-    .addColumn('global_flags', 'bigint unsigned', (col) => col.notNull().defaultTo(0))
+    .addColumn('global_flags', sql`bigint unsigned`, (col) => col.notNull().defaultTo(0))
     .addColumn('last_login_at', 'timestamp')
     .addColumn('created_at', 'timestamp', (col) =>
       col.notNull().defaultTo(sql`CURRENT_TIMESTAMP`)

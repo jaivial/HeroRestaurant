@@ -1,4 +1,7 @@
-import type { Context } from 'hono';
+/**
+ * Response helpers for Elysia routes
+ * These return plain objects - Elysia handles JSON serialization automatically
+ */
 
 interface SuccessResponse<T> {
   success: true;
@@ -20,51 +23,52 @@ interface ErrorResponse {
   };
 }
 
-export function success<T>(c: Context, data: T, meta?: SuccessResponse<T>['meta']) {
-  return c.json({ success: true, data, meta } as SuccessResponse<T>, 200);
+export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+
+export function success<T>(data: T, meta?: SuccessResponse<T>['meta']): SuccessResponse<T> {
+  return { success: true, data, meta };
 }
 
-export function created<T>(c: Context, data: T) {
-  return c.json({ success: true, data } as SuccessResponse<T>, 201);
-}
-
-export function noContent(c: Context) {
-  return c.body(null, 204);
-}
-
-export function error(c: Context, code: string, message: string, statusCode: number = 500, details?: Record<string, unknown>) {
-  return c.json({
-    success: false,
-    error: { code, message, details },
-  } as ErrorResponse, statusCode);
-}
-
-export function notFound(c: Context, message: string = 'Resource not found') {
-  return error(c, 'NOT_FOUND', message, 404);
-}
-
-export function unauthorized(c: Context, message: string = 'Authentication required') {
-  return error(c, 'UNAUTHORIZED', message, 401);
-}
-
-export function forbidden(c: Context, message: string = 'Access denied') {
-  return error(c, 'FORBIDDEN', message, 403);
-}
-
-export function badRequest(c: Context, message: string, details?: Record<string, unknown>) {
-  return error(c, 'BAD_REQUEST', message, 400, details);
-}
-
-export function paginated<T>(
-  c: Context,
-  data: T[],
+export function successWithMeta<T>(
+  data: T,
   page: number,
   limit: number,
   total: number
-) {
-  return c.json({
+): SuccessResponse<T> {
+  return {
     success: true,
     data,
     meta: { page, limit, total, pages: Math.ceil(total / limit) },
-  }, 200);
+  };
+}
+
+export function error(
+  code: string,
+  message: string,
+  details?: Record<string, unknown>
+): ErrorResponse {
+  return {
+    success: false,
+    error: { code, message, details },
+  };
+}
+
+export function notFound(message: string = 'Resource not found'): ErrorResponse {
+  return error('NOT_FOUND', message);
+}
+
+export function unauthorized(message: string = 'Authentication required'): ErrorResponse {
+  return error('UNAUTHORIZED', message);
+}
+
+export function forbidden(message: string = 'Access denied'): ErrorResponse {
+  return error('FORBIDDEN', message);
+}
+
+export function badRequest(message: string, details?: Record<string, unknown>): ErrorResponse {
+  return error('BAD_REQUEST', message, details);
+}
+
+export function validationError(details: Record<string, string[]>): ErrorResponse {
+  return error('VALIDATION_ERROR', 'Invalid request body', details);
 }

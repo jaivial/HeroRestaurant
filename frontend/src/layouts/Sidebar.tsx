@@ -5,6 +5,7 @@ import { useViewport } from '@/hooks/useViewport';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PERMISSIONS } from '@/utils/permissions';
 import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
+import { cn } from '@/utils/cn';
 
 interface NavItem {
   label: string;
@@ -101,90 +102,104 @@ export function Sidebar() {
 
   return (
     <>
+      {/* Mobile backdrop */}
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className={cn(
+            'fixed inset-0 z-40',
+            'bg-black/40 backdrop-blur-sm',
+            'animate-fade-in'
+          )}
           onClick={() => toggleSidebar()}
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`
-          ${isMobile ? 'fixed' : 'relative'}
-          ${isMobile ? 'z-50' : ''}
-          w-[280px] h-screen glass border-r border-gray-200/50 dark:border-gray-700/50
-          flex flex-col
-        `}
+        className={cn(
+          'w-[280px] h-screen flex flex-col',
+          'glass border-r border-content-quaternary/10',
+          isMobile ? 'fixed z-50 animate-slide-in-left' : 'relative'
+        )}
       >
-        <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        {/* Header */}
+        <div className="p-5 border-b border-content-quaternary/10">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-lg font-semibold text-content-primary truncate">
               {workspace?.name || 'Workspace'}
             </h2>
             {isMobile && (
               <button
                 onClick={() => toggleSidebar()}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                className={cn(
+                  'p-1.5 -mr-1',
+                  'rounded-[0.5rem]',
+                  'text-content-tertiary hover:text-content-primary',
+                  'hover:bg-surface-tertiary',
+                  'transition-colors duration-150 ease-apple'
+                )}
+                aria-label="Close sidebar"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             )}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-content-secondary truncate">
             {workspace?.slug || 'workspace'}
           </p>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-4">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-3">
           <ul className="space-y-1">
-            {filteredNavItems.map((item) => (
-              <li key={item.path}>
-                <button
-                  onClick={() => handleNavigation(item.path)}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-lg
-                    transition-all duration-200
-                    ${
-                      isActive(item.path)
-                        ? 'glass-solid text-blue-600 dark:text-blue-400'
-                        : 'hover:glass-subtle text-gray-700 dark:text-gray-200'
-                    }
-                  `}
-                >
-                  <svg
-                    className="w-5 h-5 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+            {filteredNavItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <li key={item.path}>
+                  <button
+                    onClick={() => handleNavigation(item.path)}
+                    className={cn(
+                      'w-full flex items-center gap-3',
+                      'px-4 py-3 rounded-apple',
+                      'text-sm font-medium',
+                      'transition-all duration-250 ease-apple',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue',
+                      active
+                        ? [
+                            'glass',
+                            'text-apple-blue',
+                            'shadow-apple-md',
+                            'border border-apple-blue/20',
+                          ]
+                        : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'
+                    )}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d={item.icon}
-                    />
-                  </svg>
-                  <span className="text-sm font-medium">{item.label}</span>
-                </button>
-              </li>
-            ))}
+                    <svg
+                      className="w-5 h-5 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={active ? 2.5 : 2}
+                        d={item.icon}
+                      />
+                    </svg>
+                    <span>{item.label}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+        {/* Footer */}
+        <div className="p-4 border-t border-content-quaternary/10">
+          <p className="text-xs text-content-tertiary text-center">
             HeroRestaurant v1.0.0
           </p>
         </div>

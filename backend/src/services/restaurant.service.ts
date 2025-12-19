@@ -39,15 +39,23 @@ export class RestaurantService {
     const restaurant = await RestaurantRepository.create({
       name: input.name,
       slug,
-      description: input.description || null,
+      description: input.description ?? null,
       logo_url: null,
-      cover_image_url: null,
+      cover_url: null,
+      address: null,
+      city: null,
+      state: null,
+      postal_code: null,
+      country: null,
       timezone: input.timezone || 'UTC',
       currency: input.currency || 'USD',
+      contact_email: null,
+      contact_phone: null,
       feature_flags: 0n,
+      subscription_tier: 'free',
       owner_user_id: userId,
       status: 'trial',
-      trial_expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days
+      trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days
       deleted_at: null,
     });
 
@@ -69,10 +77,22 @@ export class RestaurantService {
   }
 
   /**
-   * Lists all restaurants a user has access to
+   * Lists all restaurants a user has access to (as member or owner)
    */
   static async listForUser(userId: string): Promise<Restaurant[]> {
-    return await RestaurantRepository.findByUserId(userId);
+    // Get memberships for user
+    const memberships = await MembershipRepository.findByUserId(userId);
+
+    // Get restaurants for those memberships
+    const restaurants: Restaurant[] = [];
+    for (const membership of memberships) {
+      const restaurant = await RestaurantRepository.findById(membership.restaurant_id);
+      if (restaurant) {
+        restaurants.push(restaurant);
+      }
+    }
+
+    return restaurants;
   }
 
   /**
@@ -102,7 +122,7 @@ export class RestaurantService {
     if (input.name !== undefined) updateData.name = input.name;
     if (input.description !== undefined) updateData.description = input.description;
     if (input.logoUrl !== undefined) updateData.logo_url = input.logoUrl;
-    if (input.coverImageUrl !== undefined) updateData.cover_image_url = input.coverImageUrl;
+    if (input.coverImageUrl !== undefined) updateData.cover_url = input.coverImageUrl;
     if (input.timezone !== undefined) updateData.timezone = input.timezone;
     if (input.currency !== undefined) updateData.currency = input.currency;
 

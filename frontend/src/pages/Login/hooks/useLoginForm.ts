@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 import { useAuth } from '@/hooks/useAuth';
+import { isConnectedAtom, connectionStatusAtom } from '@/atoms/websocketAtoms';
+import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
 import type { LoginFormData, LoginFormErrors } from '../types';
-import type { User, Workspace } from '@/types';
 
 export function useLoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -11,10 +13,14 @@ export function useLoginForm() {
   });
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
+  const workspace = useAtomValue(currentWorkspaceAtom);
+  const isConnected = useAtomValue(isConnectedAtom);
+  const connectionStatus = useAtomValue(connectionStatusAtom);
 
-  const validate = (): boolean => {
+  const validate = useCallback((): boolean => {
     const newErrors: LoginFormErrors = {};
 
     if (!formData.email) {
@@ -31,62 +37,75 @@ export function useLoginForm() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validate()) {
-      return;
-    }
+      if (!validate()) {
+        return;
+      }
 
-    setIsLoading(true);
-    setErrors({});
+      if (!isConnected) {
+        setErrors({
+          general: 'Not connected to server. Please wait...',
+        });
+        return;
+      }
 
-    try {
-      // Mock login for demo purposes
-      // In production, replace with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(true);
+      setErrors({});
 
-      // Mock successful login
-      const mockUser: User = {
-        id: '1',
-        name: 'Demo User',
-        email: formData.email,
-        avatar: undefined,
-      };
+      try {
+        const success = await login({
+          email: formData.email,
+          password: formData.password,
+        });
 
-      const mockWorkspace: Workspace = {
-        id: 'demo-workspace',
-        name: 'Demo Restaurant',
-        slug: 'demo-restaurant',
-        permissions: 0x7FFFFFFFFFFFFFFFn, // All permissions for demo
-      };
+        if (success) {
+          // Navigate to dashboard - workspace should be set by login
+          // We need to wait a tick for the workspace to be set
+          setTimeout(() => {
+            const ws = workspace;
+            if (ws) {
+              navigate(`/w/${ws.id}/dashboard`);
+            } else {
+              navigate('/dashboard');
+            }
+          }, 0);
+        } else {
+          setErrors({
+            general: 'Invalid email or password',
+          });
+        }
+      } catch (error) {
+        setErrors({
+          general: error instanceof Error ? error.message : 'Login failed',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [formData, validate, isConnected, login, workspace, navigate]
+  );
 
-      const mockToken = 'demo-token-' + Date.now();
-
-      login(mockUser, mockWorkspace, mockToken);
-      navigate(`/w/${mockWorkspace.id}/dashboard`);
-    } catch (error) {
-      setErrors({
-        general: error instanceof Error ? error.message : 'Login failed',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (field: keyof LoginFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleChange = useCallback(
+    (field: keyof LoginFormData, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    },
+    [errors]
+  );
 
   return {
     formData,
     errors,
     isLoading,
+    isConnected,
+    connectionStatus,
     handleSubmit,
     handleChange,
   };

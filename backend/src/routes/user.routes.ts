@@ -1,44 +1,34 @@
 import { Elysia, t } from 'elysia';
 import { UserService } from '../services/user.service';
-import { sessionMiddleware } from '../middleware/session.middleware';
+import { sessionMiddleware, type SessionContext } from '../middleware/session.middleware';
+import { toUserProfile, toUserWithFlags } from '../utils/transformers';
 
 export const userRoutes = new Elysia({ prefix: '/users' })
   // All user routes require authentication
   .use(sessionMiddleware)
 
-  .get('/me', async ({ user }) => {
+  .get('/me', async (ctx) => {
+    const { user } = ctx as unknown as SessionContext;
     return {
       success: true,
       data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          globalFlags: user.global_flags.toString(),
-          avatarUrl: user.avatar_url,
-          phone: user.phone,
-          emailVerifiedAt: user.email_verified_at?.toISOString() || null,
-          status: user.status,
-          createdAt: user.created_at.toISOString(),
-        },
+        user: toUserProfile(user),
       },
     };
   })
 
-  .patch('/me', async ({ user, body }) => {
-    const updatedUser = await UserService.updateProfile(user.id, body);
+  .patch('/me', async (ctx) => {
+    const { user, body } = ctx as unknown as SessionContext & { body: { name?: string; avatarUrl?: string | null; phone?: string | null } };
+    const updatedUser = await UserService.update(user.id, {
+      name: body.name,
+      avatar_url: body.avatarUrl,
+      phone: body.phone,
+    });
 
     return {
       success: true,
       data: {
-        user: {
-          id: updatedUser.id,
-          email: updatedUser.email,
-          name: updatedUser.name,
-          globalFlags: updatedUser.global_flags.toString(),
-          avatarUrl: updatedUser.avatar_url,
-          phone: updatedUser.phone,
-        },
+        user: toUserWithFlags(updatedUser),
       },
     };
   }, {

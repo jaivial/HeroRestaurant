@@ -1,8 +1,15 @@
 import { Elysia, t } from 'elysia';
 import { AuthService } from '../services/auth.service';
 import { SessionService } from '../services/session.service';
-import { sessionMiddleware } from '../middleware/session.middleware';
+import { sessionMiddleware, type SessionContext } from '../middleware/session.middleware';
 import { loginRateLimit } from '../middleware/rate-limit.middleware';
+import {
+  toUserBasic,
+  toUserWithFlags,
+  toSessionDTO,
+  toSessionMe,
+  toSessionListItem,
+} from '../utils/transformers';
 
 export const authRoutes = new Elysia({ prefix: '/auth' })
   // Public routes with rate limiting
@@ -16,15 +23,8 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     return {
       success: true,
       data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        },
-        session: {
-          id: sessionId,
-          expiresAt: session.expires_at.toISOString(),
-        },
+        user: toUserBasic(user),
+        session: toSessionDTO(sessionId, session),
       },
     };
   }, {
@@ -42,16 +42,8 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     return {
       success: true,
       data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          globalFlags: user.global_flags.toString(),
-        },
-        session: {
-          id: sessionId,
-          expiresAt: session.expires_at.toISOString(),
-        },
+        user: toUserWithFlags(user),
+        session: toSessionDTO(sessionId, session),
       },
     };
   }, {
@@ -62,10 +54,11 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     }),
   })
 
-  // Protected routes
+  // Protected routes - use sessionMiddleware
   .use(sessionMiddleware)
 
-  .post('/logout', async ({ sessionId }) => {
+  .post('/logout', async (ctx) => {
+    const { sessionId } = ctx as unknown as SessionContext;
     await AuthService.logout(sessionId);
     return {
       success: true,
@@ -73,7 +66,8 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     };
   })
 
-  .post('/logout-all', async ({ userId, sessionId }) => {
+  .post('/logout-all', async (ctx) => {
+    const { userId, sessionId } = ctx as unknown as SessionContext;
     const sessionsRevoked = await AuthService.logoutAll(userId, sessionId);
     return {
       success: true,
@@ -84,42 +78,30 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     };
   })
 
-  .get('/me', async ({ user, session }) => {
+  .get('/me', async (ctx) => {
+    const { user, session } = ctx as unknown as SessionContext;
     return {
       success: true,
       data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          globalFlags: user.global_flags.toString(),
-          avatarUrl: user.avatar_url,
-        },
-        session: {
-          expiresAt: session.expires_at.toISOString(),
-          createdAt: session.created_at.toISOString(),
-        },
+        user: toUserWithFlags(user),
+        session: toSessionMe(session),
       },
     };
   })
 
-  .get('/sessions', async ({ userId, sessionId }) => {
+  .get('/sessions', async (ctx) => {
+    const { userId, sessionId } = ctx as unknown as SessionContext;
     const sessions = await SessionService.getActiveSessionsForUser(userId);
     return {
       success: true,
       data: {
-        sessions: sessions.map((session) => ({
-          id: session.id,
-          deviceInfo: session.device_info,
-          lastActivity: session.last_activity_at.toISOString(),
-          createdAt: session.created_at.toISOString(),
-          current: session.id === sessionId,
-        })),
+        sessions: sessions.map((session) => toSessionListItem(session, sessionId)),
       },
     };
   })
 
-  .delete('/sessions/:id', async ({ params, sessionId, set }) => {
+  .delete('/sessions/:id', async (ctx) => {
+    const { sessionId, set, params } = ctx as unknown as SessionContext & { set: { status: number }; params: { id: string } };
     if (params.id === sessionId) {
       set.status = 400;
       return {

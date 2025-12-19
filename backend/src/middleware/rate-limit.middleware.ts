@@ -48,12 +48,7 @@ export const rateLimit = (options: RateLimitOptions) => {
         current.count++;
 
         if (current.count > maxAttempts) {
-          const resetIn = Math.ceil((current.resetAt - now) / 1000);
-          throw new Errors.RATE_LIMITED.constructor(
-            'RATE_LIMITED',
-            `Too many requests. Try again in ${resetIn} seconds.`,
-            429
-          );
+          throw Errors.RATE_LIMITED;
         }
       }
     });

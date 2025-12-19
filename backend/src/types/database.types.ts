@@ -1,5 +1,19 @@
 import type { Generated, Insertable, Selectable, Updateable } from 'kysely';
 
+// ============================================================================
+// Shared Enums (can be imported by frontend)
+// ============================================================================
+
+export type UserStatus = 'active' | 'suspended' | 'pending';
+export type RestaurantStatus = 'active' | 'trial' | 'suspended' | 'cancelled';
+export type SubscriptionTier = 'free' | 'starter' | 'professional' | 'enterprise';
+export type MembershipStatus = 'pending' | 'active' | 'suspended' | 'left';
+export type RevocationReason = 'logout' | 'password_change' | 'security' | 'admin_action';
+
+// ============================================================================
+// Database Schema Interface
+// ============================================================================
+
 export interface DB {
   users: UsersTable;
   restaurants: RestaurantsTable;
@@ -18,7 +32,7 @@ export interface UsersTable {
   avatar_url: string | null;
   phone: string | null;
   email_verified_at: Date | null;
-  status: 'active' | 'suspended' | 'pending';
+  status: UserStatus;
   global_flags: bigint;
   last_login_at: Date | null;
   created_at: Generated<Date>;
@@ -35,17 +49,23 @@ export interface RestaurantsTable {
   id: Generated<string>;
   name: string;
   slug: string;
+  description: string | null;
   logo_url: string | null;
-  cover_image_url: string | null;
+  cover_url: string | null;
   address: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  country: string | null;
   timezone: string;
   currency: string;
   contact_email: string | null;
   contact_phone: string | null;
   feature_flags: bigint;
+  subscription_tier: SubscriptionTier;
   owner_user_id: string;
-  status: 'active' | 'trial' | 'suspended' | 'cancelled';
-  trial_expires_at: Date | null;
+  status: RestaurantStatus;
+  trial_ends_at: Date | null;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
   deleted_at: Date | null;
@@ -66,7 +86,7 @@ export interface MembershipsTable {
   joined_at: Generated<Date>;
   invited_by_user_id: string | null;
   invitation_accepted_at: Date | null;
-  status: 'pending' | 'active' | 'suspended' | 'left';
+  status: MembershipStatus;
   last_active_at: Date | null;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
@@ -83,13 +103,14 @@ export interface SessionsTable {
   hashed_session_id: string;
   user_id: string;
   current_restaurant_id: string | null;
-  device_info: string | null;
+  device_fingerprint: string | null;
+  user_agent: string | null;
   ip_address: string | null;
   expires_at: Date;
   last_activity_at: Generated<Date>;
   created_at: Generated<Date>;
   revoked_at: Date | null;
-  revocation_reason: 'logout' | 'password_change' | 'security' | 'admin_action' | null;
+  revocation_reason: RevocationReason | null;
 }
 
 export type Session = Selectable<SessionsTable>;
@@ -102,10 +123,10 @@ export interface RolesTable {
   restaurant_id: string | null;
   name: string;
   description: string | null;
-  permission_flags: bigint;
-  is_system_role: Generated<number>;
+  permissions: bigint;
+  is_system_role: Generated<boolean>;
   display_order: number;
-  color_code: string | null;
+  color: string | null;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
   deleted_at: Date | null;
@@ -120,9 +141,9 @@ export interface LoginAttemptsTable {
   id: Generated<string>;
   email: string;
   ip_address: string;
-  attempted_at: Generated<Date>;
-  success: number;
   user_agent: string | null;
+  success: boolean;
+  attempted_at: Generated<Date>;
 }
 
 export type LoginAttempt = Selectable<LoginAttemptsTable>;

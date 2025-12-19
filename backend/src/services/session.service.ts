@@ -28,7 +28,8 @@ export class SessionService {
       hashed_session_id: hashedSessionId,
       user_id: userId,
       current_restaurant_id: restaurantId ?? null,
-      device_info: deviceInfo ?? null,
+      device_fingerprint: null, // Can be populated later
+      user_agent: deviceInfo ?? null,
       ip_address: ipAddress ?? null,
       expires_at: expiresAt,
       revoked_at: null,

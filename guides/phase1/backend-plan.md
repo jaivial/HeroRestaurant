@@ -13,6 +13,141 @@ The goal is to build a secure, scalable authentication and authorization system 
 
 ---
 
+## Framework: Elysia
+
+The backend uses **Elysia** as the web framework (not Hono). Elysia is a TypeScript-first, Bun-native framework with excellent type inference and validation.
+
+### Core Patterns
+
+**Route Definition:**
+```typescript
+import { Elysia, t } from 'elysia';
+
+export const authRoutes = new Elysia({ prefix: '/auth' })
+  .post('/login', async ({ body, headers, set }) => {
+    // Handler implementation
+  }, {
+    body: t.Object({
+      email: t.String({ format: 'email' }),
+      password: t.String({ minLength: 8 }),
+    }),
+  });
+```
+
+**Schema Validation (using `t` from Elysia):**
+```typescript
+// Request body validation
+body: t.Object({
+  email: t.String({ format: 'email' }),
+  password: t.String({ minLength: 8 }),
+  name: t.String({ minLength: 1 }),
+})
+
+// Query parameters
+query: t.Object({
+  page: t.Optional(t.Numeric()),
+  limit: t.Optional(t.Numeric()),
+})
+
+// Route parameters
+params: t.Object({
+  id: t.String(),
+})
+```
+
+**Middleware as Plugins (using `.derive()`):**
+```typescript
+export const sessionMiddleware = new Elysia({ name: 'session' })
+  .derive(async ({ headers }) => {
+    // Extract and validate session
+    const sessionId = extractSessionId(headers);
+    const session = await validateSession(sessionId);
+
+    // Return values to add to context
+    return {
+      user: session.user,
+      session,
+      userId: session.userId,
+      globalFlags: session.globalFlags,
+    };
+  });
+```
+
+**Permission Guards (using `.onBeforeHandle()`):**
+```typescript
+export const requirePermissions = (requirements: PermissionRequirements) =>
+  new Elysia({ name: 'permissions' })
+    .use(sessionMiddleware)
+    .onBeforeHandle(({ userId, globalFlags, params }) => {
+      // Check permissions, throw if denied
+      if (!hasPermission(globalFlags, requirements.member)) {
+        throw Errors.PERMISSION_DENIED;
+      }
+    });
+```
+
+**Error Handling (using `.onError()`):**
+```typescript
+const app = new Elysia()
+  .onError(({ error, set }) => {
+    if (error instanceof AppError) {
+      set.status = error.statusCode;
+      return { success: false, error: { code: error.code, message: error.message } };
+    }
+    // Handle validation errors by error.name === 'ValidationError'
+  });
+```
+
+**Context Destructuring:**
+```typescript
+.post('/endpoint', async ({ body, headers, set, params, query, userId, session }) => {
+  // body: Validated request body
+  // headers: Request headers
+  // set: Object to set response status/headers (set.status = 201)
+  // params: Route parameters
+  // query: Query parameters
+  // userId, session: Custom context from middleware
+})
+```
+
+**Response Patterns:**
+```typescript
+// Success - return plain objects
+return { success: true, data: { user, session } };
+
+// Set status code
+set.status = 201;
+return { success: true, data: createdResource };
+
+// Errors - throw custom errors or return error objects
+throw Errors.NOT_FOUND;
+// or
+set.status = 404;
+return { success: false, error: { code: 'NOT_FOUND', message: 'Resource not found' } };
+```
+
+**Route Grouping:**
+```typescript
+const app = new Elysia()
+  .group('/api', (app) => app
+    .use(authRoutes)
+    .use(userRoutes)
+    .use(restaurantRoutes)
+  );
+```
+
+### Key Differences from Hono
+
+| Aspect | Elysia | Hono |
+|--------|--------|------|
+| Validation | Built-in `t` schema | External (Zod adapter) |
+| Middleware | `.derive()` plugin pattern | `c.set()` context |
+| Error Handling | `.onError()` with error types | Try-catch in handlers |
+| Type Inference | Automatic from schemas | Manual type annotations |
+| Context | Destructured in handler params | Single `c` context object |
+
+---
+
 ## 1. Authentication Flow Analysis
 
 ### 1.1 Login Process and Session Creation

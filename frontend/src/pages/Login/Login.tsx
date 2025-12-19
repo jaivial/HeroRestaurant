@@ -6,7 +6,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <Card className="w-full max-w-md" variant="solid">
+      <Card className="w-full max-w-md p-8" variant="glass">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             HeroRestaurant

@@ -10,11 +10,11 @@ interface AuthenticatedLayoutProps {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-surface-primary">
       <div className="flex h-screen overflow-hidden">
         <Sidebar />
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-surface-grouped">
           <TopHeader />
 
           <main className="flex-1 overflow-y-auto p-6">

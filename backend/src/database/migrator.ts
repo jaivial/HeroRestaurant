@@ -8,6 +8,7 @@ import { Kysely, Migrator, FileMigrationProvider } from 'kysely';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { db } from './kysely';
+import { closePool } from './connection';
 
 const migrationFolder = path.join(__dirname, 'migrations');
 
@@ -72,11 +73,8 @@ export async function migrateDown(): Promise<void> {
  * Get migration status
  */
 export async function getMigrationStatus(): Promise<void> {
-  const migrations = await db
-    .selectFrom('kysely_migration')
-    .selectAll()
-    .orderBy('timestamp', 'asc')
-    .execute();
+  // Use Kysely's built-in getMigrations API
+  const migrations = await migrator.getMigrations();
 
   if (migrations.length === 0) {
     console.log('No migrations have been run yet');
@@ -86,8 +84,8 @@ export async function getMigrationStatus(): Promise<void> {
   console.log('\nMigration Status:');
   console.log('─────────────────────────────────────────────────────');
   migrations.forEach((migration) => {
-    const status = migration.executed_at ? '✓' : '✗';
-    console.log(`${status} ${migration.name} (${migration.timestamp})`);
+    const status = migration.executedAt ? '✓' : '○';
+    console.log(`${status} ${migration.name}`);
   });
   console.log('─────────────────────────────────────────────────────\n');
 }
@@ -120,10 +118,16 @@ Commands:
   status        Show migration status
           `);
       }
-      process.exit(0);
     } catch (error) {
       console.error('Migration error:', error);
+      await db.destroy();
+      await closePool();
       process.exit(1);
     }
+
+    // Clean up connections
+    await db.destroy();
+    await closePool();
+    process.exit(0);
   })();
 }

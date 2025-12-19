@@ -13,6 +13,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('id', 'char(36)', (col) => col.primaryKey())
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
     .addColumn('slug', 'varchar(255)', (col) => col.notNull().unique())
+    .addColumn('description', 'text')
     .addColumn('logo_url', 'varchar(500)')
     .addColumn('cover_url', 'varchar(500)')
     .addColumn('address', 'varchar(500)')
@@ -24,7 +25,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('currency', 'varchar(3)', (col) => col.notNull().defaultTo('USD'))
     .addColumn('contact_email', 'varchar(255)')
     .addColumn('contact_phone', 'varchar(50)')
-    .addColumn('feature_flags', 'bigint unsigned', (col) => col.notNull().defaultTo(0))
+    .addColumn('feature_flags', sql`bigint unsigned`, (col) => col.notNull().defaultTo(0))
     .addColumn('subscription_tier', sql`enum('free', 'starter', 'professional', 'enterprise')`, (col) =>
       col.notNull().defaultTo('free')
     )

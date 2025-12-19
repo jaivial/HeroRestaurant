@@ -1,14 +1,26 @@
 import { Elysia } from 'elysia';
 import { SessionService } from '../services/session.service';
-import { UserRepository } from '../repositories/user.repository';
 import { Errors } from '../utils/errors';
+import type { User, Session } from '../types/database.types';
+
+/**
+ * Session context type for routes using sessionMiddleware
+ */
+export interface SessionContext extends Record<string, unknown> {
+  user: User;
+  session: Session;
+  sessionId: string;
+  userId: string;
+  globalFlags: bigint;
+  currentRestaurantId: string | null;
+}
 
 /**
  * Session middleware plugin for Elysia
  * Validates session and attaches user/session to context
  */
 export const sessionMiddleware = new Elysia({ name: 'session' })
-  .derive(async ({ headers }) => {
+  .derive(async ({ headers }): Promise<SessionContext> => {
     // Get session ID from Authorization header
     const authHeader = headers.authorization;
     if (!authHeader) {
@@ -26,11 +38,8 @@ export const sessionMiddleware = new Elysia({ name: 'session' })
       throw Errors.SESSION_INVALID;
     }
 
-    // Validate session and get user
+    // Validate session and get user (session is automatically extended if needed)
     const { user, session } = await SessionService.validate(sessionId);
-
-    // Extend session (sliding window)
-    await SessionService.extend(session.id);
 
     return {
       user,
@@ -43,10 +52,22 @@ export const sessionMiddleware = new Elysia({ name: 'session' })
   });
 
 /**
+ * Optional session context type
+ */
+export interface OptionalSessionContext extends Record<string, unknown> {
+  user: User | null;
+  session: Session | null;
+  sessionId: string | null;
+  userId: string | null;
+  globalFlags: bigint | null;
+  currentRestaurantId: string | null;
+}
+
+/**
  * Optional session middleware - doesn't throw if no session
  */
 export const optionalSessionMiddleware = new Elysia({ name: 'optional-session' })
-  .derive(async ({ headers }) => {
+  .derive(async ({ headers }): Promise<OptionalSessionContext> => {
     const authHeader = headers.authorization;
     if (!authHeader) {
       return { user: null, session: null, sessionId: null, userId: null, globalFlags: null, currentRestaurantId: null };
@@ -60,7 +81,6 @@ export const optionalSessionMiddleware = new Elysia({ name: 'optional-session' }
     try {
       const sessionId = parts[1];
       const { user, session } = await SessionService.validate(sessionId);
-      await SessionService.extend(session.id);
 
       return {
         user,
