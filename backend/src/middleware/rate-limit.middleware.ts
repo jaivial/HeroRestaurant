@@ -1,4 +1,4 @@
-import type { Context, Next } from 'hono';
+import { Elysia } from 'elysia';
 import { Errors } from '../utils/errors';
 
 interface RateLimitStore {
@@ -16,73 +16,57 @@ interface RateLimitOptions {
 }
 
 /**
- * Simple in-memory rate limiter
- * In production, use Redis for distributed rate limiting
+ * Rate limiter plugin for Elysia
  */
-export function rateLimit(options: RateLimitOptions) {
+export const rateLimit = (options: RateLimitOptions) => {
   const { maxAttempts, windowMs, keyPrefix = 'rl' } = options;
 
-  return async (c: Context, next: Next) => {
-    // Get client IP
-    const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown';
-    const key = `${keyPrefix}:${ip}`;
+  return new Elysia({ name: `rate-limit-${keyPrefix}` })
+    .onBeforeHandle(({ headers }) => {
+      const ip = headers['x-forwarded-for'] || headers['x-real-ip'] || 'unknown';
+      const key = `${keyPrefix}:${ip}`;
 
-    const now = Date.now();
-    const record = store.attempts.get(key);
+      const now = Date.now();
+      const record = store.attempts.get(key);
 
-    // Clean up expired records
-    if (record && now > record.resetAt) {
-      store.attempts.delete(key);
-    }
-
-    // Get or create record
-    const current = store.attempts.get(key);
-
-    if (!current) {
-      // First attempt in window
-      store.attempts.set(key, {
-        count: 1,
-        resetAt: now + windowMs,
-      });
-    } else {
-      // Increment attempt count
-      current.count++;
-
-      if (current.count > maxAttempts) {
-        const resetIn = Math.ceil((current.resetAt - now) / 1000);
-        throw new Errors.RATE_LIMITED.constructor(
-          'RATE_LIMITED',
-          `Too many requests. Try again in ${resetIn} seconds.`,
-          429
-        );
+      // Clean up expired records
+      if (record && now > record.resetAt) {
+        store.attempts.delete(key);
       }
-    }
 
-    await next();
-  };
-}
+      // Get or create record
+      const current = store.attempts.get(key);
+
+      if (!current) {
+        // First attempt in window
+        store.attempts.set(key, {
+          count: 1,
+          resetAt: now + windowMs,
+        });
+      } else {
+        // Increment attempt count
+        current.count++;
+
+        if (current.count > maxAttempts) {
+          const resetIn = Math.ceil((current.resetAt - now) / 1000);
+          throw new Errors.RATE_LIMITED.constructor(
+            'RATE_LIMITED',
+            `Too many requests. Try again in ${resetIn} seconds.`,
+            429
+          );
+        }
+      }
+    });
+};
 
 /**
- * Login-specific rate limiter
- * Tracks by both IP and email
- * Note: Parses body and stores it in context for handler to use
+ * Login-specific rate limiter plugin
+ * Tracks by IP only in onBeforeHandle (before body parsing)
+ * Email-based limiting is handled in the auth service after body is available
  */
-export function loginRateLimit() {
-  return async (c: Context, next: Next) => {
-    const ip = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown';
-
-    // Clone the request to read body without consuming it
-    const clonedReq = c.req.raw.clone();
-    let body: { email?: string } = {};
-    try {
-      body = await clonedReq.json();
-      // Store parsed body in context for handler to use
-      c.set('parsedBody', body);
-    } catch {
-      // If body parsing fails, let the handler deal with it
-    }
-
-    const email = body.email?.toLowerCase();
+export const loginRateLimit = new Elysia({ name: 'login-rate-limit' })
+  .onBeforeHandle(({ headers }) => {
+    const ip = headers['x-forwarded-for'] || headers['x-real-ip'] || 'unknown';
 
     // Rate limit by IP (20 attempts per 15 minutes)
     const ipKey = `login:ip:${ip}`;
@@ -100,28 +84,7 @@ export function loginRateLimit() {
         throw Errors.RATE_LIMITED;
       }
     }
-
-    // Rate limit by email (5 attempts per 15 minutes)
-    if (email) {
-      const emailKey = `login:email:${email}`;
-      const emailRecord = store.attempts.get(emailKey);
-
-      if (!emailRecord || now > emailRecord.resetAt) {
-        store.attempts.set(emailKey, {
-          count: 1,
-          resetAt: now + 15 * 60 * 1000,
-        });
-      } else {
-        emailRecord.count++;
-        if (emailRecord.count > 5) {
-          throw Errors.AUTH_ACCOUNT_LOCKED;
-        }
-      }
-    }
-
-    await next();
-  };
-}
+  });
 
 /**
  * Cleanup expired rate limit records (run periodically)

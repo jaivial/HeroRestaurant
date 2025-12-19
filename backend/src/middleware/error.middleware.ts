@@ -1,17 +1,43 @@
-import type { Context } from 'hono';
 import { AppError } from '../utils/errors';
-import { error } from '../utils/response';
 
 /**
- * Global error handler middleware
+ * Global error handler for Elysia
  */
-export async function errorHandler(err: Error, c: Context) {
-  console.error('Error:', err);
+export function errorHandler({ error, set }: { error: Error; set: any }) {
+  console.error('Error:', error);
 
-  if (err instanceof AppError) {
-    return error(c, err.code, err.message, err.statusCode, err.details);
+  if (error instanceof AppError) {
+    set.status = error.statusCode;
+    return {
+      success: false,
+      error: {
+        code: error.code,
+        message: error.message,
+        ...(error.details && { details: error.details }),
+      },
+    };
   }
 
-  // Unexpected errors
-  return error(c, 'INTERNAL_ERROR', 'An unexpected error occurred', 500);
+  // Handle Elysia validation errors
+  if (error.name === 'ValidationError') {
+    set.status = 400;
+    return {
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid request data',
+        details: error.message,
+      },
+    };
+  }
+
+  // Default error response
+  set.status = 500;
+  return {
+    success: false,
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: 'An unexpected error occurred',
+    },
+  };
 }

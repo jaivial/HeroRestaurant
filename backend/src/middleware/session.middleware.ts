@@ -1,15 +1,16 @@
-import type { Context, Next } from 'hono';
+import { Elysia } from 'elysia';
 import { SessionService } from '../services/session.service';
-import { AppError, Errors } from '../utils/errors';
+import { UserRepository } from '../repositories/user.repository';
+import { Errors } from '../utils/errors';
 
 /**
- * Session middleware - validates session and populates request context
- * Extracts session ID from Authorization header (format: "Session <session-id>")
+ * Session middleware plugin for Elysia
+ * Validates session and attaches user/session to context
  */
-export async function sessionMiddleware(c: Context, next: Next) {
-  try {
-    const authHeader = c.req.header('Authorization');
-
+export const sessionMiddleware = new Elysia({ name: 'session' })
+  .derive(async ({ headers }) => {
+    // Get session ID from Authorization header
+    const authHeader = headers.authorization;
     if (!authHeader) {
       throw Errors.SESSION_REQUIRED;
     }
@@ -28,54 +29,48 @@ export async function sessionMiddleware(c: Context, next: Next) {
     // Validate session and get user
     const { user, session } = await SessionService.validate(sessionId);
 
-    // Populate context
-    c.set('userId', user.id);
-    c.set('user', user);
-    c.set('session', session);
-    c.set('sessionId', session.id);
-    c.set('memberFlags', user.member_flags);
+    // Extend session (sliding window)
+    await SessionService.extend(session.id);
 
-    if (session.current_restaurant_id) {
-      c.set('currentRestaurantId', session.current_restaurant_id);
-    }
-
-    await next();
-  } catch (error) {
-    if (error instanceof AppError) {
-      throw error;
-    }
-    throw Errors.SESSION_INVALID;
-  }
-}
+    return {
+      user,
+      session,
+      sessionId: session.id,
+      userId: user.id,
+      globalFlags: user.global_flags,
+      currentRestaurantId: session.current_restaurant_id,
+    };
+  });
 
 /**
- * Optional session middleware - validates session if present, but doesn't require it
+ * Optional session middleware - doesn't throw if no session
  */
-export async function optionalSessionMiddleware(c: Context, next: Next) {
-  try {
-    const authHeader = c.req.header('Authorization');
-
-    if (authHeader) {
-      const parts = authHeader.split(' ');
-      if (parts.length === 2 && parts[0] === 'Session' && parts[1]) {
-        const sessionId = parts[1];
-        const { user, session } = await SessionService.validate(sessionId);
-
-        c.set('userId', user.id);
-        c.set('user', user);
-        c.set('session', session);
-        c.set('sessionId', session.id);
-        c.set('memberFlags', user.member_flags);
-
-        if (session.current_restaurant_id) {
-          c.set('currentRestaurantId', session.current_restaurant_id);
-        }
-      }
+export const optionalSessionMiddleware = new Elysia({ name: 'optional-session' })
+  .derive(async ({ headers }) => {
+    const authHeader = headers.authorization;
+    if (!authHeader) {
+      return { user: null, session: null, sessionId: null, userId: null, globalFlags: null, currentRestaurantId: null };
     }
 
-    await next();
-  } catch {
-    // Silently continue without session
-    await next();
-  }
-}
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Session' || !parts[1]) {
+      return { user: null, session: null, sessionId: null, userId: null, globalFlags: null, currentRestaurantId: null };
+    }
+
+    try {
+      const sessionId = parts[1];
+      const { user, session } = await SessionService.validate(sessionId);
+      await SessionService.extend(session.id);
+
+      return {
+        user,
+        session,
+        sessionId: session.id,
+        userId: user.id,
+        globalFlags: user.global_flags,
+        currentRestaurantId: session.current_restaurant_id,
+      };
+    } catch {
+      return { user: null, session: null, sessionId: null, userId: null, globalFlags: null, currentRestaurantId: null };
+    }
+  });

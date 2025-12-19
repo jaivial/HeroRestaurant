@@ -5,6 +5,20 @@ import type { Membership } from '../types/database.types';
 
 export class PermissionService {
   /**
+   * Checks if a user has a global permission
+   */
+  static hasGlobalPermission(globalFlags: bigint, requiredFlag: bigint): boolean {
+    return hasPermission(globalFlags, requiredFlag);
+  }
+
+  /**
+   * Checks if a member has a specific permission
+   */
+  static hasMemberPermission(accessFlags: bigint, requiredFlag: bigint): boolean {
+    return hasPermission(accessFlags, requiredFlag);
+  }
+
+  /**
    * Gets a user's membership for a specific restaurant
    */
   static async getMembership(userId: string, restaurantId: string): Promise<Membership> {
