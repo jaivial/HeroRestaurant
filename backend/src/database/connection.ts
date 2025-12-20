@@ -21,7 +21,14 @@ const config = {
   keepAliveInitialDelay: 0,
   timezone: 'Z', // Store dates as UTC
   supportBigNumbers: true,
-  bigNumberStrings: true,
+  bigNumberStrings: false, // Return as number if fits, but we'll use typeCast for BigInt
+  typeCast: function (field: any, next: any) {
+    if (field.type === 'LONGLONG') {
+      const val = field.string();
+      return val === null ? null : BigInt(val);
+    }
+    return next();
+  },
 };
 
 export const pool = mysql.createPool(config);

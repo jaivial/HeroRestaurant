@@ -6,7 +6,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
-  variant?: 'default' | 'filled';
+  variant?: 'default' | 'filled' | 'ghost';
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   className?: string;
@@ -71,17 +71,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
               // Variant styles
               {
-                // Default - Subtle glass with border
-                'glass-subtle border border-transparent focus:border-apple-blue focus:ring-2 focus:ring-apple-blue/20':
+                // Default - Subtle glass with border (enhanced contrast)
+                'glass-subtle border-2 border-input-border-default-light dark:border-input-border-default-dark hover:border-input-border-hover-light dark:hover:border-input-border-hover-dark focus:border-input-border-focus-light dark:focus:border-input-border-focus-dark focus:ring-4 focus:ring-input-border-focus-light/20 dark:focus:ring-input-border-focus-dark/20':
                   variant === 'default',
 
                 // Filled - Solid background
-                'bg-surface-tertiary border-2 border-transparent focus:border-apple-blue focus:bg-surface-secondary':
+                'bg-surface-tertiary border-2 border-transparent focus:border-input-border-focus-light dark:focus:border-input-border-focus-dark focus:bg-surface-primary':
                   variant === 'filled',
+
+                // Ghost - Transparent background, no border until focus (or custom)
+                'bg-transparent border-transparent shadow-none':
+                  variant === 'ghost',
               },
 
-              // Error state
-              hasError && 'border-apple-red focus:border-apple-red focus:ring-apple-red/20',
+              // Error state (enhanced contrast)
+              hasError && 'border-info-border-red-light dark:border-info-border-red-dark focus:border-info-border-red-light dark:focus:border-info-border-red-dark focus:ring-info-border-red-light/20 dark:focus:ring-info-border-red-dark/20',
 
               // Padding based on icons
               leftIcon ? 'pl-10' : 'pl-4',
@@ -109,7 +113,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <p
             className={cn(
               'mt-1.5 text-sm',
-              hasError ? 'text-apple-red' : 'text-content-tertiary'
+              hasError ? 'text-info-text-red-light dark:text-info-text-red-dark' : 'text-content-tertiary'
             )}
           >
             {error || helperText}

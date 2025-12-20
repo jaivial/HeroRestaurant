@@ -17,6 +17,13 @@ const envSchema = z.object({
 
   // Server
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+
+  // Cloudflare R2
+  R2_ENDPOINT: z.string(),
+  R2_ACCESS_KEY_ID: z.string(),
+  R2_SECRET_ACCESS_KEY: z.string(),
+  R2_BUCKET_NAME: z.string().default('herorestaurant'),
+  R2_PUBLIC_URL: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

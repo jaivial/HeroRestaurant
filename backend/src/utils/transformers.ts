@@ -110,7 +110,7 @@ export function toRestaurant(restaurant: Restaurant): RestaurantDTO {
 // Membership Transformers
 // ============================================================================
 
-export function toMember(membership: Membership, user: User): MemberDTO {
+export function toMember(membership: any, user: User): MemberDTO {
   return {
     id: membership.id,
     userId: membership.user_id,
@@ -119,8 +119,11 @@ export function toMember(membership: Membership, user: User): MemberDTO {
     accessFlags: membership.access_flags.toString(),
     displayName: membership.display_name,
     status: membership.status,
-    joinedAt: membership.joined_at.toISOString(),
-    lastActiveAt: membership.last_active_at?.toISOString() ?? null,
+    joinedAt: membership.joined_at.toISOString ? membership.joined_at.toISOString() : membership.joined_at,
+    lastActiveAt: membership.last_active_at?.toISOString ? membership.last_active_at.toISOString() : membership.last_active_at ?? null,
+    roleName: membership.role_name,
+    rolePriority: Number(membership.role_priority ?? 0),
+    roleColor: membership.role_color,
   };
 }
 

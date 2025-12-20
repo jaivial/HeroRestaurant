@@ -33,6 +33,11 @@ export const ROUTE_CONFIG: Record<string, RouteConfig> = {
     requiredPermissions: [PERMISSIONS.VIEW_MENU],
     permissionMode: 'all',
   },
+  '/w/:workspaceId/menu-creator': {
+    requiresAuth: true,
+    requiredPermissions: [PERMISSIONS.EDIT_MENU],
+    permissionMode: 'all',
+  },
   '/w/:workspaceId/inventory': {
     requiresAuth: true,
     requiredPermissions: [PERMISSIONS.VIEW_INVENTORY],

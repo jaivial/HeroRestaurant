@@ -26,7 +26,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Full control over the restaurant. Can delete restaurant and manage all aspects.',
       permissions: ROLE_OWNER.toString(),
       is_system_role: true,
-      display_order: 1,
+      display_order: 100,
       color: '#8B5CF6', // Purple
     },
     {
@@ -36,7 +36,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Nearly full control. Can manage all aspects except restaurant deletion.',
       permissions: ROLE_ADMIN.toString(),
       is_system_role: true,
-      display_order: 2,
+      display_order: 90,
       color: '#EC4899', // Pink
     },
     {
@@ -46,7 +46,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Can manage operations, orders, staff, inventory, and reports.',
       permissions: ROLE_MANAGER.toString(),
       is_system_role: true,
-      display_order: 3,
+      display_order: 80,
       color: '#3B82F6', // Blue
     },
     {
@@ -56,7 +56,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Kitchen-focused access. Can view orders, menu, inventory, and manage kitchen display.',
       permissions: ROLE_CHEF.toString(),
       is_system_role: true,
-      display_order: 4,
+      display_order: 70,
       color: '#F59E0B', // Orange
     },
     {
@@ -66,7 +66,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Can create and update orders, manage tables, view menu and customers.',
       permissions: ROLE_SERVER.toString(),
       is_system_role: true,
-      display_order: 5,
+      display_order: 60,
       color: '#10B981', // Green
     },
     {
@@ -76,7 +76,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Can process payments and view orders.',
       permissions: ROLE_CASHIER.toString(),
       is_system_role: true,
-      display_order: 6,
+      display_order: 50,
       color: '#06B6D4', // Cyan
     },
     {
@@ -86,7 +86,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Read-only access to dashboard, orders, tables, menu, and reports.',
       permissions: ROLE_VIEWER.toString(),
       is_system_role: true,
-      display_order: 7,
+      display_order: 10,
       color: '#6B7280', // Gray
     },
   ];

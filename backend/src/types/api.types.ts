@@ -115,6 +115,10 @@ export interface MemberDTO {
   status: MembershipStatus;
   joinedAt: string;
   lastActiveAt: string | null;
+  // Role details (optional, included in workspace member lists)
+  roleName?: string | null;
+  rolePriority?: number;
+  roleColor?: string | null;
 }
 
 /** Current user's membership in a restaurant */

@@ -10,7 +10,7 @@ import {
   lastActivityAtom,
   currentUserGlobalFlagsAtom,
 } from '@/atoms/authAtoms';
-import { rawPermissionsAtom } from '@/atoms/permissionAtoms';
+import { currentUserPriorityAtom, rawPermissionsAtom } from '@/atoms/permissionAtoms';
 import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
 import { connectionStatusAtom, sessionTokenAtom } from '@/atoms/websocketAtoms';
 import { authService } from '@/services/auth.service';
@@ -44,6 +44,7 @@ export function useAuth() {
   const setLastActivity = useSetAtom(lastActivityAtom);
   const setGlobalFlags = useSetAtom(currentUserGlobalFlagsAtom);
   const setPermissions = useSetAtom(rawPermissionsAtom);
+  const setPriority = useSetAtom(currentUserPriorityAtom);
   const setCurrentWorkspace = useSetAtom(currentWorkspaceAtom);
   const setConnectionStatus = useSetAtom(connectionStatusAtom);
   const setSessionToken = useSetAtom(sessionTokenAtom);
@@ -94,6 +95,7 @@ export function useAuth() {
           permissions: BigInt(targetWorkspace.accessFlags),
         });
         setPermissions(BigInt(targetWorkspace.accessFlags));
+        setPriority((targetWorkspace as any).rolePriority || 0);
       }
 
       // Connect WebSocket with the session token
@@ -113,6 +115,7 @@ export function useAuth() {
       setSessionToken,
       setCurrentWorkspace,
       setPermissions,
+      setPriority,
     ]
   );
 

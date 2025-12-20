@@ -13,6 +13,7 @@ interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'size'> 
   status?: AvatarStatus;
   rounded?: boolean;
   className?: string;
+  imgClassName?: string;
 }
 
 export function Avatar({
@@ -23,6 +24,7 @@ export function Avatar({
   status,
   rounded = true,
   className,
+  imgClassName,
   ...props
 }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
@@ -38,7 +40,7 @@ export function Avatar({
 
   const statusColors: Record<AvatarStatus, string> = {
     online: 'bg-apple-green',
-    offline: 'bg-content-quaternary',
+    offline: 'bg-apple-gray-400',
     busy: 'bg-apple-red',
     away: 'bg-apple-orange',
   };
@@ -61,10 +63,10 @@ export function Avatar({
         className={cn(
           sizes.container,
           rounded ? 'rounded-full' : 'rounded-[0.875rem]',
-          'overflow-hidden',
           'bg-surface-tertiary',
           'flex items-center justify-center',
-          'shadow-apple-sm'
+          'shadow-apple-sm',
+          !rounded && 'overflow-hidden'
         )}
       >
         {showFallback ? (
@@ -82,8 +84,8 @@ export function Avatar({
             src={src}
             alt={alt || name || 'Avatar'}
             onError={() => setImageError(true)}
-            className="w-full h-full object-cover"
-            {...props}
+            className={cn("w-full h-full object-cover", imgClassName)}
+            {...(props as any)}
           />
         )}
       </div>
@@ -94,7 +96,7 @@ export function Avatar({
             'absolute bottom-0 right-0',
             sizes.status,
             'rounded-full',
-            'border-surface-primary',
+            'border-2 border-surface-primary',
             statusColors[status]
           )}
         />

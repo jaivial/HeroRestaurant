@@ -38,7 +38,7 @@ export function Button({
             variant === 'primary',
 
           // Secondary - Subtle glass
-          'glass-subtle text-content-primary hover:bg-surface-tertiary':
+          'glass-subtle text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800':
             variant === 'secondary',
 
           // Danger - Solid red

@@ -7,19 +7,27 @@ import { z } from 'zod';
 export const WS_PROTOCOL_VERSION = '1.0.0';
 export const WS_HEARTBEAT_INTERVAL_MS = 30000;
 export const WS_HEARTBEAT_TIMEOUT_MS = 10000;
-export const WS_MAX_PAYLOAD_SIZE = 65536;
+export const WS_MAX_PAYLOAD_SIZE = 10 * 1024 * 1024; // 10MB
 
 // ============================================================================
 // Message Categories & Actions
 // ============================================================================
 
-export type WSMessageCategory =
-  | 'auth'
-  | 'user'
-  | 'restaurant'
-  | 'member'
-  | 'session'
-  | 'system';
+export const WS_MESSAGE_CATEGORIES = [
+  'auth',
+  'user',
+  'restaurant',
+  'member',
+  'role',
+  'session',
+  'menu',
+  'dish',
+  'section',
+  'settings',
+  'system',
+] as const;
+
+export type WSMessageCategory = (typeof WS_MESSAGE_CATEGORIES)[number];
 
 export type AuthAction =
   | 'register'
@@ -45,6 +53,12 @@ export type MemberAction =
   | 'invite'
   | 'update'
   | 'remove';
+
+export type RoleAction =
+  | 'list'
+  | 'create'
+  | 'update'
+  | 'delete';
 
 export type SystemAction = 'ping' | 'pong';
 
@@ -256,6 +270,38 @@ export interface MemberRemovePayload {
 }
 
 // ============================================================================
+// Role Request Payloads
+// ============================================================================
+
+export interface RoleListPayload {
+  restaurantId: string;
+}
+
+export interface RoleCreatePayload {
+  restaurantId: string;
+  name: string;
+  description?: string;
+  permissions: string; // bigint as string
+  displayOrder: number;
+  color?: string;
+}
+
+export interface RoleUpdatePayload {
+  restaurantId: string;
+  roleId: string;
+  name?: string;
+  description?: string;
+  permissions?: string; // bigint as string
+  displayOrder?: number;
+  color?: string;
+}
+
+export interface RoleDeletePayload {
+  restaurantId: string;
+  roleId: string;
+}
+
+// ============================================================================
 // Server Push Event Types
 // ============================================================================
 
@@ -299,12 +345,65 @@ export interface ConnectionData {
 // ============================================================================
 
 export const wsRequestSchema = z.object({
-  id: z.string().min(1),
+  id: z.string(),
   type: z.literal('request'),
-  category: z.enum(['auth', 'user', 'restaurant', 'member', 'session', 'system']),
-  action: z.string().min(1),
-  payload: z.unknown(),
-  timestamp: z.string(),
+  category: z.enum(WS_MESSAGE_CATEGORIES),
+  action: z.string(),
+  payload: z.any(),
+  timestamp: z.string().optional(),
+});
+
+// ============================================================================
+// Menu Creator Payloads
+// ============================================================================
+
+export const menuCreatePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  title: z.string().min(1),
+  type: z.enum(['fixed_price', 'open_menu']),
+  price: z.number().nullable().optional(),
+  drinkIncluded: z.boolean().optional(),
+  coffeeIncluded: z.boolean().optional(),
+  availability: z.record(z.array(z.string())).optional(),
+});
+
+export const menuUpdatePayloadSchema = z.object({
+  menuId: z.string().min(1),
+  title: z.string().min(1).optional(),
+  price: z.number().nullable().optional(),
+  isActive: z.boolean().optional(),
+  drinkIncluded: z.boolean().optional(),
+  coffeeIncluded: z.boolean().optional(),
+  availability: z.record(z.array(z.string())).optional(),
+});
+
+export const sectionCreatePayloadSchema = z.object({
+  menuId: z.string().min(1),
+  menuType: z.enum(['fixed', 'open']),
+  name: z.string().min(1),
+  displayOrder: z.number().optional(),
+});
+
+export const dishCreatePayloadSchema = z.object({
+  sectionId: z.string().min(1),
+  menuId: z.string().min(1),
+  menuType: z.enum(['fixed', 'open']),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  imageUrl: z.string().url().nullable().optional(),
+  showImage: z.boolean().optional(),
+  showDescription: z.boolean().optional(),
+  openModal: z.boolean().optional(),
+  hasSupplement: z.boolean().optional(),
+  supplementPrice: z.number().nullable().optional(),
+  allergens: z.array(z.string()),
+  displayOrder: z.number().optional(),
+});
+
+export const settingsUpdatePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  openingDays: z.array(z.string()).optional(),
+  mealSchedules: z.record(z.boolean()).optional(),
 });
 
 export const registerPayloadSchema = z.object({
@@ -383,6 +482,34 @@ export const memberRemovePayloadSchema = z.object({
   memberId: z.string().min(1),
 });
 
+export const roleListPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+});
+
+export const roleCreatePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  permissions: z.string(),
+  displayOrder: z.number().int().min(0),
+  color: z.string().optional(),
+});
+
+export const roleUpdatePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  roleId: z.string().min(1),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  permissions: z.string().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  color: z.string().optional(),
+});
+
+export const roleDeletePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  roleId: z.string().min(1),
+});
+
 export const pingPayloadSchema = z.object({
   clientTime: z.string(),
 });
@@ -422,6 +549,30 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'member.invite': memberInvitePayloadSchema,
   'member.update': memberUpdatePayloadSchema,
   'member.remove': memberRemovePayloadSchema,
+  'role.list': roleListPayloadSchema,
+  'role.create': roleCreatePayloadSchema,
+  'role.update': roleUpdatePayloadSchema,
+  'role.delete': roleDeletePayloadSchema,
+  // Menu Creator actions
+  'menu.create': menuCreatePayloadSchema,
+  'menu.list': z.object({ restaurantId: z.string().min(1) }),
+  'menu.get': z.object({ menuId: z.string().min(1) }),
+  'menu.update': menuUpdatePayloadSchema,
+  'menu.delete': z.object({ menuId: z.string().min(1) }),
+  'section.create': sectionCreatePayloadSchema,
+  'section.update': z.object({ sectionId: z.string().min(1), name: z.string().optional(), displayOrder: z.number().optional() }),
+  'section.delete': z.object({ sectionId: z.string().min(1) }),
+  'dish.create': dishCreatePayloadSchema,
+  'dish.update': z.object({ dishId: z.string().min(1) }).passthrough(),
+  'dish.delete': z.object({ dishId: z.string().min(1) }),
+  'dish.reorder': z.object({ dishes: z.array(z.object({ id: z.string(), displayOrder: z.number() })) }),
+  'dish.uploadImage': z.object({
+    image: z.string(), // Base64 string
+    fileName: z.string().optional().nullable(),
+    contentType: z.string().optional().nullable(),
+  }),
+  'settings.get': z.object({ restaurantId: z.string().min(1) }),
+  'settings.update': settingsUpdatePayloadSchema,
   'system.ping': pingPayloadSchema,
 };
 

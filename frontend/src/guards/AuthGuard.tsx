@@ -11,7 +11,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { authStatus, isAuthenticated, logout } = useAuth();
+  const { authStatus, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const setAuthStatus = useSetAtom(authStatusAtom);

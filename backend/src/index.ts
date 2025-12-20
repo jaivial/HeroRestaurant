@@ -7,6 +7,13 @@ import { connectionManager } from './websocket/state/connections';
 import { authRoutes } from './routes/auth.routes';
 import { userRoutes } from './routes/user.routes';
 import { restaurantRoutes } from './routes/restaurant.routes';
+import { uploadRoutes } from './routes/upload.routes';
+import { errorHandler } from './middleware/error.middleware';
+
+// Add global BigInt toJSON fix for JSON.stringify support
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 
 console.log('Starting HeroRestaurant Backend...');
 
@@ -14,6 +21,9 @@ console.log('Starting HeroRestaurant Backend...');
 await testConnection();
 
 const app = new Elysia()
+  .onError(({ error, code, set }) => {
+    return errorHandler({ error, code, set } as any);
+  })
   // CORS (needed for REST API and WebSocket upgrade)
   .use(cors({
     origin: env.CORS_ORIGIN,
@@ -33,6 +43,7 @@ const app = new Elysia()
   .use(authRoutes)
   .use(userRoutes)
   .use(restaurantRoutes)
+  .use(uploadRoutes)
 
   // WebSocket server (for real-time features after authentication)
   .use(createWebSocketServer())
@@ -65,8 +76,18 @@ console.log('  restaurant.delete - Delete restaurant');
 console.log('  member.list       - List members');
 console.log('  member.invite     - Invite member');
 console.log('  member.update     - Update member');
-console.log('  member.remove     - Remove member');
-console.log('  system.ping       - Heartbeat ping');
+  console.log('  member.remove     - Remove member');
+  console.log('  menu.create       - Create menu');
+  console.log('  menu.list         - List menus');
+  console.log('  menu.update       - Update menu');
+  console.log('  menu.delete       - Delete menu');
+  console.log('  section.create    - Create section');
+  console.log('  dish.create       - Create dish');
+  console.log('  dish.update       - Update dish');
+  console.log('  dish.delete       - Delete dish');
+  console.log('  settings.get      - Get settings');
+  console.log('  settings.update   - Update settings');
+  console.log('  system.ping       - Heartbeat ping');
 console.log('\nBackend ready\n');
 
 export type App = typeof app;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { themeAtom, toggleThemeAtom } from '@/atoms/themeAtoms';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,16 +11,29 @@ export function TopHeader() {
   const { user, logout } = useAuth();
   const isDark = theme === 'dark';
 
+  const glassClasses = isDark
+    ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10'
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-black/[0.05]';
+
+  const shadowClass = isDark
+    ? 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
+    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)]';
+
   return (
     <header
       className={cn(
         'h-16 flex items-center justify-between px-6',
-        'glass border-b border-content-quaternary/10'
+        'border-b transition-all duration-300',
+        glassClasses,
+        shadowClass
       )}
     >
       {/* Logo / Title */}
       <div className="flex items-center">
-        <h1 className="text-xl font-semibold text-content-primary">
+        <h1 className={cn(
+          'text-xl font-semibold',
+          isDark ? 'text-white' : 'text-black'
+        )}>
           HeroRestaurant
         </h1>
       </div>
@@ -30,10 +44,11 @@ export function TopHeader() {
         <button
           onClick={() => toggleTheme()}
           className={cn(
-            'p-2.5 rounded-full',
-            'text-content-secondary hover:text-content-primary',
-            'hover:bg-surface-tertiary',
-            'transition-all duration-200 ease-apple',
+            'p-2.5 rounded-[1rem]',
+            isDark 
+              ? 'text-white/60 hover:text-white hover:bg-white/10' 
+              : 'text-black/60 hover:text-black hover:bg-black/5',
+            'transition-all duration-200',
             'active:scale-95',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue'
           )}
@@ -80,10 +95,16 @@ export function TopHeader() {
             size="sm"
           />
           <div className="hidden md:block">
-            <p className="text-sm font-medium text-content-primary leading-tight">
+            <p className={cn(
+              'text-sm font-medium leading-tight',
+              isDark ? 'text-white' : 'text-black'
+            )}>
               {user?.name}
             </p>
-            <p className="text-xs text-content-tertiary">
+            <p className={cn(
+              'text-xs',
+              isDark ? 'text-white/40' : 'text-black/40'
+            )}>
               {user?.email}
             </p>
           </div>
@@ -94,12 +115,12 @@ export function TopHeader() {
           onClick={logout}
           className={cn(
             'ml-1 px-3 py-1.5',
-            'text-sm font-medium rounded-[0.5rem]',
-            'text-apple-red',
-            'hover:bg-apple-red/10',
-            'transition-colors duration-200 ease-apple',
+            'text-sm font-medium rounded-[1rem]',
+            'text-[#FF3B30]', // Apple Red
+            isDark ? 'hover:bg-[#FF3B30]/20' : 'hover:bg-[#FF3B30]/10',
+            'transition-colors duration-200',
             'active:scale-[0.98]',
-            'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-red'
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF3B30]'
           )}
         >
           Logout

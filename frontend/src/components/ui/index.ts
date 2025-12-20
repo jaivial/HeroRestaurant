@@ -2,6 +2,7 @@
 export { Button } from './Button/Button';
 export { Input } from './Input/Input';
 export { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card/Card';
+export { Container } from './Container';
 
 // Form Components
 export { Toggle } from './Toggle/Toggle';

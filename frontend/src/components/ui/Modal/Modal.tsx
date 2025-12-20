@@ -150,7 +150,7 @@ export function ModalFooter({ children, className }: ModalFooterProps) {
       className={cn(
         'flex items-center justify-end gap-3',
         'px-6 py-4 mt-2',
-        'border-t border-content-quaternary/10',
+        'border-t',
         '-mx-6 -mb-5',
         className
       )}

@@ -46,33 +46,33 @@ export function IconButton({
     }
   > = {
     default: {
-      default: 'bg-surface-tertiary text-content-primary hover:bg-surface-secondary',
+      default: 'bg-surface-tertiary text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800',
       ghost: 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary',
-      tinted: 'bg-content-quaternary/20 text-content-primary hover:bg-content-quaternary/30',
-      filled: 'bg-surface-tertiary text-content-primary hover:bg-surface-secondary',
+      tinted: 'bg-apple-gray-300/50 dark:bg-apple-gray-700/50 text-content-primary hover:bg-apple-gray-300 dark:hover:bg-apple-gray-700',
+      filled: 'bg-surface-tertiary text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800',
     },
     blue: {
-      default: 'bg-apple-blue/10 text-apple-blue hover:bg-apple-blue/20',
+      default: 'bg-apple-blue/15 text-apple-blue hover:bg-apple-blue/25',
       ghost: 'text-apple-blue hover:bg-apple-blue/10',
-      tinted: 'bg-apple-blue/15 text-apple-blue hover:bg-apple-blue/25',
+      tinted: 'bg-apple-blue/20 text-apple-blue hover:bg-apple-blue/30',
       filled: 'bg-apple-blue text-white hover:bg-apple-blue-hover',
     },
     green: {
-      default: 'bg-apple-green/10 text-apple-green hover:bg-apple-green/20',
+      default: 'bg-apple-green/15 text-apple-green hover:bg-apple-green/25',
       ghost: 'text-apple-green hover:bg-apple-green/10',
-      tinted: 'bg-apple-green/15 text-apple-green hover:bg-apple-green/25',
+      tinted: 'bg-apple-green/20 text-apple-green hover:bg-apple-green/30',
       filled: 'bg-apple-green text-white hover:bg-apple-green-hover',
     },
     red: {
-      default: 'bg-apple-red/10 text-apple-red hover:bg-apple-red/20',
+      default: 'bg-apple-red/15 text-apple-red hover:bg-apple-red/25',
       ghost: 'text-apple-red hover:bg-apple-red/10',
-      tinted: 'bg-apple-red/15 text-apple-red hover:bg-apple-red/25',
+      tinted: 'bg-apple-red/20 text-apple-red hover:bg-apple-red/30',
       filled: 'bg-apple-red text-white hover:bg-apple-red-hover',
     },
     orange: {
-      default: 'bg-apple-orange/10 text-apple-orange hover:bg-apple-orange/20',
+      default: 'bg-apple-orange/15 text-apple-orange hover:bg-apple-orange/25',
       ghost: 'text-apple-orange hover:bg-apple-orange/10',
-      tinted: 'bg-apple-orange/15 text-apple-orange hover:bg-apple-orange/25',
+      tinted: 'bg-apple-orange/20 text-apple-orange hover:bg-apple-orange/30',
       filled: 'bg-apple-orange text-white hover:bg-apple-orange/90',
     },
   };

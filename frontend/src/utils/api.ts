@@ -19,9 +19,11 @@ class ApiClient {
   ): Promise<T> {
     const { token, ...fetchOptions } = options;
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    const headers: Record<string, string> = {};
+
+    if (!(fetchOptions.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (options.headers) {
       Object.assign(headers, options.headers);
@@ -60,7 +62,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
   }
 

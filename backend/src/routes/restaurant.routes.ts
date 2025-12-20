@@ -174,7 +174,7 @@ export const restaurantRoutes = new Elysia({ prefix: '/restaurants' })
       throw Errors.FORBIDDEN;
     }
 
-    const member = await MembershipService.updateMember(params.id, params.memberId, body);
+    const member = await MembershipService.updateMember(params.id, params.memberId, body, currentUserId);
     return {
       success: true,
       data: { member },
@@ -201,7 +201,7 @@ export const restaurantRoutes = new Elysia({ prefix: '/restaurants' })
       throw Errors.FORBIDDEN;
     }
 
-    await MembershipService.removeMember(params.id, params.memberId);
+    await MembershipService.removeMember(params.id, params.memberId, currentUserId);
     return {
       success: true,
       data: { message: 'Member removed successfully' },

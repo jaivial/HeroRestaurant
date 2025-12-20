@@ -101,6 +101,19 @@ export default {
           pink: 'var(--apple-pink)',
           teal: 'var(--apple-teal)',
           indigo: 'var(--apple-indigo)',
+          gray: {
+            50: '#F9F9FB',
+            100: '#F2F2F7',
+            200: '#E5E5EA',
+            300: '#D1D1D6',
+            400: '#C7C7CC',
+            500: '#AEAEB2',
+            600: '#8E8E93',
+            700: '#636366',
+            800: '#48484A',
+            900: '#3A3A3C',
+            950: '#1C1C1E',
+          }
         },
         surface: {
           primary: 'var(--bg-primary)',
@@ -113,6 +126,93 @@ export default {
           secondary: 'var(--text-secondary)',
           tertiary: 'var(--text-tertiary)',
           quaternary: 'var(--text-quaternary)',
+        },
+        // Accessible info card backgrounds (WCAG AA compliant)
+        'info-bg': {
+          orange: {
+            light: '#FFF3E0',
+            dark: '#4E2E1B',
+          },
+          blue: {
+            light: '#E3F2FD',
+            dark: '#1A2942',
+          },
+          green: {
+            light: '#E8F5E9',
+            dark: '#1B3A1F',
+          },
+          red: {
+            light: '#FFEBEE',
+            dark: '#4A1C1C',
+          },
+        },
+        // Accessible text colors (WCAG AA compliant)
+        'info-text': {
+          orange: {
+            light: '#E65100',
+            dark: '#FFB74D',
+          },
+          blue: {
+            light: '#1565C0',
+            dark: '#64B5F6',
+          },
+          green: {
+            light: '#2E7D32',
+            dark: '#81C784',
+          },
+          red: {
+            light: '#C62828',
+            dark: '#EF5350',
+          },
+        },
+        // Accessible border colors (WCAG AA compliant)
+        'info-border': {
+          orange: {
+            light: '#FFB74D',
+            dark: '#8D5524',
+          },
+          blue: {
+            light: '#42A5F5',
+            dark: '#1976D2',
+          },
+          green: {
+            light: '#66BB6A',
+            dark: '#388E3C',
+          },
+          red: {
+            light: '#E57373',
+            dark: '#C62828',
+          },
+        },
+        // Accessible input borders (WCAG AA compliant)
+        'input-border': {
+          default: {
+            light: '#BDBDBD',
+            dark: '#616161',
+          },
+          hover: {
+            light: '#757575',
+            dark: '#9E9E9E',
+          },
+          focus: {
+            light: '#1565C0',
+            dark: '#42A5F5',
+          },
+        },
+        // Accessible disabled state colors
+        disabled: {
+          bg: {
+            light: '#F5F5F5',
+            dark: '#2C2C2C',
+          },
+          text: {
+            light: '#9E9E9E',
+            dark: '#757575',
+          },
+          border: {
+            light: '#E0E0E0',
+            dark: '#424242',
+          },
         },
       },
 

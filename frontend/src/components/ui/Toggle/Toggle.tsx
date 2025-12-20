@@ -1,16 +1,21 @@
+import { Switch } from '@headlessui/react';
 import { forwardRef } from 'react';
-import type { InputHTMLAttributes } from 'react';
 import { cn } from '../../../utils/cn';
 
-interface ToggleProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
+interface ToggleProps {
   label?: string;
   description?: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  name?: string;
+  id?: string;
 }
 
-export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
-  ({ label, description, size = 'md', className, disabled, checked, ...props }, ref) => {
+export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
+  ({ label, description, size = 'md', className, disabled, checked, onChange, name, id }, ref) => {
     const sizes = {
       sm: {
         track: 'w-9 h-5',
@@ -32,46 +37,34 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
     const currentSize = sizes[size];
 
     return (
-      <label
-        className={cn(
-          'inline-flex items-start gap-3 cursor-pointer',
-          disabled && 'cursor-not-allowed opacity-50',
-          className
-        )}
-      >
-        <div className="relative flex-shrink-0">
-          <input
-            ref={ref}
-            type="checkbox"
-            className="sr-only peer"
-            disabled={disabled}
-            checked={checked}
-            {...props}
-          />
-
-          {/* Track */}
-          <div
-            className={cn(
-              currentSize.track,
-              'rounded-full',
-              'bg-content-quaternary/30',
-              'transition-colors duration-250 ease-apple',
-              'peer-checked:bg-apple-green',
-              'peer-focus-visible:ring-2 peer-focus-visible:ring-apple-blue peer-focus-visible:ring-offset-2'
-            )}
-          />
-
-          {/* Thumb */}
-          <div
+      <div className={cn('inline-flex items-start gap-3', className)}>
+        <Switch
+          ref={ref}
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          name={name}
+          id={id}
+          className={cn(
+            currentSize.track,
+            'relative inline-flex items-center rounded-full border-2 transition-colors duration-250 ease-apple focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue focus-visible:ring-offset-2',
+            checked
+              ? 'bg-black dark:bg-apple-green border-black dark:border-apple-green-hover shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]'
+              : 'bg-apple-gray-300 dark:bg-apple-gray-800 border-apple-gray-500 dark:border-apple-gray-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]',
+            disabled && 'cursor-not-allowed opacity-50',
+            !disabled && 'cursor-pointer'
+          )}
+        >
+          <span className="sr-only">{label}</span>
+          <span
+            aria-hidden="true"
             className={cn(
               currentSize.thumb,
-              'absolute top-[2px] left-[2px]',
-              'bg-white rounded-full shadow-apple-md',
-              'transition-transform duration-250 ease-apple-spring',
-              `peer-checked:${currentSize.translate}`
+              'inline-block transform rounded-full bg-white shadow-apple-md transition duration-250 ease-apple-spring',
+              checked ? currentSize.translate : 'translate-x-[2px]'
             )}
           />
-        </div>
+        </Switch>
 
         {(label || description) && (
           <div className="flex flex-col">
@@ -87,7 +80,7 @@ export const Toggle = forwardRef<HTMLInputElement, ToggleProps>(
             )}
           </div>
         )}
-      </label>
+      </div>
     );
   }
 );

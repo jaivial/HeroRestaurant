@@ -34,3 +34,51 @@
 {"level":30,"time":"2025-12-19T10:37:32.702Z","pid":523119,"hostname":"jaime","msg":"MCP Server setup complete. Waiting for requests from client..."}
 {"level":30,"time":"2025-12-19T10:37:32.702Z","pid":523119,"hostname":"jaime","msg":"MCP Server started and listening."}
 {"level":30,"time":"2025-12-19T10:37:32.702Z","pid":523119,"hostname":"jaime","msg":"Application setup complete. Running..."}
+{"level":30,"time":"2025-12-20T00:29:21.807Z","pid":10650,"hostname":"jaime","msg":"Starting WhatsApp MCP Server..."}
+{"level":30,"time":"2025-12-20T00:29:21.807Z","pid":10650,"hostname":"jaime","msg":"Initializing database..."}
+{"level":30,"time":"2025-12-20T00:29:21.817Z","pid":10650,"hostname":"jaime","msg":"Database initialized successfully."}
+{"level":30,"time":"2025-12-20T00:29:21.817Z","pid":10650,"hostname":"jaime","msg":"Attempting to connect to WhatsApp..."}
+{"level":30,"time":"2025-12-20T00:29:21.977Z","pid":10650,"hostname":"jaime","msg":"WhatsApp connection process initiated."}
+{"level":30,"time":"2025-12-20T00:29:21.977Z","pid":10650,"hostname":"jaime","msg":"Starting MCP server..."}
+{"level":30,"time":"2025-12-20T00:29:21.978Z","pid":10650,"hostname":"jaime","msg":"Initializing MCP server..."}
+{"level":30,"time":"2025-12-20T00:29:21.980Z","pid":10650,"hostname":"jaime","msg":"MCP server configured. Connecting stdio transport..."}
+{"level":30,"time":"2025-12-20T00:29:21.980Z","pid":10650,"hostname":"jaime","msg":"MCP transport connected. Server is ready and listening via stdio."}
+{"level":30,"time":"2025-12-20T00:29:21.980Z","pid":10650,"hostname":"jaime","msg":"MCP Server setup complete. Waiting for requests from client..."}
+{"level":30,"time":"2025-12-20T00:29:21.980Z","pid":10650,"hostname":"jaime","msg":"MCP Server started and listening."}
+{"level":30,"time":"2025-12-20T00:29:21.980Z","pid":10650,"hostname":"jaime","msg":"Application setup complete. Running..."}
+{"level":30,"time":"2025-12-20T01:00:42.769Z","pid":160681,"hostname":"jaime","msg":"Starting WhatsApp MCP Server..."}
+{"level":30,"time":"2025-12-20T01:00:42.770Z","pid":160681,"hostname":"jaime","msg":"Initializing database..."}
+{"level":30,"time":"2025-12-20T01:00:42.771Z","pid":160681,"hostname":"jaime","msg":"Database initialized successfully."}
+{"level":30,"time":"2025-12-20T01:00:42.771Z","pid":160681,"hostname":"jaime","msg":"Attempting to connect to WhatsApp..."}
+{"level":30,"time":"2025-12-20T01:00:42.933Z","pid":160681,"hostname":"jaime","msg":"WhatsApp connection process initiated."}
+{"level":30,"time":"2025-12-20T01:00:42.934Z","pid":160681,"hostname":"jaime","msg":"Starting MCP server..."}
+{"level":30,"time":"2025-12-20T01:00:42.934Z","pid":160681,"hostname":"jaime","msg":"Initializing MCP server..."}
+{"level":30,"time":"2025-12-20T01:00:42.936Z","pid":160681,"hostname":"jaime","msg":"MCP server configured. Connecting stdio transport..."}
+{"level":30,"time":"2025-12-20T01:00:42.936Z","pid":160681,"hostname":"jaime","msg":"MCP transport connected. Server is ready and listening via stdio."}
+{"level":30,"time":"2025-12-20T01:00:42.936Z","pid":160681,"hostname":"jaime","msg":"MCP Server setup complete. Waiting for requests from client..."}
+{"level":30,"time":"2025-12-20T01:00:42.936Z","pid":160681,"hostname":"jaime","msg":"MCP Server started and listening."}
+{"level":30,"time":"2025-12-20T01:00:42.936Z","pid":160681,"hostname":"jaime","msg":"Application setup complete. Running..."}
+{"level":30,"time":"2025-12-20T01:12:23.405Z","pid":213353,"hostname":"jaime","msg":"Starting WhatsApp MCP Server..."}
+{"level":30,"time":"2025-12-20T01:12:23.405Z","pid":213353,"hostname":"jaime","msg":"Initializing database..."}
+{"level":30,"time":"2025-12-20T01:12:23.406Z","pid":213353,"hostname":"jaime","msg":"Database initialized successfully."}
+{"level":30,"time":"2025-12-20T01:12:23.406Z","pid":213353,"hostname":"jaime","msg":"Attempting to connect to WhatsApp..."}
+{"level":30,"time":"2025-12-20T01:12:23.552Z","pid":213353,"hostname":"jaime","msg":"WhatsApp connection process initiated."}
+{"level":30,"time":"2025-12-20T01:12:23.552Z","pid":213353,"hostname":"jaime","msg":"Starting MCP server..."}
+{"level":30,"time":"2025-12-20T01:12:23.553Z","pid":213353,"hostname":"jaime","msg":"Initializing MCP server..."}
+{"level":30,"time":"2025-12-20T01:12:23.555Z","pid":213353,"hostname":"jaime","msg":"MCP server configured. Connecting stdio transport..."}
+{"level":30,"time":"2025-12-20T01:12:23.555Z","pid":213353,"hostname":"jaime","msg":"MCP transport connected. Server is ready and listening via stdio."}
+{"level":30,"time":"2025-12-20T01:12:23.555Z","pid":213353,"hostname":"jaime","msg":"MCP Server setup complete. Waiting for requests from client..."}
+{"level":30,"time":"2025-12-20T01:12:23.555Z","pid":213353,"hostname":"jaime","msg":"MCP Server started and listening."}
+{"level":30,"time":"2025-12-20T01:12:23.555Z","pid":213353,"hostname":"jaime","msg":"Application setup complete. Running..."}
+{"level":30,"time":"2025-12-20T01:13:22.133Z","pid":217952,"hostname":"jaime","msg":"Starting WhatsApp MCP Server..."}
+{"level":30,"time":"2025-12-20T01:13:22.133Z","pid":217952,"hostname":"jaime","msg":"Initializing database..."}
+{"level":30,"time":"2025-12-20T01:13:22.134Z","pid":217952,"hostname":"jaime","msg":"Database initialized successfully."}
+{"level":30,"time":"2025-12-20T01:13:22.134Z","pid":217952,"hostname":"jaime","msg":"Attempting to connect to WhatsApp..."}
+{"level":30,"time":"2025-12-20T01:13:22.281Z","pid":217952,"hostname":"jaime","msg":"WhatsApp connection process initiated."}
+{"level":30,"time":"2025-12-20T01:13:22.281Z","pid":217952,"hostname":"jaime","msg":"Starting MCP server..."}
+{"level":30,"time":"2025-12-20T01:13:22.281Z","pid":217952,"hostname":"jaime","msg":"Initializing MCP server..."}
+{"level":30,"time":"2025-12-20T01:13:22.284Z","pid":217952,"hostname":"jaime","msg":"MCP server configured. Connecting stdio transport..."}
+{"level":30,"time":"2025-12-20T01:13:22.284Z","pid":217952,"hostname":"jaime","msg":"MCP transport connected. Server is ready and listening via stdio."}
+{"level":30,"time":"2025-12-20T01:13:22.284Z","pid":217952,"hostname":"jaime","msg":"MCP Server setup complete. Waiting for requests from client..."}
+{"level":30,"time":"2025-12-20T01:13:22.284Z","pid":217952,"hostname":"jaime","msg":"MCP Server started and listening."}
+{"level":30,"time":"2025-12-20T01:13:22.284Z","pid":217952,"hostname":"jaime","msg":"Application setup complete. Running..."}

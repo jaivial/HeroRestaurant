@@ -177,7 +177,7 @@ class WebSocketClient {
         const message = JSON.parse(event.data);
         this.handleMessage(message);
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+        console.error('Failed to parse WebSocket message:', error, event.data);
       }
     };
   }
@@ -330,6 +330,7 @@ class WebSocketClient {
   // ============================================================================
 
   private handleMessage(message: WSResponse | WSEvent<unknown>): void {
+    console.log('[WS DEBUG] handleMessage:', message);
     // Handle response correlation
     if (message.type === 'response' || message.type === 'error') {
       const response = message as WSResponse;

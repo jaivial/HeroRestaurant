@@ -7,7 +7,12 @@ export type WSMessageCategory =
   | 'user'
   | 'restaurant'
   | 'member'
+  | 'role'
   | 'session'
+  | 'menu'
+  | 'dish'
+  | 'section'
+  | 'settings'
   | 'system';
 
 // ============================================================================

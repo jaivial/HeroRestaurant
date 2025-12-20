@@ -69,7 +69,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
       description: 'Root role with maximum permissions. Full system access.',
       permissions: MAX_PERMISSIONS,
       is_system_role: false,
-      display_order: 0, // Highest priority (lowest number = highest priority)
+      display_order: 100, // Highest priority
       color: '#DC2626', // Red for root
       deleted_at: null,
     })

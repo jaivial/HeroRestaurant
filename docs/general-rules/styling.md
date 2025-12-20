@@ -28,85 +28,116 @@ This document defines the styling rules for the HeroRestaurant SaaS application.
 
 ## Liquid Glass Effect
 
-### Light Mode
+Instead of global CSS classes, use inline Tailwind with arbitrary values and conditional logic based on the current theme.
 
-```css
-.glass-light {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 2.2rem;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-}
-```
+### Implementation Pattern
 
-### Dark Mode
+```tsx
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 
-```css
-.glass-dark {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 2.2rem;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -2px rgba(0, 0, 0, 0.2);
+export function GlassComponent() {
+  const theme = useAtomValue(themeAtom);
+  
+  const glassClasses = theme === 'dark'
+    ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border border-white/[0.18] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
+
+  return (
+    <div className={`${glassClasses} rounded-[2.2rem]`}>
+      {/* Content */}
+    </div>
+  );
 }
 ```
 
 ### Glass Intensity Variants
 
-| Variant | Light BG Opacity | Dark BG Opacity | Use Case |
+Since we don't use global config, we apply opacity values directly:
+
+| Variant | Light Mode Class | Dark Mode Class | Use Case |
 |---------|------------------|-----------------|----------|
-| `glass-subtle` | 0.5 | 0.3 | Overlays, tooltips |
-| `glass` | 0.72 | 0.5 | Cards, panels |
-| `glass-solid` | 0.9 | 0.75 | Modals, dialogs |
+| `subtle` | `bg-white/50` | `bg-black/30` | Overlays, tooltips |
+| `default` | `bg-white/72` | `bg-black/50` | Cards, panels |
+| `solid` | `bg-white/90` | `bg-black/75` | Modals, dialogs |
 
 ---
 
 ## Responsive Breakpoints
 
-### Width Breakpoints (10 levels: 280px → 3000px)
+We use Tailwind's arbitrary value support for our custom 10-level breakpoint system to avoid global configuration.
 
-| Token | Min-Width | Target Devices |
-|-------|-----------|----------------|
-| `xs` | 280px | Very small mobile (Galaxy Fold) |
-| `sm` | 360px | Small mobile (iPhone SE, small Android) |
-| `md` | 480px | Large mobile / phablet |
-| `lg` | 640px | Small tablet (portrait) |
-| `xl` | 768px | Tablet (iPad Mini, standard tablets) |
-| `2xl` | 1024px | Small desktop / large tablet (iPad Pro) |
-| `3xl` | 1280px | Desktop (standard laptops) |
-| `4xl` | 1536px | Large desktop (external monitors) |
-| `5xl` | 2048px | 2K displays |
-| `6xl` | 3000px | Ultra-wide / 4K displays |
+### Width Breakpoints
 
-### Height Breakpoints (10 levels: 490px → 2000px)
+Use the `min-[width]:` prefix:
 
-| Token | Min-Height | Target Viewports |
-|-------|------------|------------------|
-| `h-xs` | 490px | Landscape mobile |
-| `h-sm` | 600px | Short viewport / split screen |
-| `h-md` | 700px | Medium-short |
-| `h-lg` | 800px | Medium |
-| `h-xl` | 900px | Medium-tall |
-| `h-2xl` | 1024px | Tall (standard desktop) |
-| `h-3xl` | 1200px | Very tall |
-| `h-4xl` | 1440px | Extra tall (QHD) |
-| `h-5xl` | 1800px | Ultra tall |
-| `h-6xl` | 2000px | Maximum (4K portrait) |
+| Token | Arbitrary Value | Target Devices |
+|-------|-----------------|----------------|
+| `xxs` | `min-[200px]:` | Smartwatches / ultra-narrow |
+| `xs` | `min-[280px]:` | Very small mobile |
+| `sm` | `min-[360px]:` | Small mobile |
+| `md` | `min-[480px]:` | Large mobile |
+| `lg` | `min-[640px]:` | Small tablet |
+| `xl` | `min-[768px]:` | Tablet |
+| `2xl` | `min-[1024px]:` | Large tablet |
+| `3xl` | `min-[1280px]:` | Desktop |
+| `4xl` | `min-[1536px]:` | Large desktop |
+| `5xl` | `min-[2048px]:` | 2K displays |
+| `6xl` | `min-[3000px]:` | 4K displays |
+
+### Height Breakpoints
+
+Use the `[@media(min-height:value)]:` syntax:
+
+| Token | Arbitrary Value | Target Viewports |
+|-------|-----------------|------------------|
+| `h-xs` | `[@media(min-height:490px)]:` | Landscape mobile |
+| `h-sm` | `[@media(min-height:600px)]:` | Short viewport |
+| `h-md` | `[@media(min-height:700px)]:` | Medium-short |
+| `h-lg` | `[@media(min-height:800px)]:` | Medium |
+| `h-xl` | `[@media(min-height:900px)]:` | Medium-tall |
+| `h-2xl` | `[@media(min-height:1024px)]:` | Tall (standard) |
+| `h-3xl` | `[@media(min-height:1200px)]:` | Very tall |
+| `h-4xl` | `[@media(min-height:1440px)]:` | Extra tall |
+| `h-5xl` | `[@media(min-height:1800px)]:` | Ultra tall |
+| `h-6xl` | `[@media(min-height:2000px)]:` | Maximum |
+
+---
+
+## Accessibility & Readability (WCAG)
+
+We adhere to WCAG 2.1 Level AA standards to ensure the application is usable by everyone.
+
+### Color Contrast
+
+All text and interactive elements must meet minimum contrast ratios:
+- **Normal Text:** At least `4.5:1` against its background.
+- **Large Text (18pt/24px+):** At least `3:1` against its background.
+- **UI Components & Icons:** At least `3:1` against adjacent colors.
+
+**Implementation Tip:** When using glass effects, ensure the underlying background doesn't vibrate or obscure text. Use `bg-white/90` or `bg-black/75` (solid variant) if contrast is at risk.
+
+### Typography & Readability
+
+1. **Font Size:** Minimum `14px` (`0.875rem`) for body text. Prefer `16px` (`1rem`) where possible.
+2. **Line Height:** Minimum `1.5` for body text to ensure vertical readability.
+3. **Paragraph Spacing:** Use `mb-4` or `space-y-4` to clearly separate blocks of text.
+4. **Line Length:** Maintain between `45-75 characters` per line for optimal scanning. Use `max-w-prose` or specific `max-w-[ch]` values.
+5. **Text Alignment:** Avoid justified text; use left-aligned (or right-aligned for RTL) to maintain consistent word spacing.
+
+### Interactive Elements
+
+1. **Touch Targets:** Minimum `44x44px` for all clickable elements on mobile.
+2. **Focus States:** Every interactive element must have a visible focus state. Do not use `outline-none` without providing a high-contrast alternative.
+3. **Labels:** Every input must have a programmatically associated `<label>` or `aria-label`.
 
 ---
 
 ## Theme Management (Jotai Atoms)
 
-**Do NOT use** native HTML theme detection (`prefers-color-scheme`, `<html data-theme>`, or media queries for theme). These approaches cause hydration mismatches, flash of wrong theme (FOWT), and are difficult to sync with user preferences.
+**Do NOT use** Tailwind's native dark mode (`dark:` prefix) or native HTML theme detection. These are restricted to ensure consistent behavior with our state management.
 
-**Use Jotai atoms exclusively** for theme state management.
+**Use Jotai atoms exclusively** for conditional styling.
 
 ### Theme Atom Setup
 
@@ -120,265 +151,47 @@ export type Theme = 'light' | 'dark';
 // Persisted theme preference (localStorage)
 export const themeAtom = atomWithStorage<Theme>('theme', 'light');
 
-// Derived atom that applies theme class to document
-export const themeEffectAtom = atom(
-  (get) => get(themeAtom),
-  (get, set, newTheme: Theme) => {
-    set(themeAtom, newTheme);
-
-    // Apply theme class to <html> element
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
-);
-
 // Toggle atom for theme switch
 export const toggleThemeAtom = atom(
   null,
   (get, set) => {
     const current = get(themeAtom);
-    set(themeEffectAtom, current === 'light' ? 'dark' : 'light');
+    set(themeAtom, current === 'light' ? 'dark' : 'light');
   }
 );
 ```
 
-### Theme Initialization
+### Conditional Styling Pattern
+
+Instead of `dark:`, use the `theme` value to conditionally apply classes:
 
 ```tsx
-// App.tsx or main.tsx
-import { useAtom } from 'jotai';
-import { themeEffectAtom } from '@/atoms/themeAtoms';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 
-function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme] = useAtom(themeEffectAtom);
-
-  // Apply theme on mount and changes
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
-
-  return <>{children}</>;
-}
-```
-
-### Theme Toggle Component
-
-```tsx
-// components/ui/ThemeToggle/ThemeToggle.tsx
-import { useAtom } from 'jotai';
-import { themeAtom, toggleThemeAtom } from '@/atoms/themeAtoms';
-
-export function ThemeToggle() {
-  const [theme] = useAtom(themeAtom);
-  const [, toggle] = useAtom(toggleThemeAtom);
+export function MyComponent() {
+  const theme = useAtomValue(themeAtom);
 
   return (
-    <button onClick={toggle} className="glass-button">
-      {theme === 'light' ? '🌙' : '☀️'}
-    </button>
+    <div className={`
+      p-4 rounded-[1rem] transition-colors duration-200
+      ${theme === 'dark' ? 'bg-black text-white border-white/10' : 'bg-white text-black border-black/10'}
+      border
+    `}>
+      Content
+    </div>
   );
 }
 ```
 
-### Why NOT Native Theme Detection
+### Why We Avoid Native Dark Mode
 
-| Problem | Native Approach | Jotai Approach |
-|---------|-----------------|----------------|
-| Hydration mismatch | Server doesn't know client preference | State is consistent |
-| Flash of wrong theme | Renders before JS loads | Theme applied before render |
-| User preference sync | Complex to override system | Simple atom update |
-| SSR compatibility | Requires workarounds | Works seamlessly |
-| React integration | Requires useEffect hacks | Native hook usage |
-
----
-
-## Tailwind CSS Configuration
-
-```javascript
-// tailwind.config.js
-export default {
-  darkMode: 'class',  // Required for Jotai theme control
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
-  ],
-  theme: {
-    // Override default screens with our 10 breakpoints
-    screens: {
-      'xs': '280px',
-      'sm': '360px',
-      'md': '480px',
-      'lg': '640px',
-      'xl': '768px',
-      '2xl': '1024px',
-      '3xl': '1280px',
-      '4xl': '1536px',
-      '5xl': '2048px',
-      '6xl': '3000px',
-      // Height breakpoints (raw media queries)
-      'h-xs': { 'raw': '(min-height: 490px)' },
-      'h-sm': { 'raw': '(min-height: 600px)' },
-      'h-md': { 'raw': '(min-height: 700px)' },
-      'h-lg': { 'raw': '(min-height: 800px)' },
-      'h-xl': { 'raw': '(min-height: 900px)' },
-      'h-2xl': { 'raw': '(min-height: 1024px)' },
-      'h-3xl': { 'raw': '(min-height: 1200px)' },
-      'h-4xl': { 'raw': '(min-height: 1440px)' },
-      'h-5xl': { 'raw': '(min-height: 1800px)' },
-      'h-6xl': { 'raw': '(min-height: 2000px)' },
-    },
-    // Override border radius with Apple-style values
-    borderRadius: {
-      'none': '0',
-      'sm': '0.5rem',
-      'md': '1rem',
-      'lg': '1.5rem',
-      'xl': '2.2rem',
-      '2xl': '3rem',
-      'full': '9999px',
-    },
-    extend: {
-      // Glass effect utilities
-      backdropBlur: {
-        'glass': '20px',
-      },
-      backdropSaturate: {
-        'glass': '180%',
-      },
-      // Apple-inspired shadows
-      boxShadow: {
-        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-        'glass-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2)',
-        'glass-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-      },
-      // Apple system font stack
-      fontFamily: {
-        'system': [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"Segoe UI"',
-          'Roboto',
-          '"Helvetica Neue"',
-          'Arial',
-          'sans-serif',
-        ],
-      },
-    },
-  },
-  plugins: [],
-}
-```
-
----
-
-## CSS Custom Properties
-
-Add these to your global CSS file for additional flexibility:
-
-```css
-/* globals.css */
-:root {
-  /* Border Radius Scale */
-  --radius-none: 0;
-  --radius-sm: 0.5rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --radius-xl: 2.2rem;
-  --radius-2xl: 3rem;
-  --radius-full: 9999px;
-
-  /* Glass Effect Properties */
-  --glass-blur: 20px;
-  --glass-saturation: 180%;
-
-  /* Light Mode Glass */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.5);
-  --glass-bg-solid: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.dark {
-  /* Dark Mode Glass */
-  --glass-bg: rgba(0, 0, 0, 0.5);
-  --glass-bg-subtle: rgba(0, 0, 0, 0.3);
-  --glass-bg-solid: rgba(0, 0, 0, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
-```
-
----
-
-## Utility Classes
-
-### Glass Component Classes
-
-```css
-/* Base glass effect */
-.glass {
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
-}
-
-/* Glass variants */
-.glass-subtle {
-  background: var(--glass-bg-subtle);
-}
-
-.glass-solid {
-  background: var(--glass-bg-solid);
-}
-
-/* Glass with smaller radius */
-.glass-sm {
-  border-radius: var(--radius-md);
-}
-```
-
-### Tailwind @apply Utilities
-
-```css
-/* Use in your component styles */
-@layer components {
-  .glass-card {
-    @apply backdrop-blur-glass backdrop-saturate-glass
-           bg-white/70 dark:bg-black/50
-           border border-white/20 dark:border-white/10
-           rounded-xl shadow-glass dark:shadow-glass-dark;
-  }
-
-  .glass-button {
-    @apply backdrop-blur-glass backdrop-saturate-glass
-           bg-white/60 dark:bg-black/40
-           border border-white/20 dark:border-white/10
-           rounded-lg px-4 py-2
-           hover:bg-white/80 dark:hover:bg-black/60
-           transition-colors duration-200;
-  }
-
-  .glass-input {
-    @apply backdrop-blur-glass backdrop-saturate-glass
-           bg-white/50 dark:bg-black/30
-           border border-white/20 dark:border-white/10
-           rounded-lg px-4 py-2
-           focus:outline-none focus:ring-2 focus:ring-white/30
-           placeholder:text-gray-500 dark:placeholder:text-gray-400;
-  }
-}
-```
+| Problem | Native `dark:` | Our State-Based Approach |
+|---------|-----------------|--------------------------|
+| Synchronization | Difficult to sync with JS state | Perfectly synchronized with Jotai |
+| Dynamic Control | Limited to CSS class on `<html>` | Full control within React components |
+| Complexity | Requires Tailwind config | Pure inline Tailwind |
+| Flash of Theme | Harder to prevent without SSR | Managed via persistence in Jotai |
 
 ---
 
@@ -387,6 +200,9 @@ Add these to your global CSS file for additional flexibility:
 ### GlassCard Component
 
 ```tsx
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
+
 interface GlassCardProps {
   children: React.ReactNode;
   variant?: 'default' | 'subtle' | 'solid';
@@ -398,19 +214,26 @@ export function GlassCard({
   variant = 'default',
   className = ''
 }: GlassCardProps) {
+  const theme = useAtomValue(themeAtom);
+
   const variantClasses = {
-    default: 'bg-white/70 dark:bg-black/50',
-    subtle: 'bg-white/50 dark:bg-black/30',
-    solid: 'bg-white/90 dark:bg-black/75',
+    default: theme === 'dark' ? 'bg-black/50' : 'bg-white/72',
+    subtle: theme === 'dark' ? 'bg-black/30' : 'bg-white/50',
+    solid: theme === 'dark' ? 'bg-black/75' : 'bg-white/90',
   };
+
+  const borderClass = theme === 'dark' ? 'border-white/10' : 'border-white/[0.18]';
+  const shadowClass = theme === 'dark' 
+    ? 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
+    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
 
   return (
     <div
       className={`
-        backdrop-blur-glass backdrop-saturate-glass
+        backdrop-blur-[20px] saturate-[180%]
         ${variantClasses[variant]}
-        border border-white/20 dark:border-white/10
-        rounded-xl shadow-glass dark:shadow-glass-dark
+        border ${borderClass}
+        rounded-[2.2rem] ${shadowClass}
         ${className}
       `}
     >
@@ -422,21 +245,24 @@ export function GlassCard({
 
 ### Responsive Container Example
 
+Using arbitrary breakpoints to maintain the 11-level system (200px to 3000px) without global configuration:
+
 ```tsx
 export function ResponsiveContainer({ children }: { children: React.ReactNode }) {
   return (
     <div className="
       w-full px-4
-      xs:px-4
-      sm:px-6
-      md:px-8
-      lg:max-w-2xl lg:mx-auto
-      xl:max-w-3xl
-      2xl:max-w-4xl
-      3xl:max-w-5xl
-      4xl:max-w-6xl
-      5xl:max-w-7xl
-      6xl:max-w-[1800px]
+      min-[200px]:px-2
+      min-[280px]:px-4
+      min-[360px]:px-6
+      min-[480px]:px-8
+      min-[640px]:max-w-2xl min-[640px]:mx-auto
+      min-[768px]:max-w-3xl
+      min-[1024px]:max-w-4xl
+      min-[1280px]:max-w-5xl
+      min-[1536px]:max-w-6xl
+      min-[2048px]:max-w-7xl
+      min-[3000px]:max-w-[1800px]
     ">
       {children}
     </div>
@@ -450,19 +276,19 @@ export function ResponsiveContainer({ children }: { children: React.ReactNode })
 
 ### Do's
 
-- Use `rounded-xl` (2.2rem) for primary containers (cards, modals, panels)
-- Use `rounded-lg` (1.5rem) for secondary elements (buttons, inputs)
-- Always include `-webkit-backdrop-filter` for Safari support
-- Test glass effects on various background colors/images
-- Use height breakpoints for critical above-fold content
+- Use `rounded-[2.2rem]` for primary containers (cards, modals, panels)
+- Use `rounded-[1rem]` for secondary elements (buttons, inputs)
+- Use `useAtomValue(themeAtom)` to get the current theme for conditional styling
+- Prefer arbitrary Tailwind values `[...]` for project-specific design tokens
+- Use height media queries `[@media(min-height:800px)]:` for tall-viewport specific layouts
 
 ### Don'ts
 
-- Don't use glass effects on solid color backgrounds (no visual benefit)
+- **Don't use `dark:` utilities.** Use conditional expressions `theme === 'dark' ? ... : ...`
+- Don't use global CSS classes for glass effects or layouts
+- Don't define custom themes or tokens in `tailwind.config.js`
+- Don't use `prefers-color-scheme` or `<html data-theme>` for theming
 - Don't nest multiple glass layers (performance impact)
-- Don't use glass blur values above 30px (diminishing returns)
-- Don't forget dark mode variants for all glass elements
-- Don't use `prefers-color-scheme` or `<html data-theme>` for theming — use Jotai atoms
 
 ---
 
@@ -472,20 +298,12 @@ export function ResponsiveContainer({ children }: { children: React.ReactNode })
 |---------|--------|---------|--------|------|
 | `backdrop-filter` | 76+ | 103+ | 9+ | 79+ |
 | `border-radius` | All | All | All | All |
-| CSS Custom Properties | 49+ | 31+ | 9.1+ | 15+ |
+| Arbitrary Values | 3.0+ | 3.0+ | 3.0+ | 3.0+ |
 
 ### Fallback for Older Browsers
 
-```css
-.glass {
-  /* Fallback for browsers without backdrop-filter */
-  background: rgba(255, 255, 255, 0.95);
-}
-
-@supports (backdrop-filter: blur(20px)) {
-  .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(20px) saturate(180%);
-  }
-}
+```tsx
+const glassStyles = theme === 'dark'
+  ? 'bg-black/95 [@supports(backdrop-filter:blur(0))]:bg-black/50 [@supports(backdrop-filter:blur(0))]:backdrop-blur-[20px]'
+  : 'bg-white/95 [@supports(backdrop-filter:blur(0))]:bg-white/72 [@supports(backdrop-filter:blur(0))]:backdrop-blur-[20px]';
 ```

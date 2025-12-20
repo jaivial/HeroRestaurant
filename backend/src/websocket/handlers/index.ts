@@ -17,6 +17,8 @@ import { authHandlers } from './auth.handler';
 import { userHandlers } from './user.handler';
 import { restaurantHandlers } from './restaurant.handler';
 import { memberHandlers } from './member.handler';
+import { roleHandlers } from './role.handler';
+import { menuHandlers } from './menu.handler';
 
 // Type for handler functions
 type MessageHandler = (
@@ -54,6 +56,26 @@ const handlers: Record<string, MessageHandler> = {
   'member.invite': memberHandlers.invite,
   'member.update': memberHandlers.update,
   'member.remove': memberHandlers.remove,
+
+  // Role handlers
+  'role.list': roleHandlers.list,
+  'role.create': roleHandlers.create,
+  'role.update': roleHandlers.update,
+  'role.delete': roleHandlers.delete,
+
+  // Menu Creator handlers
+  'menu.create': menuHandlers.create,
+  'menu.list': menuHandlers.list,
+  'menu.update': menuHandlers.update,
+  'menu.delete': menuHandlers.delete,
+  'section.create': menuHandlers.createSection,
+  'dish.create': menuHandlers.createDish,
+  'dish.update': menuHandlers.updateDish,
+  'dish.delete': menuHandlers.deleteDish,
+  'dish.reorder': menuHandlers.reorderDishes,
+  'dish.uploadImage': menuHandlers.uploadImage,
+  'settings.get': menuHandlers.getSettings,
+  'settings.update': menuHandlers.updateSettings,
 };
 
 /**
@@ -106,7 +128,7 @@ export async function handleMessage(
   if (!PUBLIC_ACTIONS.has(actionKey)) {
     const authError = await validateSession(ws);
     if (authError) {
-      return createErrorResponse(requestId, authError.code, authError.message);
+      return createErrorResponse(requestId, authError.code as any, authError.message);
     }
   }
 
@@ -119,7 +141,7 @@ export async function handleMessage(
         requestId,
         result.error.code as any,
         result.error.message,
-        result.error.details
+        result.error.details as Record<string, unknown>
       );
     }
 

@@ -25,6 +25,7 @@ export function deleteConnectionData(connectionId: string): void {
 export const createWebSocketServer = () => {
   return new Elysia()
     .ws('/ws', {
+      maxPayloadLength: WS_MAX_PAYLOAD_SIZE,
       // Connection opened
       open(ws) {
         console.log(`[WS DEBUG] Connection opening: ${ws.id}`);
@@ -75,13 +76,19 @@ export const createWebSocketServer = () => {
 
         try {
           // Parse and validate the message
-          const message = typeof rawMessage === 'string'
-            ? JSON.parse(rawMessage)
-            : rawMessage;
+          let message;
+          if (typeof rawMessage === 'string') {
+            message = JSON.parse(rawMessage);
+          } else if (rawMessage instanceof Buffer || rawMessage instanceof Uint8Array) {
+            message = JSON.parse(new TextDecoder().decode(rawMessage));
+          } else {
+            message = rawMessage;
+          }
 
           const parseResult = wsRequestSchema.safeParse(message);
 
           if (!parseResult.success) {
+            console.error('[WS] Validation error:', JSON.stringify(parseResult.error.format()), 'Message:', JSON.stringify(message).substring(0, 200));
             ws.send(JSON.stringify({
               id: crypto.randomUUID(),
               type: 'error',

@@ -29,6 +29,7 @@ async function getUserRestaurants(userId: string) {
       return {
         ...toRestaurantMinimal(restaurant),
         accessFlags: membership.access_flags.toString(),
+        rolePriority: membership.role_priority,
       };
     })
   );

@@ -49,18 +49,21 @@ export const memberHandlers = {
 
       const memberships = await MembershipService.listMembers(restaurantId);
 
-      // Get user details for each membership
-      const members = await Promise.all(
-        memberships.map(async (m) => {
-          const user = await UserRepository.findById(m.user_id);
-          if (!user) return null;
-          return toMember(m, user);
-        })
-      );
+      // Memberships already contain joined user and role data
+      const members = memberships.map((m) => {
+        // Create a dummy User object for the transformer from the joined data
+        const user: any = {
+          id: m.user_id,
+          name: m.user_name,
+          email: m.user_email,
+          avatar_url: m.user_avatar_url,
+        };
+        return toMember(m, user);
+      });
 
       return {
         data: {
-          members: members.filter((m) => m !== null),
+          members,
         },
       };
     } catch (error: any) {
@@ -173,7 +176,8 @@ export const memberHandlers = {
       const updatedMembership = await MembershipService.updateMember(
         restaurantId,
         targetMembership.user_id,
-        { roleId, accessFlags, status }
+        { roleId, accessFlags, status },
+        userId
       );
 
       // Get user details
@@ -242,7 +246,7 @@ export const memberHandlers = {
         };
       }
 
-      await MembershipService.removeMember(restaurantId, targetMembership.user_id);
+      await MembershipService.removeMember(restaurantId, targetMembership.user_id, userId);
 
       return {
         data: {

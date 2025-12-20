@@ -47,24 +47,24 @@ export function Alert({
 
   const variantClasses: Record<AlertVariant, { bg: string; icon: string; border: string }> = {
     info: {
-      bg: 'bg-apple-blue/10',
+      bg: 'bg-apple-blue/15',
       icon: 'text-apple-blue',
-      border: 'border-apple-blue/20',
+      border: 'border-apple-blue/25',
     },
     success: {
-      bg: 'bg-apple-green/10',
+      bg: 'bg-apple-green/15',
       icon: 'text-apple-green',
-      border: 'border-apple-green/20',
+      border: 'border-apple-green/25',
     },
     warning: {
-      bg: 'bg-apple-orange/10',
+      bg: 'bg-apple-orange/15',
       icon: 'text-apple-orange',
-      border: 'border-apple-orange/20',
+      border: 'border-apple-orange/25',
     },
     error: {
-      bg: 'bg-apple-red/10',
+      bg: 'bg-apple-red/15',
       icon: 'text-apple-red',
-      border: 'border-apple-red/20',
+      border: 'border-apple-red/25',
     },
   };
 

@@ -21,6 +21,11 @@ export interface DB {
   sessions: SessionsTable;
   roles: RolesTable;
   login_attempts: LoginAttemptsTable;
+  restaurant_settings: RestaurantSettingsTable;
+  fixed_menus: FixedMenusTable;
+  open_menus: OpenMenusTable;
+  menu_sections: MenuSectionsTable;
+  dishes: DishesTable;
 }
 
 // ============= Users Table =============
@@ -148,3 +153,91 @@ export interface LoginAttemptsTable {
 
 export type LoginAttempt = Selectable<LoginAttemptsTable>;
 export type NewLoginAttempt = Insertable<LoginAttemptsTable>;
+
+// ============= Restaurant Settings Table =============
+export interface RestaurantSettingsTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  opening_days: string; // JSON string: string[]
+  meal_schedules: string; // JSON string: { breakfast: boolean, lunch: boolean, dinner: boolean }
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type RestaurantSettings = Selectable<RestaurantSettingsTable>;
+export type NewRestaurantSettings = Insertable<RestaurantSettingsTable>;
+export type RestaurantSettingsUpdate = Updateable<RestaurantSettingsTable>;
+
+// ============= Fixed Menus Table =============
+export type MenuType = 'fixed_price' | 'open_menu';
+
+export interface FixedMenusTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  title: string;
+  type: MenuType;
+  price: number | null;
+  is_active: boolean;
+  drink_included: boolean;
+  coffee_included: boolean;
+  availability: string; // JSON string: { breakfast: string[], lunch: string[], dinner: string[] }
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type FixedMenu = Selectable<FixedMenusTable>;
+export type NewFixedMenu = Insertable<FixedMenusTable>;
+export type FixedMenuUpdate = Updateable<FixedMenusTable>;
+
+// ============= Open Menus Table =============
+export interface OpenMenusTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  title: string;
+  is_active: boolean;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type OpenMenu = Selectable<OpenMenusTable>;
+export type NewOpenMenu = Insertable<OpenMenusTable>;
+export type OpenMenuUpdate = Updateable<OpenMenusTable>;
+
+// ============= Menu Sections Table =============
+export interface MenuSectionsTable {
+  id: Generated<string>;
+  fixed_menu_id: string | null;
+  open_menu_id: string | null;
+  name: string;
+  display_order: number;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type MenuSection = Selectable<MenuSectionsTable>;
+export type NewMenuSection = Insertable<MenuSectionsTable>;
+export type MenuSectionUpdate = Updateable<MenuSectionsTable>;
+
+// ============= Dishes Table =============
+export interface DishesTable {
+  id: Generated<string>;
+  section_id: string;
+  fixed_menu_id: string | null;
+  open_menu_id: string | null;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  show_image: boolean;
+  show_description: boolean;
+  open_modal: boolean;
+  has_supplement: boolean;
+  supplement_price: number | null;
+  allergens: string; // JSON string: string[] (allergen IDs)
+  display_order: number;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type Dish = Selectable<DishesTable>;
+export type NewDish = Insertable<DishesTable>;
+export type DishUpdate = Updateable<DishesTable>;

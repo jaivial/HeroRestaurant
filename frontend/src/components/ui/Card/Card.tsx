@@ -38,13 +38,13 @@ export function Card({
           'glass': variant === 'glass',
 
           // Outlined - Border only
-          'bg-transparent border border-content-quaternary/20': variant === 'outlined',
+          'bg-transparent border-2 border-apple-gray-200 dark:border-apple-gray-800': variant === 'outlined',
         },
 
         // Hoverable effect
         hoverable && [
           'cursor-pointer',
-          'hover:shadow-apple-xl hover:-translate-y-0.5',
+          'hover:shadow-apple-xl hover:-translate-y-0.5 hover:border-apple-blue/30',
           'active:scale-[0.99] active:shadow-apple-md',
         ],
 
@@ -72,7 +72,7 @@ export function CardHeader({ children, className, ...props }: CardHeaderProps) {
       className={cn(
         'flex items-center justify-between',
         'px-5 py-4',
-        'border-b border-content-quaternary/10',
+        'border-b',
         className
       )}
       {...props}
@@ -153,7 +153,7 @@ export function CardFooter({ children, className, ...props }: CardFooterProps) {
       className={cn(
         'flex items-center justify-end gap-3',
         'px-5 py-4',
-        'border-t border-content-quaternary/10',
+        'border-t',
         className
       )}
       {...props}

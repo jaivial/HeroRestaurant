@@ -29,22 +29,22 @@ export function Badge({
       dot: 'bg-content-tertiary',
     },
     success: {
-      bg: 'bg-apple-green/15',
+      bg: 'bg-apple-green/20',
       text: 'text-apple-green',
       dot: 'bg-apple-green',
     },
     warning: {
-      bg: 'bg-apple-orange/15',
+      bg: 'bg-apple-orange/20',
       text: 'text-apple-orange',
       dot: 'bg-apple-orange',
     },
     error: {
-      bg: 'bg-apple-red/15',
+      bg: 'bg-apple-red/20',
       text: 'text-apple-red',
       dot: 'bg-apple-red',
     },
     info: {
-      bg: 'bg-apple-blue/15',
+      bg: 'bg-apple-blue/20',
       text: 'text-apple-blue',
       dot: 'bg-apple-blue',
     },

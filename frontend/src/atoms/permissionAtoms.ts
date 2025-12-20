@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 import { hasPermission, PERMISSIONS } from '@/utils/permissions';
 
 export const rawPermissionsAtom = atom<bigint>(0n);
+export const currentUserPriorityAtom = atom<number>(0);
 
 // Derived permission atoms for common checks
 export const canViewDashboardAtom = atom((get) =>

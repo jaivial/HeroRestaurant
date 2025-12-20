@@ -35,6 +35,7 @@ export const Errors = {
   // Generic errors
   UNAUTHORIZED: new AppError('UNAUTHORIZED', 'Authentication required', 401),
   FORBIDDEN: new AppError('FORBIDDEN', 'Access denied', 403),
+  FORBIDDEN_CUSTOM: (message: string) => new AppError('FORBIDDEN', message, 403),
   NOT_FOUND: (resource: string) => new AppError('NOT_FOUND', `${resource} not found`, 404),
   VALIDATION_ERROR: (details: Record<string, unknown>) =>
     new AppError('VALIDATION_ERROR', 'Validation failed', 400, details),

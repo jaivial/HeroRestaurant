@@ -9,5 +9,5 @@ import { pool } from './connection';
 import type { DB } from '../types/database';
 
 export const db = new Kysely<DB>({
-  dialect: new MysqlDialect({ pool }),
+  dialect: new MysqlDialect({ pool: pool as any }),
 });

@@ -148,12 +148,13 @@ export function Heading({
   return <Text variant={variants[level]} as={elements[level]} {...props} />;
 }
 
-export function Label({ className, ...props }: Omit<TextProps, 'variant' | 'as'>) {
+export function Label({ className, ...props }: Omit<TextProps, 'variant' | 'as'> & { htmlFor?: string }) {
   return (
     <Text
       variant="subheadline"
       as="label"
-      color="secondary"
+      color="primary"
+      weight="semibold"
       className={cn('block mb-1.5', className)}
       {...props}
     />

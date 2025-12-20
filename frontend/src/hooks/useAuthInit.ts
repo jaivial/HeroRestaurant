@@ -1,16 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useSetAtom } from 'jotai';
 import { authStatusAtom } from '@/atoms/authAtoms';
-import {
-  currentUserIdAtom,
-  currentUserNameAtom,
-  currentUserEmailAtom,
-  currentUserAvatarAtom,
-  sessionExpiryAtom,
-} from '@/atoms/authAtoms';
-import { rawPermissionsAtom } from '@/atoms/permissionAtoms';
-import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
-import { sessionTokenAtom } from '@/atoms/websocketAtoms';
 import { authService } from '@/services/auth.service';
 import { useAuth } from '@/hooks/useAuth';
 

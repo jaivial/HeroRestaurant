@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthGuard } from '@/guards/AuthGuard';
+import { GuestGuard } from '@/guards/GuestGuard';
 import { AclGuard } from '@/guards/AclGuard';
 import { GlobalFlagGuard } from '@/guards/GlobalFlagGuard';
 import { AuthenticatedLayout } from '@/layouts/AuthenticatedLayout';
 import { Login } from '@/pages/Login/Login';
 import { Dashboard } from '@/pages/Dashboard/Dashboard';
+import { MenuCreator } from '@/pages/MenuCreator/MenuCreator';
+import { Members } from '@/pages/Members/Members';
 import { PERMISSIONS, USER_ACCESS_FLAGS } from '@/utils/permissions';
 
 function App() {
@@ -12,7 +15,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={<Login />} />
+        <Route element={<GuestGuard />}>
+          <Route path="/login" element={<Login />} />
+        </Route>
 
         {/* Protected routes */}
         <Route
@@ -81,6 +86,15 @@ function App() {
           />
 
           <Route
+            path="menu-creator"
+            element={
+              <AclGuard requiredPermissions={[PERMISSIONS.EDIT_MENU]}>
+                <MenuCreator />
+              </AclGuard>
+            }
+          />
+
+          <Route
             path="inventory"
             element={
               <AclGuard requiredPermissions={[PERMISSIONS.VIEW_INVENTORY]}>
@@ -116,14 +130,7 @@ function App() {
             path="members"
             element={
               <AclGuard requiredPermissions={[PERMISSIONS.VIEW_MEMBERS]}>
-                <div className="text-center py-12">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Members Page
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">
-                    Coming soon...
-                  </p>
-                </div>
+                <Members />
               </AclGuard>
             }
           />
