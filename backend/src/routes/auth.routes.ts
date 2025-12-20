@@ -1,7 +1,9 @@
 import { Elysia, t } from 'elysia';
 import { AuthService } from '../services/auth.service';
 import { SessionService } from '../services/session.service';
-import { sessionMiddleware, type SessionContext } from '../middleware/session.middleware';
+import { MembershipRepository } from '../repositories/membership.repository';
+import { RestaurantRepository } from '../repositories/restaurant.repository';
+import { validateSession } from '../middleware/session.middleware';
 import { loginRateLimit } from '../middleware/rate-limit.middleware';
 import {
   toUserBasic,
@@ -9,14 +11,66 @@ import {
   toSessionDTO,
   toSessionMe,
   toSessionListItem,
+  toRestaurantMinimal,
 } from '../utils/transformers';
+// Errors are thrown by validateSession middleware
+
+/**
+ * Get user's restaurants with access flags
+ */
+async function getUserRestaurants(userId: string) {
+  const memberships = await MembershipRepository.findByUserId(userId);
+
+  const restaurants = await Promise.all(
+    memberships.map(async (membership) => {
+      const restaurant = await RestaurantRepository.findById(membership.restaurant_id);
+      if (!restaurant) return null;
+
+      return {
+        ...toRestaurantMinimal(restaurant),
+        accessFlags: membership.access_flags.toString(),
+      };
+    })
+  );
+
+  return restaurants.filter((r): r is NonNullable<typeof r> => r !== null);
+}
 
 export const authRoutes = new Elysia({ prefix: '/auth' })
+  // Global error handler for auth routes
+  .onError(({ error, set }) => {
+    console.error('Auth route error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+
+    // Check if it's a known error with code
+    if ('code' in error && 'statusCode' in error) {
+      const knownError = error as { code: string; message: string; statusCode: number };
+      set.status = knownError.statusCode;
+      return {
+        success: false,
+        error: {
+          code: knownError.code,
+          message: knownError.message,
+        },
+      };
+    }
+
+    // Unknown error - include message in dev
+    set.status = 500;
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      },
+    };
+  })
+
   // Public routes with rate limiting
   .use(loginRateLimit)
 
   .post('/register', async ({ body, headers, set }) => {
-    const ip = headers['x-forwarded-for'] || headers['x-real-ip'];
+    const ip = headers['x-forwarded-for']?.toString() || headers['x-real-ip']?.toString();
     const { user, sessionId, session } = await AuthService.register(body, ip);
 
     set.status = 201;
@@ -25,6 +79,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
       data: {
         user: toUserBasic(user),
         session: toSessionDTO(sessionId, session),
+        restaurants: [], // New users have no restaurants yet
       },
     };
   }, {
@@ -36,14 +91,18 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
   })
 
   .post('/login', async ({ body, headers }) => {
-    const ip = headers['x-forwarded-for'] || headers['x-real-ip'];
+    const ip = headers['x-forwarded-for']?.toString() || headers['x-real-ip']?.toString();
     const { user, sessionId, session } = await AuthService.login(body, ip);
+
+    // Get user's restaurants
+    const restaurants = await getUserRestaurants(user.id);
 
     return {
       success: true,
       data: {
         user: toUserWithFlags(user),
         session: toSessionDTO(sessionId, session),
+        restaurants,
       },
     };
   }, {
@@ -54,11 +113,20 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     }),
   })
 
-  // Protected routes - use sessionMiddleware
-  .use(sessionMiddleware)
+  // Protected routes - derive session context
+  .derive(async ({ headers }) => {
+    const context = await validateSession(headers);
+    return {
+      user: context.user,
+      session: context.session,
+      sessionId: context.sessionId,
+      userId: context.userId,
+      globalFlags: context.globalFlags,
+      currentRestaurantId: context.currentRestaurantId,
+    };
+  })
 
-  .post('/logout', async (ctx) => {
-    const { sessionId } = ctx as unknown as SessionContext;
+  .post('/logout', async ({ sessionId }) => {
     await AuthService.logout(sessionId);
     return {
       success: true,
@@ -66,8 +134,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     };
   })
 
-  .post('/logout-all', async (ctx) => {
-    const { userId, sessionId } = ctx as unknown as SessionContext;
+  .post('/logout-all', async ({ userId, sessionId }) => {
     const sessionsRevoked = await AuthService.logoutAll(userId, sessionId);
     return {
       success: true,
@@ -78,30 +145,31 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
     };
   })
 
-  .get('/me', async (ctx) => {
-    const { user, session } = ctx as unknown as SessionContext;
+  .get('/me', async ({ user, session }) => {
+    // Get user's restaurants
+    const restaurants = await getUserRestaurants(user.id);
+
     return {
       success: true,
       data: {
         user: toUserWithFlags(user),
         session: toSessionMe(session),
+        restaurants,
       },
     };
   })
 
-  .get('/sessions', async (ctx) => {
-    const { userId, sessionId } = ctx as unknown as SessionContext;
+  .get('/sessions', async ({ userId, sessionId }) => {
     const sessions = await SessionService.getActiveSessionsForUser(userId);
     return {
       success: true,
       data: {
-        sessions: sessions.map((session) => toSessionListItem(session, sessionId)),
+        sessions: sessions.map((s) => toSessionListItem(s, sessionId)),
       },
     };
   })
 
-  .delete('/sessions/:id', async (ctx) => {
-    const { sessionId, set, params } = ctx as unknown as SessionContext & { set: { status: number }; params: { id: string } };
+  .delete('/sessions/:id', async ({ sessionId, set, params }) => {
     if (params.id === sessionId) {
       set.status = 400;
       return {

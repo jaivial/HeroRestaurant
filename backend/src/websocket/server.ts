@@ -27,6 +27,7 @@ export const createWebSocketServer = () => {
     .ws('/ws', {
       // Connection opened
       open(ws) {
+        console.log(`[WS DEBUG] Connection opening: ${ws.id}`);
         // Use ws.id as the stable connection identifier
         const connectionId = ws.id;
 
@@ -64,6 +65,7 @@ export const createWebSocketServer = () => {
       // Message received
       async message(ws, rawMessage) {
         const connectionId = ws.id;
+        console.log(`[WS DEBUG] Message received on ${connectionId}:`, String(rawMessage).substring(0, 100));
         const connectionData = getConnectionData(connectionId);
 
         if (!connectionData) {

@@ -1,9 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
 import { useAuth } from '@/hooks/useAuth';
-import { isConnectedAtom, connectionStatusAtom } from '@/atoms/websocketAtoms';
-import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
 import type { LoginFormData, LoginFormErrors } from '../types';
 
 export function useLoginForm() {
@@ -16,9 +13,6 @@ export function useLoginForm() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const workspace = useAtomValue(currentWorkspaceAtom);
-  const isConnected = useAtomValue(isConnectedAtom);
-  const connectionStatus = useAtomValue(connectionStatusAtom);
 
   const validate = useCallback((): boolean => {
     const newErrors: LoginFormErrors = {};
@@ -47,38 +41,19 @@ export function useLoginForm() {
         return;
       }
 
-      if (!isConnected) {
-        setErrors({
-          general: 'Not connected to server. Please wait...',
-        });
-        return;
-      }
-
       setIsLoading(true);
       setErrors({});
 
       try {
-        const success = await login({
+        const result = await login({
           email: formData.email,
           password: formData.password,
         });
 
-        if (success) {
-          // Navigate to dashboard - workspace should be set by login
-          // We need to wait a tick for the workspace to be set
-          setTimeout(() => {
-            const ws = workspace;
-            if (ws) {
-              navigate(`/w/${ws.id}/dashboard`);
-            } else {
-              navigate('/dashboard');
-            }
-          }, 0);
-        } else {
-          setErrors({
-            general: 'Invalid email or password',
-          });
+        if (result?.workspaceId) {
+          navigate(`/w/${result.workspaceId}/dashboard`);
         }
+        // Note: Every user is guaranteed to have at least 1 workspace (enforced during registration)
       } catch (error) {
         setErrors({
           general: error instanceof Error ? error.message : 'Login failed',
@@ -87,7 +62,7 @@ export function useLoginForm() {
         setIsLoading(false);
       }
     },
-    [formData, validate, isConnected, login, workspace, navigate]
+    [formData, validate, login, navigate]
   );
 
   const handleChange = useCallback(
@@ -104,8 +79,6 @@ export function useLoginForm() {
     formData,
     errors,
     isLoading,
-    isConnected,
-    connectionStatus,
     handleSubmit,
     handleChange,
   };

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { sidebarOpenAtom, toggleSidebarAtom } from '@/atoms/layoutAtoms';
+import { currentUserGlobalFlagsAtom } from '@/atoms/authAtoms';
 import { useViewport } from '@/hooks/useViewport';
 import { usePermissions } from '@/hooks/usePermissions';
-import { PERMISSIONS } from '@/utils/permissions';
+import { PERMISSIONS, USER_ACCESS_FLAGS } from '@/utils/permissions';
 import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
 import { cn } from '@/utils/cn';
 
@@ -71,6 +73,19 @@ const navItems: NavItem[] = [
   },
 ];
 
+const internalNavItems: NavItem[] = [
+  {
+    label: 'System Config',
+    path: 'system/config',
+    icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
+  },
+  {
+    label: 'Audit Logs',
+    path: 'system/audit',
+    icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  },
+];
+
 export function Sidebar() {
   const sidebarOpen = useAtomValue(sidebarOpenAtom);
   const toggleSidebar = useSetAtom(toggleSidebarAtom);
@@ -80,6 +95,10 @@ export function Sidebar() {
   const { workspaceId } = useParams();
   const workspace = useAtomValue(currentWorkspaceAtom);
   const { hasPermission } = usePermissions();
+  const globalFlags = useAtomValue(currentUserGlobalFlagsAtom);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isRoot = (globalFlags & USER_ACCESS_FLAGS.ROOT) !== 0n;
 
   const handleNavigation = (path: string) => {
     navigate(`/w/${workspaceId}/${path}`);
@@ -194,6 +213,84 @@ export function Sidebar() {
                 </li>
               );
             })}
+
+            {/* Root User Section (Accordion) */}
+            {isRoot && (
+              <li className="pt-4 mt-4 border-t border-content-quaternary/10">
+                <button
+                  onClick={() => setInternalOpen(!internalOpen)}
+                  className={cn(
+                    'w-full flex items-center justify-between',
+                    'px-4 py-2 rounded-apple',
+                    'text-xs font-semibold uppercase tracking-wider',
+                    'text-content-tertiary hover:text-content-secondary',
+                    'transition-colors duration-200'
+                  )}
+                >
+                  <span>System Administration</span>
+                  <svg
+                    className={cn(
+                      'w-4 h-4 transition-transform duration-250 ease-apple',
+                      internalOpen ? 'rotate-180' : ''
+                    )}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                <div
+                  className={cn(
+                    'overflow-hidden transition-all duration-300 ease-apple',
+                    internalOpen ? 'max-h-40 opacity-100 mt-1' : 'max-h-0 opacity-0'
+                  )}
+                >
+                  <ul className="space-y-1 pl-2">
+                    {internalNavItems.map((item) => {
+                      const active = isActive(item.path);
+                      return (
+                        <li key={item.path}>
+                          <button
+                            onClick={() => handleNavigation(item.path)}
+                            className={cn(
+                              'w-full flex items-center gap-3',
+                              'px-4 py-2.5 rounded-apple',
+                              'text-sm font-medium',
+                              'transition-all duration-250 ease-apple',
+                              active
+                                ? 'text-apple-blue bg-apple-blue/10'
+                                : 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary'
+                            )}
+                          >
+                            <svg
+                              className="w-4 h-4 flex-shrink-0"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={active ? 2.5 : 2}
+                                d={item.icon}
+                              />
+                            </svg>
+                            <span>{item.label}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </li>
+            )}
           </ul>
         </nav>
 

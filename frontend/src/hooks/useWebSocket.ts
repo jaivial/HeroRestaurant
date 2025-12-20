@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 import {
   connectionStatusAtom,
@@ -25,26 +24,26 @@ export function useWebSocket() {
     isAuthenticated,
     reconnectAttempt,
     lastError,
-    connect: () => wsClient.connect(),
+    /**
+     * Connect to WebSocket with authentication token
+     * @param token - Session token from REST login
+     */
+    connect: (token?: string) => wsClient.connect(token),
     disconnect: () => wsClient.disconnect(),
   };
 }
 
 /**
- * Initialize WebSocket connection on app mount
- * Should be called once at app root level
+ * Connect WebSocket after authentication
+ * Should be called after successful REST login with the session token
  */
-export function useWebSocketInit() {
-  const initialized = useRef(false);
+export function connectWebSocket(token: string): void {
+  wsClient.connect(token);
+}
 
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    wsClient.connect();
-
-    return () => {
-      wsClient.disconnect();
-    };
-  }, []);
+/**
+ * Disconnect WebSocket (on logout)
+ */
+export function disconnectWebSocket(): void {
+  wsClient.disconnect();
 }

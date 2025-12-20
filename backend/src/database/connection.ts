@@ -20,6 +20,8 @@ const config = {
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
   timezone: 'Z', // Store dates as UTC
+  supportBigNumbers: true,
+  bigNumberStrings: true,
 };
 
 export const pool = mysql.createPool(config);

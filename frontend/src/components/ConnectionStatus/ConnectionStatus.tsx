@@ -1,14 +1,21 @@
+import { useAtomValue } from 'jotai';
 import { useConnectionStatus } from '@/hooks/useConnectionStatus';
 import { wsClient } from '@/websocket';
+import { authStatusAtom } from '@/atoms/authAtoms';
 import { cn } from '@/utils/cn';
 
 /**
  * Connection status indicator component
- * Shows when connection is lost or reconnecting
- * Hides when connection is healthy (authenticated)
+ * Shows when connection is lost or reconnecting for authenticated users
+ * Hides on public pages (login, signup) and when connection is healthy
  */
 export function ConnectionStatus() {
   const { status, statusMessage, canRetry, isHealthy, isUnhealthy } = useConnectionStatus();
+  const authStatus = useAtomValue(authStatusAtom);
+
+  // Don't show on public pages (when user is not authenticated)
+  // WebSocket is only connected after authentication
+  if (authStatus !== 'authenticated') return null;
 
   // Don't show when healthy
   if (isHealthy) return null;

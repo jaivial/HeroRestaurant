@@ -1,6 +1,6 @@
 // API client utilities
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 interface ApiOptions extends RequestInit {
   token?: string;
@@ -28,7 +28,7 @@ class ApiClient {
     }
 
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers['Authorization'] = `Session ${token}`;
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -37,10 +37,12 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: 'An error occurred',
+      const errorData = await response.json().catch(() => ({
+        error: { message: 'An error occurred' },
       }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+      // Handle API error response format: { success: false, error: { code, message } }
+      const message = errorData.error?.message || errorData.message || `HTTP ${response.status}`;
+      throw new Error(message);
     }
 
     return response.json();

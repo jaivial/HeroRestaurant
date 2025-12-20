@@ -8,3 +8,4 @@ export const currentUserEmailAtom = atom<string | null>(null);
 export const currentUserAvatarAtom = atom<string | null>(null);
 export const sessionExpiryAtom = atom<number | null>(null);
 export const lastActivityAtom = atom<number>(Date.now());
+export const currentUserGlobalFlagsAtom = atom<bigint>(0n);

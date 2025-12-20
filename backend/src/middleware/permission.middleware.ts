@@ -1,11 +1,12 @@
 import { Elysia } from 'elysia';
 import { PermissionService } from '../services/permission.service';
-import { hasPermission } from '../constants/permissions';
+import { hasPermission, USER_ACCESS_FLAGS } from '../constants/permissions';
 import { Errors } from '../utils/errors';
 import type { SessionContext } from './session.middleware';
 
 interface PermissionRequirements {
-  member?: bigint; // Global member flags required
+  member?: bigint; // Global member flags required (deprecated name for user access flags)
+  user?: bigint; // Global user access flags required (ROOT, REGULAR)
   restaurant?: bigint; // Restaurant-specific flags required
 }
 
@@ -31,9 +32,10 @@ export function requirePermissions(requirements: PermissionRequirements) {
         throw Errors.UNAUTHORIZED;
       }
 
-      // Check global member flags if required
-      if (requirements.member !== undefined && globalFlags !== undefined) {
-        if (!hasPermission(globalFlags, requirements.member)) {
+      // Check global user access flags if required (using both names for compatibility)
+      const requiredUserFlags = requirements.user ?? requirements.member;
+      if (requiredUserFlags !== undefined && globalFlags !== undefined) {
+        if (!hasPermission(globalFlags, requiredUserFlags)) {
           throw Errors.PERMISSION_DENIED;
         }
       }

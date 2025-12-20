@@ -4,29 +4,37 @@ import { env } from './config/env';
 import { testConnection } from './database/connection';
 import { createWebSocketServer } from './websocket/server';
 import { connectionManager } from './websocket/state/connections';
+import { authRoutes } from './routes/auth.routes';
+import { userRoutes } from './routes/user.routes';
+import { restaurantRoutes } from './routes/restaurant.routes';
 
-console.log('Starting HeroRestaurant Backend (WebSocket Mode)...');
+console.log('Starting HeroRestaurant Backend...');
 
 // Test database connection
 await testConnection();
 
 const app = new Elysia()
-  // CORS (needed for the initial HTTP upgrade request)
+  // CORS (needed for REST API and WebSocket upgrade)
   .use(cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'Upgrade', 'Connection'],
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   }))
 
-  // Health check (keep as REST for load balancer probes)
+  // Health check (for load balancer probes)
   .get('/health', () => ({
     status: 'ok',
     timestamp: new Date().toISOString(),
     connections: connectionManager.getStats(),
   }))
 
-  // WebSocket server
+  // REST API routes
+  .use(authRoutes)
+  .use(userRoutes)
+  .use(restaurantRoutes)
+
+  // WebSocket server (for real-time features after authentication)
   .use(createWebSocketServer())
 
   .listen(env.PORT);
@@ -35,13 +43,16 @@ console.log(`Server running at http://localhost:${app.server?.port}`);
 console.log(`WebSocket endpoint: ws://localhost:${app.server?.port}/ws`);
 console.log(`Environment: ${env.NODE_ENV}`);
 console.log(`CORS Origin: ${env.CORS_ORIGIN}`);
-console.log('\nWebSocket Actions:');
-console.log('  auth.register     - Register new user');
-console.log('  auth.login        - Login with credentials');
-console.log('  auth.logout       - Logout current session');
-console.log('  auth.logout-all   - Logout all sessions');
-console.log('  auth.me           - Get current user');
-console.log('  auth.authenticate - Authenticate with session token');
+console.log('\nREST API Endpoints:');
+console.log('  POST /auth/register   - Register new user');
+console.log('  POST /auth/login      - Login with credentials');
+console.log('  POST /auth/logout     - Logout current session');
+console.log('  POST /auth/logout-all - Logout all sessions');
+console.log('  GET  /auth/me         - Get current user');
+console.log('  GET  /auth/sessions   - List all sessions');
+console.log('  DELETE /auth/sessions/:id - Revoke a session');
+console.log('\nWebSocket Actions (after authentication):');
+console.log('  auth.authenticate - Authenticate WebSocket with session token');
 console.log('  session.list      - List all sessions');
 console.log('  session.revoke    - Revoke a specific session');
 console.log('  user.get          - Get user profile');
@@ -56,6 +67,6 @@ console.log('  member.invite     - Invite member');
 console.log('  member.update     - Update member');
 console.log('  member.remove     - Remove member');
 console.log('  system.ping       - Heartbeat ping');
-console.log('\nBackend ready for WebSocket connections\n');
+console.log('\nBackend ready\n');
 
 export type App = typeof app;

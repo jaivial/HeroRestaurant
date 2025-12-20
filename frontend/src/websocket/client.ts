@@ -6,7 +6,6 @@ import {
   lastErrorAtom,
   sessionTokenAtom,
   pendingRequestsAtom,
-  type PendingRequest,
 } from '@/atoms/websocketAtoms';
 import { authStatusAtom } from '@/atoms/authAtoms';
 import type {
@@ -27,6 +26,9 @@ type PushHandler<T = unknown> = (event: string, payload: T) => void;
 /**
  * WebSocket Client Singleton
  * Handles connection, reconnection, authentication, and message routing
+ *
+ * IMPORTANT: WebSocket should only connect AFTER successful REST authentication.
+ * Call connect(token) with the session token from the REST login response.
  */
 class WebSocketClient {
   private static instance: WebSocketClient;
@@ -37,6 +39,7 @@ class WebSocketClient {
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private isIntentionalClose = false;
+  private authToken: string | null = null;
 
   private constructor() {}
 
@@ -51,19 +54,47 @@ class WebSocketClient {
   // Connection Management
   // ============================================================================
 
-  connect(): void {
-    if (this.ws?.readyState === WebSocket.OPEN) {
+  /**
+   * Connect to WebSocket server with authentication token
+   * @param token - Session token from REST login (required for new connections)
+   */
+  connect(token?: string): void {
+    console.log('[WS DEBUG] connect() called', { 
+      hasTokenArg: !!token, 
+      readyState: this.ws?.readyState 
+    });
+
+    if (
+      this.ws?.readyState === WebSocket.OPEN ||
+      this.ws?.readyState === WebSocket.CONNECTING
+    ) {
+      console.log('[WS DEBUG] Connection already in progress or open, skipping');
       return;
     }
 
+    // Use provided token or fall back to stored token (for reconnection)
+    const sessionToken = token || this.authToken || localStorage.getItem('auth_token');
+
+    if (!sessionToken) {
+      console.warn('[WS DEBUG] No session token available for connection');
+      this.store.set(lastErrorAtom, 'Cannot connect: No authentication token');
+      this.store.set(connectionStatusAtom, 'disconnected');
+      return;
+    }
+
+    this.authToken = sessionToken;
     this.isIntentionalClose = false;
     this.store.set(connectionStatusAtom, 'connecting');
     this.store.set(lastErrorAtom, null);
 
     try {
-      this.ws = new WebSocket(WS_URL);
+      // Include token in WebSocket URL for server-side authentication
+      const wsUrl = `${WS_URL}?token=${encodeURIComponent(sessionToken)}`;
+      console.log('[WS DEBUG] Initializing WebSocket with URL:', wsUrl);
+      this.ws = new WebSocket(wsUrl);
       this.setupEventHandlers();
     } catch (error) {
+      console.error('[WS DEBUG] Error creating WebSocket:', error);
       this.store.set(lastErrorAtom, 'Failed to create WebSocket connection');
       this.store.set(connectionStatusAtom, 'disconnected');
       this.scheduleReconnect();
@@ -72,6 +103,7 @@ class WebSocketClient {
 
   disconnect(): void {
     this.isIntentionalClose = true;
+    this.authToken = null;
     this.cleanup();
     this.store.set(connectionStatusAtom, 'disconnected');
     this.store.set(reconnectAttemptAtom, 0);
@@ -100,28 +132,47 @@ class WebSocketClient {
   }
 
   private setupEventHandlers(): void {
-    if (!this.ws) return;
+    const ws = this.ws;
+    if (!ws) return;
 
-    this.ws.onopen = () => {
+    ws.onopen = () => {
+      // Only proceed if this is still the current WebSocket
+      if (this.ws !== ws) {
+        console.log('[WS DEBUG] stale onopen event ignored');
+        return;
+      }
+
+      console.log('[WS DEBUG] WebSocket connected');
       this.store.set(connectionStatusAtom, 'connected');
       this.store.set(lastConnectedAtAtom, Date.now());
       this.store.set(reconnectAttemptAtom, 0);
       this.startHeartbeat();
-      this.attemptAutoReauth();
+
+      // Authenticate over WebSocket after connection
+      this.authenticateSession();
     };
 
-    this.ws.onclose = () => {
-      this.cleanup();
-      if (!this.isIntentionalClose) {
-        this.scheduleReconnect();
+    ws.onclose = () => {
+      // If this is still the current WebSocket, clean up state
+      if (this.ws === ws) {
+        console.log('[WS DEBUG] WebSocket connection closed');
+        this.cleanup();
+        if (!this.isIntentionalClose) {
+          this.scheduleReconnect();
+        }
+      } else {
+        console.log('[WS DEBUG] stale onclose event ignored');
       }
     };
 
-    this.ws.onerror = () => {
+    ws.onerror = () => {
+      if (this.ws !== ws) return;
+      console.error('[WS DEBUG] WebSocket error');
       this.store.set(lastErrorAtom, 'WebSocket error occurred');
     };
 
-    this.ws.onmessage = (event) => {
+    ws.onmessage = (event) => {
+      if (this.ws !== ws) return;
       try {
         const message = JSON.parse(event.data);
         this.handleMessage(message);
@@ -132,6 +183,36 @@ class WebSocketClient {
   }
 
   // ============================================================================
+  // Authentication
+  // ============================================================================
+
+  private async authenticateSession(): Promise<void> {
+    if (!this.authToken) {
+      console.warn('[WS DEBUG] No auth token for authenticateSession');
+      this.store.set(connectionStatusAtom, 'connected');
+      return;
+    }
+
+    console.log('[WS DEBUG] authenticating session...');
+    this.store.set(connectionStatusAtom, 'authenticating');
+
+    try {
+      console.log('[WS DEBUG] Sending auth.authenticate request...');
+      await this.request('auth', 'authenticate', { sessionToken: this.authToken });
+
+      console.log('[WS DEBUG] auth.authenticate success');
+      this.store.set(sessionTokenAtom, this.authToken);
+      this.store.set(connectionStatusAtom, 'authenticated');
+    } catch (error) {
+      // Token is invalid - disconnect and clear auth
+      console.error('[WS DEBUG] WebSocket authentication failed:', error);
+      this.store.set(connectionStatusAtom, 'connected');
+      this.store.set(lastErrorAtom, 'Authentication failed');
+      // Don't clear localStorage here - the REST auth check should handle that
+    }
+  }
+
+  // ============================================================================
   // Reconnection Strategy
   // ============================================================================
 
@@ -139,45 +220,27 @@ class WebSocketClient {
     const attempts = this.store.get(reconnectAttemptAtom);
 
     if (attempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.error('[WS DEBUG] Max reconnect attempts reached');
       this.store.set(connectionStatusAtom, 'disconnected');
       this.store.set(lastErrorAtom, 'Max reconnection attempts reached');
       return;
     }
 
+    // Only reconnect if we have a token
+    if (!this.authToken && !localStorage.getItem('auth_token')) {
+      console.log('[WS DEBUG] Skipping reconnect: no token');
+      this.store.set(connectionStatusAtom, 'disconnected');
+      return;
+    }
+
     this.store.set(connectionStatusAtom, 'reconnecting');
     const delay = calculateBackoff(attempts);
+    console.log(`[WS DEBUG] Scheduling reconnect in ${delay}ms (attempt ${attempts + 1})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.store.set(reconnectAttemptAtom, attempts + 1);
       this.connect();
     }, delay);
-  }
-
-  private async attemptAutoReauth(): Promise<void> {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      this.store.set(authStatusAtom, 'unauthenticated');
-      return;
-    }
-
-    this.store.set(connectionStatusAtom, 'authenticating');
-
-    try {
-      const response = await this.request<{
-        user: Record<string, unknown>;
-        session: Record<string, unknown>;
-        restaurants: Array<Record<string, unknown>>;
-      }>('auth', 'authenticate', { sessionToken: token });
-
-      this.store.set(sessionTokenAtom, token);
-      this.store.set(connectionStatusAtom, 'authenticated');
-      // Auth atoms will be updated by the component that calls authenticate
-    } catch (error) {
-      // Token is invalid, clear it
-      localStorage.removeItem('auth_token');
-      this.store.set(connectionStatusAtom, 'connected');
-      this.store.set(authStatusAtom, 'unauthenticated');
-    }
   }
 
   // ============================================================================
@@ -220,6 +283,7 @@ class WebSocketClient {
       const timeout = setTimeout(() => {
         const pending = this.store.get(pendingRequestsAtom);
         if (pending.has(id)) {
+          console.warn(`[WS DEBUG] Request ${id} timed out`);
           const newPending = new Map(pending);
           newPending.delete(id);
           this.store.set(pendingRequestsAtom, newPending);
@@ -311,9 +375,11 @@ class WebSocketClient {
 
   private handleSessionExpired(): void {
     localStorage.removeItem('auth_token');
+    this.authToken = null;
     this.store.set(sessionTokenAtom, null);
-    this.store.set(connectionStatusAtom, 'connected');
+    this.store.set(connectionStatusAtom, 'disconnected');
     this.store.set(authStatusAtom, 'unauthenticated');
+    this.disconnect();
   }
 
   // ============================================================================

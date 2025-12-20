@@ -8,7 +8,17 @@
  */
 
 // ============================================================================
-// Member Access Flags (memberships.access_flags, users.global_flags)
+// Global User Access Flags (stored in users.global_flags)
+// ============================================================================
+
+export const USER_ACCESS_FLAGS = {
+  NONE: 0n,
+  ROOT: 1n << 0n,
+  REGULAR: 1n << 1n,
+} as const;
+
+// ============================================================================
+// Member Access Flags (memberships.access_flags)
 // ============================================================================
 
 /**

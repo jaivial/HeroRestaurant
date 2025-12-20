@@ -8,12 +8,14 @@ import {
   currentUserAvatarAtom,
   sessionExpiryAtom,
   lastActivityAtom,
+  currentUserGlobalFlagsAtom,
 } from '@/atoms/authAtoms';
 import { rawPermissionsAtom } from '@/atoms/permissionAtoms';
 import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
 import { connectionStatusAtom, sessionTokenAtom } from '@/atoms/websocketAtoms';
-import { wsClient } from '@/websocket';
-import type { LoginResponseData, AuthenticateResponseData } from '@/websocket';
+import { authService } from '@/services/auth.service';
+import { connectWebSocket, disconnectWebSocket } from '@/hooks/useWebSocket';
+import type { UserDTO, RestaurantMinimalDTO } from '@/websocket/types';
 
 interface LoginCredentials {
   email: string;
@@ -26,6 +28,12 @@ interface RegisterCredentials {
   name: string;
 }
 
+interface AuthSuccessData {
+  user: UserDTO;
+  session: { id: string; expiresAt: string };
+  restaurants?: RestaurantMinimalDTO[];
+}
+
 export function useAuth() {
   const [authStatus, setAuthStatus] = useAtom(authStatusAtom);
   const setUserId = useSetAtom(currentUserIdAtom);
@@ -34,6 +42,7 @@ export function useAuth() {
   const setUserAvatar = useSetAtom(currentUserAvatarAtom);
   const setSessionExpiry = useSetAtom(sessionExpiryAtom);
   const setLastActivity = useSetAtom(lastActivityAtom);
+  const setGlobalFlags = useSetAtom(currentUserGlobalFlagsAtom);
   const setPermissions = useSetAtom(rawPermissionsAtom);
   const setCurrentWorkspace = useSetAtom(currentWorkspaceAtom);
   const setConnectionStatus = useSetAtom(connectionStatusAtom);
@@ -48,39 +57,48 @@ export function useAuth() {
    * Handle successful authentication response
    */
   const handleAuthSuccess = useCallback(
-    (response: LoginResponseData | AuthenticateResponseData, token: string) => {
-      const { user, restaurants } = response;
+    (
+      data: AuthSuccessData,
+      shouldConnectWebSocket = true,
+      preferredWorkspaceId?: string
+    ) => {
+      const { user, session, restaurants } = data;
 
       // Update user atoms
       setUserId(user.id);
       setUserName(user.name);
       setUserEmail(user.email);
       setUserAvatar(user.avatarUrl);
+      setGlobalFlags(BigInt(user.globalFlags));
       setAuthStatus('authenticated');
 
       // Update session atoms
-      const expiresAt = 'expiresAt' in response.session
-        ? response.session.expiresAt
-        : (response.session as any).expiresAt;
-      setSessionExpiry(new Date(expiresAt).getTime());
+      setSessionExpiry(new Date(session.expiresAt).getTime());
       setLastActivity(Date.now());
-      setSessionToken(token);
-      setConnectionStatus('authenticated');
+      setSessionToken(session.id);
 
-      // Store token
-      localStorage.setItem('auth_token', token);
+      // Store token in localStorage
+      localStorage.setItem('auth_token', session.id);
 
-      // Set first workspace as current (if available)
+      // Set current workspace (preferred one from URL or first available)
       if (restaurants && restaurants.length > 0) {
-        const firstWorkspace = restaurants[0];
+        const targetWorkspace = preferredWorkspaceId
+          ? restaurants.find((r) => r.id === preferredWorkspaceId) || restaurants[0]
+          : restaurants[0];
+
         setCurrentWorkspace({
-          id: firstWorkspace.id,
-          name: firstWorkspace.name,
-          slug: firstWorkspace.slug,
-          logoUrl: firstWorkspace.logoUrl,
-          permissions: BigInt(firstWorkspace.accessFlags),
+          id: targetWorkspace.id,
+          name: targetWorkspace.name,
+          slug: targetWorkspace.slug,
+          logoUrl: targetWorkspace.logoUrl,
+          permissions: BigInt(targetWorkspace.accessFlags),
         });
-        setPermissions(BigInt(firstWorkspace.accessFlags));
+        setPermissions(BigInt(targetWorkspace.accessFlags));
+      }
+
+      // Connect WebSocket with the session token
+      if (shouldConnectWebSocket) {
+        connectWebSocket(session.id);
       }
     },
     [
@@ -88,65 +106,87 @@ export function useAuth() {
       setUserName,
       setUserEmail,
       setUserAvatar,
+      setGlobalFlags,
       setAuthStatus,
       setSessionExpiry,
       setLastActivity,
       setSessionToken,
-      setConnectionStatus,
       setCurrentWorkspace,
       setPermissions,
     ]
   );
 
   /**
-   * Login with email and password via WebSocket
+   * Login with email and password via REST API
+   * Returns the first workspace ID for navigation on success
    */
   const login = useCallback(
-    async (credentials: LoginCredentials): Promise<boolean> => {
+    async (credentials: LoginCredentials): Promise<{ workspaceId: string } | null> => {
       try {
-        const response = await wsClient.request<LoginResponseData>('auth', 'login', credentials);
+        const response = await authService.login(credentials);
 
-        // Get the session token from the response
-        const token = response.session.id;
-        handleAuthSuccess(response, token);
-        return true;
+        handleAuthSuccess({
+          user: response.data.user,
+          session: {
+            id: response.data.session.id,
+            expiresAt: response.data.session.expiresAt,
+          },
+          restaurants: response.data.restaurants,
+        });
+
+        // Return first workspace ID for navigation
+        const firstWorkspace = response.data.restaurants?.[0];
+        return firstWorkspace ? { workspaceId: firstWorkspace.id } : null;
       } catch (error) {
         console.error('Login failed:', error);
-        return false;
+        throw error;
       }
     },
     [handleAuthSuccess]
   );
 
   /**
-   * Register new account via WebSocket
+   * Register new account via REST API
    */
   const register = useCallback(
     async (credentials: RegisterCredentials): Promise<boolean> => {
       try {
-        const response = await wsClient.request<LoginResponseData>('auth', 'register', credentials);
+        const response = await authService.register(credentials);
 
-        // Get the session token from the response
-        const token = response.session.id;
-        handleAuthSuccess(response, token);
+        handleAuthSuccess({
+          user: response.data.user,
+          session: {
+            id: response.data.session.id,
+            expiresAt: response.data.session.expiresAt,
+          },
+          restaurants: response.data.restaurants,
+        });
+
         return true;
       } catch (error) {
         console.error('Registration failed:', error);
-        return false;
+        throw error;
       }
     },
     [handleAuthSuccess]
   );
 
   /**
-   * Logout current session via WebSocket
+   * Logout current session via REST API
    */
   const logout = useCallback(async (): Promise<void> => {
-    try {
-      await wsClient.request('auth', 'logout', {});
-    } catch (error) {
-      // Continue with local logout even if server request fails
-      console.error('Logout request failed:', error);
+    const token = localStorage.getItem('auth_token');
+
+    // Disconnect WebSocket first
+    disconnectWebSocket();
+
+    if (token) {
+      try {
+        await authService.logout(token);
+      } catch (error) {
+        // Continue with local logout even if server request fails
+        console.error('Logout request failed:', error);
+      }
     }
 
     // Clear all auth state
@@ -154,12 +194,13 @@ export function useAuth() {
     setUserName(null);
     setUserEmail(null);
     setUserAvatar(null);
+    setGlobalFlags(0n);
     setAuthStatus('unauthenticated');
     setPermissions(0n);
     setCurrentWorkspace(null);
     setSessionExpiry(null);
     setSessionToken(null);
-    setConnectionStatus('connected');
+    setConnectionStatus('disconnected');
 
     localStorage.removeItem('auth_token');
   }, [
@@ -167,9 +208,10 @@ export function useAuth() {
     setUserName,
     setUserEmail,
     setUserAvatar,
-    setAuthStatus,
-    setPermissions,
-    setCurrentWorkspace,
+      setGlobalFlags,
+      setAuthStatus,
+      setPermissions,
+      setCurrentWorkspace,
     setSessionExpiry,
     setSessionToken,
     setConnectionStatus,

@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthGuard } from '@/guards/AuthGuard';
 import { AclGuard } from '@/guards/AclGuard';
+import { GlobalFlagGuard } from '@/guards/GlobalFlagGuard';
 import { AuthenticatedLayout } from '@/layouts/AuthenticatedLayout';
 import { Login } from '@/pages/Login/Login';
 import { Dashboard } from '@/pages/Dashboard/Dashboard';
-import { PERMISSIONS } from '@/utils/permissions';
+import { PERMISSIONS, USER_ACCESS_FLAGS } from '@/utils/permissions';
 
 function App() {
   return (
@@ -156,6 +157,39 @@ function App() {
                   </p>
                 </div>
               </AclGuard>
+            }
+          />
+
+          {/* System Admin Routes */}
+          <Route
+            path="system/config"
+            element={
+              <GlobalFlagGuard requiredFlag={USER_ACCESS_FLAGS.ROOT}>
+                <div className="text-center py-12">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    System Configuration
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mt-2">
+                    Global system settings and configuration.
+                  </p>
+                </div>
+              </GlobalFlagGuard>
+            }
+          />
+
+          <Route
+            path="system/audit"
+            element={
+              <GlobalFlagGuard requiredFlag={USER_ACCESS_FLAGS.ROOT}>
+                <div className="text-center py-12">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    System Audit Logs
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mt-2">
+                    Global audit logs for all system activities.
+                  </p>
+                </div>
+              </GlobalFlagGuard>
             }
           />
 

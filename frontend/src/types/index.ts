@@ -171,6 +171,7 @@ export interface RegisterResponse {
 export interface MeResponse {
   user: UserWithFlags;
   session: SessionMe;
+  restaurants: RestaurantListItem[];
 }
 
 export interface SessionsResponse {

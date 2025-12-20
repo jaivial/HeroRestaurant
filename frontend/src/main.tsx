@@ -1,10 +1,9 @@
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Provider, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import App from './App.tsx';
 import './styles/globals.css';
 import { themeAtom } from '@/atoms/themeAtoms';
-import { useWebSocketInit } from '@/hooks/useWebSocket';
 import { useAuthInit } from '@/hooks/useAuthInit';
 import { ConnectionStatus } from '@/components/ConnectionStatus';
 
@@ -31,11 +30,6 @@ function ThemeInitializer() {
   return null;
 }
 
-function WebSocketInitializer() {
-  useWebSocketInit();
-  return null;
-}
-
 function AuthInitializer() {
   useAuthInit();
   return null;
@@ -43,12 +37,9 @@ function AuthInitializer() {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider>
-      <ThemeInitializer />
-      <WebSocketInitializer />
-      <AuthInitializer />
-      <ConnectionStatus />
-      <App />
-    </Provider>
+    <ThemeInitializer />
+    <AuthInitializer />
+    <ConnectionStatus />
+    <App />
   </StrictMode>
 );

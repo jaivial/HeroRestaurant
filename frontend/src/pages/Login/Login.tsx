@@ -1,8 +1,18 @@
 import { useLoginForm } from './hooks/useLoginForm';
 import { Button, Input, Card } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { useAtomValue } from 'jotai';
+import { currentWorkspaceAtom } from '@/atoms/workspaceAtoms';
+import { Navigate } from 'react-router-dom';
 
 export function Login() {
   const { formData, errors, isLoading, handleSubmit, handleChange } = useLoginForm();
+  const { isAuthenticated } = useAuth();
+  const workspace = useAtomValue(currentWorkspaceAtom);
+
+  if (isAuthenticated && workspace) {
+    return <Navigate to={`/w/${workspace.id}/dashboard`} replace />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
