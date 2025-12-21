@@ -98,20 +98,29 @@ Use arbitrary font sizes to match Apple's standard dynamic type sizes:
 
 Instead of fixed hex codes, use semantic names based on their function. Always define values for both `light` and `dark` themes.
 
-### System Colors (Vibrant)
+#### System Colors (Vibrant)
 
 | Name | Light Mode | Dark Mode | Usage |
 |------|------------|-----------|-------|
 | `systemBlue` | `#007AFF` | `#0A84FF` | Primary actions, links |
-| `systemRed` | `#FF3B30` | `#FF453A` | Errors, destructive actions |
-| `systemGreen`| `#34C759` | `#30D158` | Success states |
-| `systemGray` | `#8E8E93` | `#8E8E93` | Neutral icons, borders |
+| `systemRed` | `#FF3B30" | `#FF453A" | Errors, destructive actions |
+| `systemGreen`| `#34C759" | `#30D158" | Success states |
+| `systemGray` | `#8E8E93" | `#8E8E93" | Neutral icons, borders |
 
-### Background & Surface Colors
+#### Text Colors (Semantic)
 
 | Name | Light Mode | Dark Mode | Usage |
 |------|------------|-----------|-------|
-| `primaryBG` | `#F2F2F7` | `#000000` | Main application background |
+| `primary` | `#1D1D1F" | `#FFFFFF" | Main body text |
+| `secondary`| `black/70` | `white/60` | Subtitles, secondary info |
+| `tertiary` | `black/55` | `white/45` | Placeholder text, meta info |
+| `quaternary`| `black/35` | `white/30` | Disabled text, separators |
+
+#### Background & Surface Colors
+
+| Name | Light Mode | Dark Mode | Usage |
+|------|------------|-----------|-------|
+| `primaryBG` | `#E5E5EA` | `#000000` | Main application background |
 | `secondaryBG`| `#FFFFFF` | `#1C1C1E` | Card surfaces, grouped lists |
 | `tertiaryBG` | `#F2F2F7` | `#2C2C2E` | Inner nested elements |
 
@@ -136,7 +145,7 @@ export function GlassComponent() {
   // 2. Theme-specific colors and shadows
   const themeClasses = theme === 'dark'
     ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
-    : 'bg-white/72 border-white/[0.18] shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]';
+    : 'bg-white/85 border-black/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.08)]';
 
   return (
     <div className={`${baseClasses} ${themeClasses} border rounded-[2.2rem]`}>
@@ -153,7 +162,7 @@ To give glass elements a premium feel, add a subtle inner border (stroke) that i
 ```tsx
 const innerStroke = theme === 'dark' 
   ? 'border-white/20' // Lighter edge for dark mode
-  : 'border-black/[0.05]'; // Darker edge for light mode
+  : 'border-black/[0.08]'; // Darker edge for light mode
 ```
 
 ---
@@ -363,15 +372,15 @@ export function GlassCard({
   const theme = useAtomValue(themeAtom);
 
   const variantClasses = {
-    default: theme === 'dark' ? 'bg-black/50' : 'bg-white/72',
-    subtle: theme === 'dark' ? 'bg-black/30' : 'bg-white/50',
-    solid: theme === 'dark' ? 'bg-black/75' : 'bg-white/90',
+    default: theme === 'dark' ? 'bg-black/50' : 'bg-white/85',
+    subtle: theme === 'dark' ? 'bg-black/30' : 'bg-white/60',
+    solid: theme === 'dark' ? 'bg-black/75' : 'bg-white/95',
   };
 
-  const borderClass = theme === 'dark' ? 'border-white/10' : 'border-white/[0.18]';
+  const borderClass = theme === 'dark' ? 'border-white/10' : 'border-black/[0.08]';
   const shadowClass = theme === 'dark' 
     ? 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
+    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.04)]';
 
   return (
     <div
@@ -454,5 +463,5 @@ export function ResponsiveContainer({ children }: { children: React.ReactNode })
 ```tsx
 const glassStyles = theme === 'dark'
   ? 'bg-black/95 [@supports(backdrop-filter:blur(0))]:bg-black/50 [@supports(backdrop-filter:blur(0))]:backdrop-blur-[20px]'
-  : 'bg-white/95 [@supports(backdrop-filter:blur(0))]:bg-white/72 [@supports(backdrop-filter:blur(0))]:backdrop-blur-[20px]';
+  : 'bg-white/95 [@supports(backdrop-filter:blur(0))]:bg-white/85 [@supports(backdrop-filter:blur(0))]:backdrop-blur-[20px]';
 ```

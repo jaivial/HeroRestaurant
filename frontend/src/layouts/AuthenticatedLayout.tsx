@@ -1,12 +1,14 @@
-import { memo, useEffect } from 'react';
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { Sidebar } from './Sidebar';
 import { TopHeader } from './TopHeader';
 import { HamburgerButton } from './HamburgerButton';
 import { cn } from '@/utils/cn';
+import { useWorkspaces } from '@/hooks/useWorkspaces';
+import { useClock } from '@/pages/Shifts/hooks/useClock';
 
 interface AuthenticatedLayoutProps {
   children?: ReactNode;
@@ -15,6 +17,16 @@ interface AuthenticatedLayoutProps {
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const theme = useAtomValue(themeAtom);
   const isDark = theme === 'dark';
+  const { workspaceId } = useParams();
+  const { loadWorkspaces } = useWorkspaces();
+
+  // Initialize clock status if in a workspace
+  useClock(workspaceId || '');
+
+  // Load workspaces on initial mount and when workspaceId in URL changes
+  useEffect(() => {
+    loadWorkspaces();
+  }, [loadWorkspaces, workspaceId]);
 
   // Sync dark class with document for components that still use native dark mode
   useEffect(() => {
@@ -28,7 +40,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <div className={cn(
       'min-h-screen transition-colors duration-350 ease-apple',
-      isDark ? 'bg-apple-gray-950 text-white' : 'bg-apple-gray-100 text-black'
+      isDark ? 'bg-apple-gray-950 text-white' : 'bg-apple-gray-200 text-black'
     )}>
       <div className="flex h-screen overflow-hidden">
         <Sidebar />
@@ -41,7 +53,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
             'min-[480px]:p-6',
             'min-[1024px]:p-8',
             'transition-colors duration-350 ease-apple',
-            isDark ? 'bg-[#1C1C1E]' : 'bg-[#F2F2F7]'
+            isDark ? 'bg-[#1C1C1E]' : 'bg-apple-gray-200'
           )}>
             <div className="max-w-[1600px] mx-auto">
               {children || <Outlet />}

@@ -1,7 +1,6 @@
 import type { LoginFormProps } from '../../../types';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
-import { Button, Input } from '@/components/ui';
 
 export function LoginForm({
   formData,

@@ -26,7 +26,7 @@ export function Sidebar() {
 
   const glassClasses = isDark
     ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-white/[0.18]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08]';
 
   const shadowClass = isDark
     ? 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
@@ -63,7 +63,7 @@ export function Sidebar() {
         {/* Header */}
         <div className={cn(
           'p-5 border-b',
-          isDark ? 'border-white/10' : 'border-black/5'
+          isDark ? 'border-white/10' : 'border-black/[0.08]'
         )}>
           <div className="flex items-center justify-between mb-1">
             <h2 className={cn(
@@ -113,10 +113,10 @@ export function Sidebar() {
             ))}
 
             {/* Root User Section (Accordion) */}
-            {isRoot && (
+            {isRoot && internalNavItems.length > 0 && (
               <li className={cn(
                 'pt-4 mt-4 border-t',
-                isDark ? 'border-white/10' : 'border-black/5'
+                isDark ? 'border-white/10' : 'border-black/[0.08]'
               )}>
                 <button
                   onClick={() => setInternalOpen(!internalOpen)}
@@ -174,7 +174,7 @@ export function Sidebar() {
         {/* Footer */}
         <div className={cn(
           'p-4 border-t',
-          isDark ? 'border-white/10' : 'border-black/5'
+          isDark ? 'border-white/10' : 'border-black/[0.08]'
         )}>
           <p className={cn(
             'text-xs text-center',
@@ -205,11 +205,11 @@ const SidebarNavItem = memo(function SidebarNavItem({
 }: SidebarNavItemProps) {
   const activeClasses = isDark
     ? 'backdrop-blur-[20px] saturate-[180%] bg-white/10 text-white border-white/10 shadow-[0_4px_6px_-1px_rgba(255,255,255,0.05)]'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-black/5 text-black border-black/5 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-black/[0.08] text-black border-black/[0.05] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)]';
 
   const inactiveClasses = isDark
     ? 'text-white/60 hover:text-white hover:bg-white/5'
-    : 'text-black/60 hover:text-black hover:bg-black/5';
+    : 'text-black/70 hover:text-black hover:bg-black/[0.05]';
 
   return (
     <li>

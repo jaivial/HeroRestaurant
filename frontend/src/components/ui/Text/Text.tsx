@@ -104,9 +104,9 @@ export const Text = memo(function Text({
 
   const colorClasses: Record<TextColor, string> = {
     primary: theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]',
-    secondary: theme === 'dark' ? 'text-white/60' : 'text-black/60',
-    tertiary: theme === 'dark' ? 'text-white/40' : 'text-black/40',
-    quaternary: theme === 'dark' ? 'text-white/20' : 'text-black/20',
+    secondary: theme === 'dark' ? 'text-white/60' : 'text-black/70',
+    tertiary: theme === 'dark' ? 'text-white/45' : 'text-black/55',
+    quaternary: theme === 'dark' ? 'text-white/30' : 'text-black/35',
     blue: theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]',
     green: theme === 'dark' ? 'text-[#30D158]' : 'text-[#34C759]',
     red: theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]',

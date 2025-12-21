@@ -24,6 +24,7 @@ export const WS_MESSAGE_CATEGORIES = [
   'dish',
   'section',
   'settings',
+  'shift',
   'system',
 ] as const;
 
@@ -46,7 +47,8 @@ export type RestaurantAction =
   | 'list'
   | 'get'
   | 'update'
-  | 'delete';
+  | 'delete'
+  | 'select';
 
 export type MemberAction =
   | 'list'
@@ -61,6 +63,12 @@ export type RoleAction =
   | 'delete';
 
 export type SystemAction = 'ping' | 'pong';
+
+export type ShiftAction = 
+  | 'punch'
+  | 'get_status'
+  | 'get_personal_stats'
+  | 'get_team_stats';
 
 // ============================================================================
 // Base Message Types
@@ -236,6 +244,44 @@ export interface RestaurantUpdatePayload {
   coverUrl?: string | null;
   timezone?: string;
   currency?: string;
+  websiteUrl?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  primaryColor?: string;
+  defaultLanguage?: string;
+  defaultTaxRate?: number;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  settings?: {
+    openingHours?: OpeningHour[];
+    mealSchedules?: MealSchedules;
+  };
+}
+
+export interface OpeningHour {
+  day: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
+export interface MealSchedule {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+export interface MealSchedules {
+  breakfast: MealSchedule;
+  brunch: MealSchedule;
+  lunch: MealSchedule;
+  merienda: MealSchedule;
+  dinner: MealSchedule;
 }
 
 export interface RestaurantDeletePayload {
@@ -453,10 +499,42 @@ export const restaurantUpdatePayloadSchema = z.object({
   coverUrl: z.string().url().nullable().optional(),
   timezone: z.string().optional(),
   currency: z.string().optional(),
+  websiteUrl: z.string().url().nullable().optional(),
+  instagramUrl: z.string().url().nullable().optional(),
+  facebookUrl: z.string().url().nullable().optional(),
+  primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i).optional(),
+  defaultLanguage: z.string().min(2).optional(),
+  defaultTaxRate: z.number().min(0).optional(),
+  address: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  postalCode: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
+  contactEmail: z.string().email().nullable().optional(),
+  contactPhone: z.string().nullable().optional(),
+  settings: z.object({
+    openingHours: z.array(z.object({
+      day: z.enum(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']),
+      isOpen: z.boolean(),
+      openTime: z.string(),
+      closeTime: z.string(),
+    })).optional(),
+    mealSchedules: z.object({
+      breakfast: z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() }),
+      brunch: z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() }),
+      lunch: z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() }),
+      merienda: z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() }),
+      dinner: z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() }),
+    }).optional(),
+  }).optional(),
 });
 
 export const restaurantDeletePayloadSchema = z.object({
   restaurantId: z.string().min(1),
+});
+
+export const restaurantSelectPayloadSchema = z.object({
+  restaurantId: z.string().min(1).nullable(),
 });
 
 export const memberListPayloadSchema = z.object({
@@ -514,6 +592,25 @@ export const pingPayloadSchema = z.object({
   clientTime: z.string(),
 });
 
+export const shiftPunchPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  action: z.enum(['in', 'out']),
+  notes: z.string().optional(),
+});
+
+export const shiftGetStatusPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+});
+
+export const shiftGetPersonalStatsPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  period: z.enum(['daily', 'weekly', 'monthly', 'trimestral', 'semmestral', 'anual']),
+});
+
+export const shiftGetTeamStatsPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+});
+
 // ============================================================================
 // Public Actions (no auth required)
 // ============================================================================
@@ -545,6 +642,7 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'restaurant.get': restaurantGetPayloadSchema,
   'restaurant.update': restaurantUpdatePayloadSchema,
   'restaurant.delete': restaurantDeletePayloadSchema,
+  'restaurant.select': restaurantSelectPayloadSchema,
   'member.list': memberListPayloadSchema,
   'member.invite': memberInvitePayloadSchema,
   'member.update': memberUpdatePayloadSchema,
@@ -574,6 +672,10 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'settings.get': z.object({ restaurantId: z.string().min(1) }),
   'settings.update': settingsUpdatePayloadSchema,
   'system.ping': pingPayloadSchema,
+  'shift.punch': shiftPunchPayloadSchema,
+  'shift.get_status': shiftGetStatusPayloadSchema,
+  'shift.get_personal_stats': shiftGetPersonalStatsPayloadSchema,
+  'shift.get_team_stats': shiftGetTeamStatsPayloadSchema,
 };
 
 // ============================================================================

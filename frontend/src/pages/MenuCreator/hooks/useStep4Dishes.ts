@@ -41,7 +41,7 @@ export function useStep4Dishes() {
         return { ...prev, sections: newSections };
       });
     }
-  }, [menu?.sections?.length, setMenu]);
+  }, [menu?.sections, setMenu]);
 
   const updateDish = useCallback((sectionId: string, dishId: string, updates: Partial<Dish>) => {
     setMenu(prev => {

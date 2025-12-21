@@ -18,7 +18,7 @@ export function Dashboard() {
           'p-12 rounded-[2.2rem] backdrop-blur-[20px] saturate-[180%] transition-all duration-350',
           isDark 
             ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]' 
-            : 'bg-white/72 border-black/[0.05] shadow-[0_8px_32px_rgba(0,0,0,0.05)]'
+            : 'bg-white/85 border-black/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)]'
         )}>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-apple-blue"></div>
         </div>
@@ -40,7 +40,7 @@ export function Dashboard() {
           'mt-1 transition-colors duration-300',
           isDark ? 'text-white/40' : 'text-black/40'
         )}>
-          Welcome back! Here's what's happening today.
+          Welcome back! Here&apos;s what&apos;s happening today.
         </p>
       </div>
 

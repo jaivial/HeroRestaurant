@@ -26,6 +26,8 @@ export interface DB {
   open_menus: OpenMenusTable;
   menu_sections: MenuSectionsTable;
   dishes: DishesTable;
+  member_contracts: MemberContractsTable;
+  member_shifts: MemberShiftsTable;
 }
 
 // ============= Users Table =============
@@ -64,6 +66,12 @@ export interface RestaurantsTable {
   country: string | null;
   timezone: string;
   currency: string;
+  website_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  primary_color: string;
+  default_language: string;
+  default_tax_rate: number;
   contact_email: string | null;
   contact_phone: string | null;
   feature_flags: bigint;
@@ -159,9 +167,31 @@ export interface RestaurantSettingsTable {
   id: Generated<string>;
   restaurant_id: string;
   opening_days: string; // JSON string: string[]
-  meal_schedules: string; // JSON string: { breakfast: boolean, lunch: boolean, dinner: boolean }
+  opening_hours: string | null; // JSON string: OpeningHour[]
+  meal_schedules: string; // JSON string: MealSchedules
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
+}
+
+export interface OpeningHour {
+  day: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+  isOpen: boolean;
+  openTime: string; // HH:mm
+  closeTime: string; // HH:mm
+}
+
+export interface MealSchedule {
+  enabled: boolean;
+  startTime: string; // HH:mm
+  endTime: string; // HH:mm
+}
+
+export interface MealSchedules {
+  breakfast: MealSchedule;
+  brunch: MealSchedule;
+  lunch: MealSchedule;
+  merienda: MealSchedule;
+  dinner: MealSchedule;
 }
 
 export type RestaurantSettings = Selectable<RestaurantSettingsTable>;
@@ -241,3 +271,34 @@ export interface DishesTable {
 export type Dish = Selectable<DishesTable>;
 export type NewDish = Insertable<DishesTable>;
 export type DishUpdate = Updateable<DishesTable>;
+
+// ============= Member Contracts Table =============
+export interface MemberContractsTable {
+  id: Generated<string>;
+  membership_id: string;
+  weekly_hours: number;
+  effective_from: Date;
+  effective_to: Date | null;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type MemberContract = Selectable<MemberContractsTable>;
+export type NewMemberContract = Insertable<MemberContractsTable>;
+export type MemberContractUpdate = Updateable<MemberContractsTable>;
+
+// ============= Member Shifts Table =============
+export interface MemberShiftsTable {
+  id: Generated<string>;
+  membership_id: string;
+  punch_in_at: Date;
+  punch_out_at: Date | null;
+  total_minutes: number | null;
+  notes: string | null;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type MemberShift = Selectable<MemberShiftsTable>;
+export type NewMemberShift = Insertable<MemberShiftsTable>;
+export type MemberShiftUpdate = Updateable<MemberShiftsTable>;

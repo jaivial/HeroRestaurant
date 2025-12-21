@@ -19,6 +19,7 @@ import { restaurantHandlers } from './restaurant.handler';
 import { memberHandlers } from './member.handler';
 import { roleHandlers } from './role.handler';
 import { menuHandlers } from './menu.handler';
+import { shiftHandlers } from './shift.handler';
 
 // Type for handler functions
 type MessageHandler = (
@@ -50,6 +51,7 @@ const handlers: Record<string, MessageHandler> = {
   'restaurant.get': restaurantHandlers.get,
   'restaurant.update': restaurantHandlers.update,
   'restaurant.delete': restaurantHandlers.delete,
+  'restaurant.select': restaurantHandlers.select,
 
   // Member handlers
   'member.list': memberHandlers.list,
@@ -76,6 +78,11 @@ const handlers: Record<string, MessageHandler> = {
   'dish.uploadImage': menuHandlers.uploadImage,
   'settings.get': menuHandlers.getSettings,
   'settings.update': menuHandlers.updateSettings,
+  // Shift handlers
+  'shift.punch': shiftHandlers.punch,
+  'shift.get_status': shiftHandlers.getStatus,
+  'shift.get_personal_stats': shiftHandlers.getPersonalStats,
+  'shift.get_team_stats': shiftHandlers.getTeamStats,
 };
 
 /**

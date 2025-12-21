@@ -11,7 +11,7 @@ export function LoginFooter({ onSignupClick }: LoginFooterProps) {
         text-sm
         ${theme === 'dark' ? 'text-[#AEAEB2]' : 'text-[#636366]'}
       `}>
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <a
           href="/signup"
           onClick={(e) => {

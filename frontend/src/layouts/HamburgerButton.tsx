@@ -14,7 +14,7 @@ export function HamburgerButton() {
 
   const glassClasses = isDark
     ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-white/[0.18]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08]';
 
   const shadowClass = isDark
     ? 'shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]'

@@ -1,7 +1,5 @@
 import { Modal, Text, Avatar, Badge, Divider, Button } from '@/components/ui';
 import type { Member } from '@/atoms/memberAtoms';
-import { useAtomValue } from 'jotai';
-import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '@/utils/cn';
 
 interface MemberDetailModalProps {
@@ -11,8 +9,6 @@ interface MemberDetailModalProps {
 }
 
 export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModalProps) {
-  const theme = useAtomValue(themeAtom);
-
   const formatDate = (value: unknown) => {
     const d = new Date(value as any);
     if (Number.isNaN(d.getTime())) return '—';
@@ -31,31 +27,24 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
     }).format(d);
   };
 
-  // #region agent log
-  fetch('http://127.0.0.1:7245/ingest/827a7c12-9c88-49e1-8128-1dae51d828e7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MemberDetailModal.tsx:13',message:'MemberDetailModal render',data:{isOpen, hasMember:!!member, memberId:member?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D/E'})}).catch(()=>{});
-  // #endregion
   if (!member) return null;
 
   const surfaceCard = cn(
     'rounded-[1.2rem] border',
-    theme === 'dark'
-      ? 'bg-white/5 border-white/10'
-      : 'bg-black/[0.03] border-black/[0.06]'
+    'bg-black/[0.03] border-black/[0.06] dark:bg-white/5 dark:border-white/10'
   );
 
   const headerPill = cn(
     'inline-flex items-center justify-center rounded-full border px-4 py-1.5',
-    theme === 'dark'
-      ? 'bg-white/5 border-white/10'
-      : 'bg-black/[0.03] border-black/[0.06]'
+    'bg-black/[0.03] border-black/[0.06] dark:bg-white/5 dark:border-white/10'
   );
 
   // High-contrast text for dark mode readability
-  const primaryText = theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]';
-  const secondaryText = theme === 'dark' ? 'text-white/70' : 'text-[#1D1D1F]/60';
-  const tertiaryText = theme === 'dark' ? 'text-white/50' : 'text-[#1D1D1F]/45';
+  const primaryText = 'text-[#1D1D1F] dark:text-white';
+  const secondaryText = 'text-[#1D1D1F]/60 dark:text-white/70';
+  const tertiaryText = 'text-[#1D1D1F]/45 dark:text-white/50';
 
-  const modalBg = theme === 'dark' ? 'bg-[#2C2A26]' : 'bg-[#FAF8F5]';
+  const modalBg = 'bg-[#FAF8F5] dark:bg-[#2C2A26]';
 
   return (
     <Modal

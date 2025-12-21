@@ -120,10 +120,12 @@ export const restaurantHandlers = {
 
     try {
       const restaurant = await RestaurantService.getById(restaurantId, userId);
+      const { menuRepository } = await import('../../repositories/menu.repository');
+      const settings = await menuRepository.getSettings(restaurantId);
 
       return {
         data: {
-          restaurant: toRestaurant(restaurant),
+          restaurant: toRestaurant(restaurant, settings),
         },
       };
     } catch (error: any) {
@@ -151,8 +153,12 @@ export const restaurantHandlers = {
       };
     }
 
-    const { restaurantId, name, description, logoUrl, coverUrl, timezone, currency } =
-      payload as RestaurantUpdatePayload;
+    const { 
+      restaurantId, name, description, logoUrl, coverUrl, timezone, currency,
+      websiteUrl, instagramUrl, facebookUrl, primaryColor, defaultLanguage, defaultTaxRate,
+      address, city, state, postalCode, country, contactEmail, contactPhone,
+      settings 
+    } = payload as RestaurantUpdatePayload;
 
     try {
       // Check permission
@@ -173,11 +179,36 @@ export const restaurantHandlers = {
         coverImageUrl: coverUrl,
         timezone,
         currency,
+        websiteUrl,
+        instagramUrl,
+        facebookUrl,
+        primaryColor,
+        defaultLanguage,
+        defaultTaxRate,
+        address,
+        city,
+        state,
+        postalCode,
+        country,
+        contactEmail,
+        contactPhone,
       });
+
+      // Update nested settings if provided
+      let finalSettings = undefined;
+      const { menuRepository } = await import('../../repositories/menu.repository');
+      if (settings) {
+        finalSettings = await menuRepository.upsertSettings(restaurantId, {
+          opening_hours: settings.openingHours ? JSON.stringify(settings.openingHours) : undefined,
+          meal_schedules: settings.mealSchedules ? JSON.stringify(settings.mealSchedules) : undefined,
+        });
+      } else {
+        finalSettings = await menuRepository.getSettings(restaurantId);
+      }
 
       return {
         data: {
-          restaurant: toRestaurant(restaurant),
+          restaurant: toRestaurant(restaurant, finalSettings),
         },
       };
     } catch (error: any) {
@@ -231,6 +262,56 @@ export const restaurantHandlers = {
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'Failed to delete restaurant',
+        },
+      };
+    }
+  },
+
+  /**
+   * Select a restaurant (set current context)
+   */
+  async select(ws: WSConnection, payload: unknown): HandlerResult {
+    const { userId } = ws.data;
+
+    if (!userId) {
+      return {
+        error: {
+          code: 'WS_NOT_AUTHENTICATED',
+          message: 'Not authenticated',
+        },
+      };
+    }
+
+    const { restaurantId } = payload as { restaurantId: string | null };
+
+    try {
+      if (restaurantId) {
+        // Verify membership
+        const membership = await MembershipService.getMembership(userId, restaurantId);
+        if (!membership) {
+          return {
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You are not a member of this restaurant',
+            },
+          };
+        }
+      }
+
+      // Update connection context
+      ws.data.currentRestaurantId = restaurantId;
+
+      return {
+        data: {
+          success: true,
+          restaurantId,
+        },
+      };
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'Failed to select restaurant',
         },
       };
     }

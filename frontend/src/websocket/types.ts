@@ -13,6 +13,7 @@ export type WSMessageCategory =
   | 'dish'
   | 'section'
   | 'settings'
+  | 'shift'
   | 'system';
 
 // ============================================================================

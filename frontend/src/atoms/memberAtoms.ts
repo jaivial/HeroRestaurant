@@ -6,6 +6,7 @@ export interface Member {
   user: {
     id: string;
     name: string;
+    email: string;
     avatarUrl: string | null;
   };
   roleId: string | null;

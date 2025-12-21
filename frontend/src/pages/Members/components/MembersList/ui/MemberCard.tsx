@@ -12,14 +12,25 @@ interface MemberCardProps {
   onEdit: (member: Member) => void;
   onRemove: (member: Member) => void;
   onView: (member: Member) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove, onEdit, onRemove, onView }: MemberCardProps) {
+export const MemberCard = memo(function MemberCard({ 
+  member, 
+  canEdit, 
+  canRemove, 
+  onEdit, 
+  onRemove, 
+  onView,
+  className,
+  style
+}: MemberCardProps) {
   const theme = useAtomValue(themeAtom);
 
   const glassClasses = theme === 'dark'
     ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-white/[0.18] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.04)]';
 
   const hoverShadow = theme === 'dark'
     ? 'hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_8px_10px_-6px_rgba(0,0,0,0.4)]'
@@ -32,8 +43,10 @@ export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove,
         "min-h-min max-h-min justify-between",
         "hover:scale-[1.02] active:scale-[0.98]",
         glassClasses,
-        hoverShadow
+        hoverShadow,
+        className
       )}
+      style={style}
     >
       {/* Background Decor */}
       <div className="absolute -top-12 -right-12 w-24 h-24 bg-apple-blue/10 rounded-full blur-2xl group-hover:bg-apple-blue/20 transition-all duration-700" />
@@ -98,12 +111,7 @@ export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove,
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             }
-            onClick={() => {
-              // #region agent log
-              fetch('http://127.0.0.1:7245/ingest/827a7c12-9c88-49e1-8128-1dae51d828e7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MemberCard.tsx:102',message:'onView clicked',data:{memberId:member.id, hasOnView:!!onView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-              // #endregion
-              onView(member);
-            }}
+            onClick={() => onView(member)}
             variant="tinted"
             color="blue"
             size="md"

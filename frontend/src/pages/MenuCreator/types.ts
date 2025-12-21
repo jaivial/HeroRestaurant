@@ -86,7 +86,7 @@ export interface MenuCreatorStats {
 
 // ─── Component Props ──────────────────────────────────────────
 
-export interface MenuCreatorProps {}
+export type MenuCreatorProps = Record<string, never>;
 
 export interface MenuDashboardProps {
   menus: Menu[];
@@ -103,9 +103,7 @@ export interface MenuOnboardingProps {
   isValid: boolean;
 }
 
-export interface StepProps {
-  // Common step props if needed
-}
+export type StepProps = Record<string, never>;
 
 export interface StatsSectionProps {
   stats: MenuCreatorStats;

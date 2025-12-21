@@ -4,7 +4,9 @@ import { currentUserPriorityAtom, canManageMembersAtom, canManageRolesAtom } fro
 import { useMembers } from './hooks/useMembers';
 import { useRoles } from './hooks/useRoles';
 import { useMembersUI } from './hooks/useMembersUI';
+import { useMemberFilters } from './hooks/useMemberFilters';
 import { MembersList } from './components/MembersList/MembersList';
+import { MemberFilters } from './components/MembersList/ui/MemberFilters';
 import { RolesList } from './components/RolesList/RolesList';
 import { RoleEditor } from './components/RoleEditor/RoleEditor';
 import { MemberEditor } from './components/MemberEditor/MemberEditor';
@@ -17,6 +19,13 @@ export function Members() {
   const currentUserPriority = useAtomValue(currentUserPriorityAtom);
   const canManageMembers = useAtomValue(canManageMembersAtom);
   const canManageRoles = useAtomValue(canManageRolesAtom);
+
+  const {
+    filters,
+    updateFilter,
+    resetFilters,
+    filteredMembers
+  } = useMemberFilters(members);
 
   const {
     activeTab,
@@ -54,23 +63,25 @@ export function Members() {
           <Text color="tertiary">Manage people and their roles in this workspace.</Text>
         </div>
         
-        {activeTab === 'members' && canManageMembers && (
-          <Button 
-            onClick={() => {/* Open invite modal */}}
-            className="rounded-[1rem] shadow-apple-md"
-          >
-            Invite Member
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {activeTab === 'members' && canManageMembers && (
+            <Button 
+              onClick={() => {/* Open invite modal */}}
+              className="rounded-[1.2rem] shadow-apple-md font-bold px-6"
+            >
+              Invite Member
+            </Button>
+          )}
 
-        {activeTab === 'roles' && canManageRoles && (
-          <Button 
-            onClick={handleCreateRole}
-            className="rounded-[1rem] shadow-apple-md"
-          >
-            Create Role
-          </Button>
-        )}
+          {activeTab === 'roles' && canManageRoles && (
+            <Button 
+              onClick={handleCreateRole}
+              className="rounded-[1.2rem] shadow-apple-md font-bold px-6"
+            >
+              Create Role
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mb-8 flex justify-center">
@@ -79,9 +90,13 @@ export function Members() {
           value={activeTab}
           onChange={(id) => setActiveTab(id as any)}
         >
-          <TabsList variant="glass" className="min-w-[240px]">
+          <TabsList variant="glass" className="min-w-[240px] p-1 bg-black/5 dark:bg-white/5 rounded-full">
             {tabs.map(tab => (
-              <TabsTrigger key={tab.id} value={tab.id} className="flex-1 px-8 py-2.5 text-base">
+              <TabsTrigger 
+                key={tab.id} 
+                value={tab.id} 
+                className="flex-1 px-8 py-2.5 text-base font-semibold transition-all duration-300 rounded-full data-[state=active]:bg-white dark:data-[state=active]:bg-white/20 data-[state=active]:shadow-apple-sm"
+              >
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -89,9 +104,22 @@ export function Members() {
         </Tabs>
       </div>
 
+      {activeTab === 'members' && (
+        <MemberFilters
+          search={filters.search}
+          onSearchChange={(val) => updateFilter('search', val)}
+          roleId={filters.roleId}
+          onRoleChange={(val) => updateFilter('roleId', val)}
+          status={filters.status}
+          onStatusChange={(val) => updateFilter('status', val)}
+          roles={roles}
+          onReset={resetFilters}
+        />
+      )}
+
       {activeTab === 'members' ? (
         <MembersList 
-          members={members} 
+          members={filteredMembers} 
           isLoading={membersLoading} 
           currentUserPriority={currentUserPriority}
           onEdit={handleEditMember}

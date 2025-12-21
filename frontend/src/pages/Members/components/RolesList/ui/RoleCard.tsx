@@ -2,18 +2,31 @@ import { memo } from 'react';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { Card, Badge, Text, IconButton } from '@/components/ui';
+import { PERMISSIONS } from '@/utils/permissions';
 import type { RoleRowProps } from '../../../types';
+import { cn } from '@/utils/cn';
 
-export const RoleCard = memo(function RoleCard({ role, canEdit, onEdit, onDelete }: RoleRowProps) {
+export const RoleCard = memo(function RoleCard({ 
+  role, 
+  canEdit, 
+  onEdit, 
+  onDelete,
+  className,
+  style 
+}: RoleRowProps) {
   const theme = useAtomValue(themeAtom);
-
-  const glassClasses = theme === 'dark'
-    ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border border-white/10'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border border-white/[0.18]';
 
   return (
     <Card 
-      className={`p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col justify-between h-full ${glassClasses} shadow-apple-sm hover:shadow-apple-float group relative overflow-hidden`}
+      className={cn(
+        'p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col justify-between h-full shadow-apple-sm hover:shadow-apple-float group relative overflow-hidden',
+        'backdrop-blur-[20px] saturate-[180%] border',
+        theme === 'dark' 
+          ? 'bg-black/50 border-white/10' 
+          : 'bg-white/85 border-black/[0.08]',
+        className
+      )}
+      style={style}
     >
       {/* Background Decor */}
       <div className="absolute -top-12 -right-12 w-24 h-24 bg-apple-purple/5 rounded-full blur-2xl group-hover:bg-apple-purple/10 transition-colors duration-500" />
@@ -36,9 +49,32 @@ export const RoleCard = memo(function RoleCard({ role, canEdit, onEdit, onDelete
           )}
         </div>
         
-        <Text variant="body" className="line-clamp-3 mb-6 text-content-secondary leading-relaxed">
+        <Text variant="body" className="line-clamp-2 mb-6 text-content-secondary leading-relaxed h-12">
           {role.description || 'No description provided for this role.'}
         </Text>
+
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {(() => {
+            const perms = BigInt(role.permissions);
+            const summary = [];
+            if (perms === (1n << 64n) - 1n) {
+               summary.push('Full Access');
+            } else {
+               if ((perms & PERMISSIONS.MANAGE_ROLES) !== 0n) summary.push('Admin');
+               if ((perms & PERMISSIONS.EDIT_MENU) !== 0n) summary.push('Menu Editor');
+               if ((perms & PERMISSIONS.CREATE_ORDERS) !== 0n) summary.push('Orders');
+               if ((perms & PERMISSIONS.VIEW_REPORTS) !== 0n) summary.push('Reports');
+            }
+            
+            if (summary.length === 0) summary.push('Basic Access');
+            
+            return summary.map(s => (
+              <Badge key={s} variant="secondary" size="sm" className="bg-apple-gray-100/50 dark:bg-white/5 text-[10px] uppercase tracking-wider px-2 py-0.5">
+                {s}
+              </Badge>
+            ));
+          })()}
+        </div>
       </div>
 
       <div className="flex items-center justify-between mt-auto pt-4 border-t border-surface-tertiary/30">
@@ -79,4 +115,5 @@ export const RoleCard = memo(function RoleCard({ role, canEdit, onEdit, onDelete
     </Card>
   );
 });
+
 

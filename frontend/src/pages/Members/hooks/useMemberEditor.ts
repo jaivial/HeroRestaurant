@@ -8,8 +8,11 @@ export function useMemberEditor(member: Member | null | undefined, isOpen: boole
 
   useEffect(() => {
     if (member && isOpen) {
-      setRoleId(member.role_id || '');
-      setStatus(member.status as 'active' | 'suspended');
+      const timeout = setTimeout(() => {
+        setRoleId(prev => prev !== (member.roleId || '') ? (member.roleId || '') : prev);
+        setStatus(prev => prev !== (member.status as 'active' | 'suspended') ? (member.status as 'active' | 'suspended') : prev);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
   }, [member, isOpen]);
 

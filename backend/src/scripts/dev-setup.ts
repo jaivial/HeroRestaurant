@@ -37,6 +37,10 @@ async function setup(): Promise<void> {
     console.log('═══════════════════════════════════════════════════════');
     console.log('  Setup complete! Starting development server...');
     console.log('═══════════════════════════════════════════════════════\n');
+
+    await db.destroy();
+    await closePool();
+    process.exit(0);
   } catch (error) {
     console.error('\n✗ Setup failed:', error);
     await db.destroy();

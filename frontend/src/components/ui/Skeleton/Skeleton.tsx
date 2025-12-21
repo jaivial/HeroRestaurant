@@ -95,7 +95,7 @@ export const SkeletonCard = memo(function SkeletonCard({
       style={style}
       className={cn(
         'rounded-[2.2rem] p-8 border',
-        theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/72 border-white/[0.18]',
+        theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/85 border-black/[0.08]',
         className
       )}
     >

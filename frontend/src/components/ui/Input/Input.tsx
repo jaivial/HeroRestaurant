@@ -4,9 +4,9 @@ import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
+  label?: React.ReactNode;
+  error?: React.ReactNode;
+  helperText?: React.ReactNode;
   variant?: 'default' | 'filled' | 'ghost';
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -36,11 +36,12 @@ export const Input = memo(
       ref
     ) => {
       const theme = useAtomValue(themeAtom);
+      const isDark = theme === 'dark';
       const hasError = Boolean(error);
 
       const labelClasses = cn(
         'block text-[14px] font-medium mb-2',
-        theme === 'dark' ? 'text-white/60' : 'text-black/60',
+        isDark ? 'text-white/60' : 'text-black/60',
         disabled && 'opacity-50'
       );
 
@@ -53,24 +54,24 @@ export const Input = memo(
       );
 
       const variantClasses = {
-        default: theme === 'dark'
+        default: isDark
           ? 'bg-white/5 border-white/10 focus:border-[#0A84FF] text-white placeholder:text-white/30'
           : 'bg-black/5 border-black/5 focus:border-[#007AFF] text-black placeholder:text-black/30',
-        filled: theme === 'dark'
+        filled: isDark
           ? 'bg-white/10 border-transparent focus:bg-white/15 text-white placeholder:text-white/30'
           : 'bg-black/5 border-transparent focus:bg-black/10 text-black placeholder:text-black/30',
         ghost: 'bg-transparent border-transparent text-current',
       };
 
-      const errorClasses = theme === 'dark'
+      const errorClasses = isDark
         ? 'border-[#FF453A] focus:border-[#FF453A]'
         : 'border-[#FF3B30] focus:border-[#FF3B30]';
 
       const helperClasses = cn(
         'mt-1.5 text-[12px]',
         hasError 
-          ? (theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]') 
-          : (theme === 'dark' ? 'text-white/40' : 'text-black/40')
+          ? (isDark ? 'text-[#FF453A]' : 'text-[#FF3B30]') 
+          : (isDark ? 'text-white/40' : 'text-black/40')
       );
 
       return (

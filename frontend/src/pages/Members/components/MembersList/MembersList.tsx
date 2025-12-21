@@ -28,8 +28,16 @@ export function MembersList(props: ExtendedMembersListProps) {
 
   if (members.length === 0) {
     return (
-      <Card className="p-12 text-center rounded-[2.2rem] border-dashed border-2">
-        <Text color="tertiary">No members found in this workspace.</Text>
+      <Card className="p-16 text-center rounded-[2.2rem] border-dashed border-2 flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-apple-gray-100 dark:bg-apple-gray-900 flex items-center justify-center text-apple-gray-400">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <div>
+          <Text variant="headline" weight="bold">No members found</Text>
+          <Text color="tertiary">Try adjusting your filters or invite new members to this workspace.</Text>
+        </div>
       </Card>
     );
   }

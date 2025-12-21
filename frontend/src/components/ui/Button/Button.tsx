@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-export type ButtonVariant = 'filled' | 'tinted' | 'gray' | 'plain' | 'danger' | 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'filled' | 'tinted' | 'gray' | 'plain' | 'danger' | 'primary' | 'secondary' | 'ghost' | 'error' | 'glass';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -49,6 +49,8 @@ export const Button = memo(function Button({
     plain: 'bg-transparent text-[#007AFF]',
     ghost: 'bg-transparent text-[#007AFF]',
     danger: theme === 'dark' ? 'bg-[#FF453A] text-white' : 'bg-[#FF3B30] text-white',
+    error: theme === 'dark' ? 'bg-[#FF453A] text-white' : 'bg-[#FF3B30] text-white',
+    glass: theme === 'dark' ? 'bg-white/10 border-white/10 text-white backdrop-blur-md' : 'bg-black/5 border-black/5 text-black backdrop-blur-md',
   };
 
   return (

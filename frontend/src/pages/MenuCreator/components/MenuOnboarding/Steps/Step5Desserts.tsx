@@ -33,7 +33,7 @@ export function Step5Desserts() {
                   <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors", dessertSource === 'internal' ? "border-apple-blue bg-apple-blue" : "border-apple-gray-500 dark:border-apple-gray-400 bg-apple-gray-100 dark:bg-apple-gray-800")}>
                     {dessertSource === 'internal' && <div className="w-2.5 h-2.5 rounded-full bg-white dark:bg-apple-gray-900 shadow-sm" />}
                   </div>
-                  <Text weight="semibold" className="text-xl">Menu's Own Desserts</Text>
+                  <Text weight="semibold" className="text-xl">Menu&apos;s Own Desserts</Text>
                 </div>
                 <Text variant="footnote" color="secondary" className="text-base leading-relaxed">
                   Create a specific list of desserts just for this menu.
@@ -84,7 +84,7 @@ export function Step5Desserts() {
               </svg>
             </div>
             <Text variant="footnote" weight="medium" className="text-lg leading-relaxed text-info-text-orange-light dark:text-info-text-orange-dark">
-              The "Desserts" section will be linked to your global dessert catalog. Make sure you have it updated in the Store settings.
+              The &quot;Desserts&quot; section will be linked to your global dessert catalog. Make sure you have it updated in the Store settings.
             </Text>
           </div>
         )}

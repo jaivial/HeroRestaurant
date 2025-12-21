@@ -80,6 +80,12 @@ export interface Restaurant {
   country: string | null;
   timezone: string;
   currency: string;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  primaryColor: string;
+  defaultLanguage: string;
+  defaultTaxRate: number;
   contactEmail: string | null;
   contactPhone: string | null;
   featureFlags: string;
@@ -88,10 +94,37 @@ export interface Restaurant {
   trialEndsAt: string | null;
   createdAt: string;
   updatedAt: string;
+  settings?: RestaurantSettings;
+}
+
+export interface OpeningHour {
+  day: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
+export interface MealSchedule {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+export interface MealSchedules {
+  breakfast: MealSchedule;
+  brunch: MealSchedule;
+  lunch: MealSchedule;
+  merienda: MealSchedule;
+  dinner: MealSchedule;
+}
+
+export interface RestaurantSettings {
+  openingHours: OpeningHour[];
+  mealSchedules: MealSchedules;
 }
 
 // Legacy alias
-export type Workspace = RestaurantMinimal & {
+export type Workspace = RestaurantMinimal & Partial<Restaurant> & {
   permissions: bigint;
 };
 

@@ -11,9 +11,7 @@ export interface LoginFormErrors {
 }
 
 // ─── Component Props ────────────────────────────────────────
-export interface LoginSectionProps {
-  // Logic handled inside
-}
+export type LoginSectionProps = Record<string, never>;
 
 export interface LoginFormProps {
   formData: LoginFormData;

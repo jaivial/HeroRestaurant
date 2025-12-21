@@ -1,9 +1,10 @@
-import { memo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { themeAtom, toggleThemeAtom } from '@/atoms/themeAtoms';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
 import { Avatar } from '@/components/ui/Avatar/Avatar';
+import { WorkspaceSwitcher } from '@/components/ui/WorkspaceSwitcher/WorkspaceSwitcher';
+import { ActiveShiftClock } from './components/ActiveShiftClock';
 
 export function TopHeader() {
   const theme = useAtomValue(themeAtom);
@@ -13,11 +14,11 @@ export function TopHeader() {
 
   const glassClasses = isDark
     ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-black/[0.05]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08]';
 
   const shadowClass = isDark
     ? 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05),0_2px_4px_-2px_rgba(0,0,0,0.05)]';
+    : 'shadow-[0_4px_6px_-1px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.04)]';
 
   return (
     <header
@@ -29,17 +30,21 @@ export function TopHeader() {
       )}
     >
       {/* Logo / Title */}
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
         <h1 className={cn(
-          'text-xl font-semibold',
+          'text-xl font-semibold hidden lg:block',
           isDark ? 'text-white' : 'text-black'
         )}>
           HeroRestaurant
         </h1>
+        
+        <WorkspaceSwitcher />
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-3">
+        <ActiveShiftClock />
+
         {/* Theme toggle */}
         <button
           onClick={() => toggleTheme()}

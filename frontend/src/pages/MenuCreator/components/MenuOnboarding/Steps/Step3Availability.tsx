@@ -118,7 +118,7 @@ export function Step3Availability() {
           </svg>
         </div>
         <Text variant="footnote" weight="medium" className={cn("text-base leading-relaxed", isDark ? "text-[#A1A1A6]" : "text-[#757575]")}>
-          Note: Days marked as inactive are currently set as "Closed" in your restaurant settings.
+          Note: Days marked as inactive are currently set as &quot;Closed&quot; in your restaurant settings.
         </Text>
       </div>
     </div>

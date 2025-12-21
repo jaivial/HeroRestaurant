@@ -80,7 +80,7 @@ export function toRestaurantListItem(
   };
 }
 
-export function toRestaurant(restaurant: Restaurant): RestaurantDTO {
+export function toRestaurant(restaurant: Restaurant, settings?: any): RestaurantDTO {
   return {
     id: restaurant.id,
     name: restaurant.name,
@@ -95,6 +95,12 @@ export function toRestaurant(restaurant: Restaurant): RestaurantDTO {
     country: restaurant.country,
     timezone: restaurant.timezone,
     currency: restaurant.currency,
+    websiteUrl: restaurant.website_url,
+    instagramUrl: restaurant.instagram_url,
+    facebookUrl: restaurant.facebook_url,
+    primaryColor: restaurant.primary_color,
+    defaultLanguage: restaurant.default_language,
+    defaultTaxRate: Number(restaurant.default_tax_rate),
     contactEmail: restaurant.contact_email,
     contactPhone: restaurant.contact_phone,
     featureFlags: restaurant.feature_flags.toString(),
@@ -103,6 +109,10 @@ export function toRestaurant(restaurant: Restaurant): RestaurantDTO {
     trialEndsAt: restaurant.trial_ends_at?.toISOString() ?? null,
     createdAt: restaurant.created_at.toISOString(),
     updatedAt: restaurant.updated_at.toISOString(),
+    settings: settings ? {
+      openingHours: settings.opening_hours ? (typeof settings.opening_hours === 'string' ? JSON.parse(settings.opening_hours) : settings.opening_hours) : [],
+      mealSchedules: settings.meal_schedules ? (typeof settings.meal_schedules === 'string' ? JSON.parse(settings.meal_schedules) : settings.meal_schedules) : {},
+    } : undefined,
   };
 }
 

@@ -43,4 +43,14 @@ export type {
   LoginAttemptsTable,
   LoginAttempt,
   NewLoginAttempt,
+  // Member Contracts
+  MemberContractsTable,
+  MemberContract,
+  NewMemberContract,
+  MemberContractUpdate,
+  // Member Shifts
+  MemberShiftsTable,
+  MemberShift,
+  NewMemberShift,
+  MemberShiftUpdate,
 } from './database.types';

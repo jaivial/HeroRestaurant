@@ -10,10 +10,11 @@ export { Checkbox } from './Checkbox/Checkbox';
 export { Radio, RadioGroup } from './Radio/Radio';
 export { Select } from './Select/Select';
 export { Textarea } from './Textarea/Textarea';
+export { Combobox } from './Combobox/Combobox';
 
 // Feedback Components
 export { Modal, ModalFooter } from './Modal/Modal';
-export { ToastProvider, useToast, toast } from './Toast/Toast';
+export { ToastProvider, useToast, toast } from './Toast';
 export { Alert } from './Alert/Alert';
 export { Skeleton, SkeletonCard, SkeletonAvatar, SkeletonTable } from './Skeleton/Skeleton';
 export { Progress, CircularProgress, Spinner } from './Progress/Progress';
@@ -21,7 +22,10 @@ export { Progress, CircularProgress, Spinner } from './Progress/Progress';
 // Display Components
 export { Text, Heading, Label } from './Text/Text';
 export { Badge, StatusBadge } from './Badge/Badge';
+export type { BadgeVariant } from './Badge/Badge';
 export { Avatar, AvatarGroup } from './Avatar/Avatar';
 export { IconButton } from './IconButton/IconButton';
 export { Divider } from './Divider/Divider';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs/Tabs';
+export { DataTable } from './DataTable/DataTable';
+export type { Column } from './DataTable/DataTable';

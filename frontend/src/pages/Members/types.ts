@@ -1,8 +1,6 @@
 import type { Member, Role } from '@/atoms/memberAtoms';
 
-export interface MembersPageProps {
-  // Add props if needed
-}
+export type MembersPageProps = Record<string, never>;
 
 export type MembersTab = 'members' | 'roles';
 
@@ -21,8 +19,12 @@ export interface RolesListProps {
 export interface MemberRowProps {
   member: Member;
   canEdit: boolean;
+  canRemove: boolean;
   onEdit: (member: Member) => void;
   onRemove: (member: Member) => void;
+  onView: (member: Member) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface RoleRowProps {
@@ -30,5 +32,7 @@ export interface RoleRowProps {
   canEdit: boolean;
   onEdit: (role: Role) => void;
   onDelete: (role: Role) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 

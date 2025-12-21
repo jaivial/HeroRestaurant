@@ -61,6 +61,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   // Validate session on mount and when location changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsValidating(true);
     validateSession();
   }, [validateSession, location.pathname]);

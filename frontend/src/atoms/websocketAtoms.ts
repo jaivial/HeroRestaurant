@@ -17,8 +17,8 @@ export type ConnectionStatus =
 // ============================================================================
 
 export interface PendingRequest {
-  resolve: (data: unknown) => void;
-  reject: (error: Error) => void;
+  resolve: (_data: unknown) => void;
+  reject: (_error: Error) => void;
   timeout: ReturnType<typeof setTimeout>;
   sentAt: number;
 }

@@ -51,7 +51,7 @@ export function Step2Structure() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
         <Heading level={2} className="text-3xl font-bold tracking-tight">Menu Structure</Heading>
-        <Text color="secondary" className="text-lg">Define the sections of your menu and what's included.</Text>
+        <Text color="secondary" className="text-lg">Define the sections of your menu and what&apos;s included.</Text>
       </div>
 
       <Card className="border-2 border-apple-gray-100 bg-surface-primary rounded-[2.2rem] shadow-sm">

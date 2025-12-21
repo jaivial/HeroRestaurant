@@ -19,6 +19,19 @@ interface UpdateRestaurantInput {
   coverImageUrl?: string | null;
   timezone?: string;
   currency?: string;
+  websiteUrl?: string | null;
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  primaryColor?: string;
+  defaultLanguage?: string;
+  defaultTaxRate?: number;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
 }
 
 export class RestaurantService {
@@ -49,6 +62,12 @@ export class RestaurantService {
       country: null,
       timezone: input.timezone || 'UTC',
       currency: input.currency || 'USD',
+      website_url: null,
+      instagram_url: null,
+      facebook_url: null,
+      primary_color: '#007AFF',
+      default_language: 'en',
+      default_tax_rate: 0.00,
       contact_email: null,
       contact_phone: null,
       feature_flags: 0n,
@@ -125,6 +144,19 @@ export class RestaurantService {
     if (input.coverImageUrl !== undefined) updateData.cover_url = input.coverImageUrl;
     if (input.timezone !== undefined) updateData.timezone = input.timezone;
     if (input.currency !== undefined) updateData.currency = input.currency;
+    if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
+    if (input.instagramUrl !== undefined) updateData.instagram_url = input.instagramUrl;
+    if (input.facebookUrl !== undefined) updateData.facebook_url = input.facebookUrl;
+    if (input.primaryColor !== undefined) updateData.primary_color = input.primaryColor;
+    if (input.defaultLanguage !== undefined) updateData.default_language = input.defaultLanguage;
+    if (input.defaultTaxRate !== undefined) updateData.default_tax_rate = input.defaultTaxRate;
+    if (input.address !== undefined) updateData.address = input.address;
+    if (input.city !== undefined) updateData.city = input.city;
+    if (input.state !== undefined) updateData.state = input.state;
+    if (input.postalCode !== undefined) updateData.postal_code = input.postalCode;
+    if (input.country !== undefined) updateData.country = input.country;
+    if (input.contactEmail !== undefined) updateData.contact_email = input.contactEmail;
+    if (input.contactPhone !== undefined) updateData.contact_phone = input.contactPhone;
 
     return await RestaurantRepository.update(restaurantId, updateData);
   }

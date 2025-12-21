@@ -3,7 +3,7 @@ import { memo, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useAtomValue } from 'jotai';
-import gsap from 'gsap';
+import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { themeAtom } from '../../../../../../atoms/themeAtoms';
 import { Card, CardContent } from '../../../../../../components/ui/Card/Card';

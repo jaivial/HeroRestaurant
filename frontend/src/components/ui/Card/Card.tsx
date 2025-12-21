@@ -30,15 +30,15 @@ export const Card = memo(function Card({
   const baseClasses = "backdrop-blur-[20px] saturate-[180%] rounded-[2.2rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]";
 
   const variantClasses = {
-    default: theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/72 border-white/[0.18]',
-    subtle: theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-white/50 border-white/[0.10]',
-    solid: theme === 'dark' ? 'bg-black/75 border-white/20' : 'bg-white/90 border-white/[0.25]',
+    default: theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/85 border-black/[0.08]',
+    subtle: theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-white/60 border-black/[0.06]',
+    solid: theme === 'dark' ? 'bg-black/75 border-white/20' : 'bg-white/95 border-black/[0.12]',
     outlined: 'bg-transparent border-black/10 dark:border-white/10',
   };
 
   const shadowClass = theme === 'dark'
     ? 'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
-    : 'shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]';
+    : 'shadow-[0_8px_32px_0_rgba(0,0,0,0.08)]';
 
   const hoverClasses = hoverable 
     ? "cursor-pointer hover:scale-[1.01] hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.15)] active:scale-[0.99]" 
@@ -77,7 +77,7 @@ export const CardHeader = memo(function CardHeader({
   ...props 
 }: CardHeaderProps) {
   const theme = useAtomValue(themeAtom);
-  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/5';
+  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/[0.08]';
 
   return (
     <div
@@ -168,7 +168,7 @@ export const CardFooter = memo(function CardFooter({
   ...props 
 }: CardFooterProps) {
   const theme = useAtomValue(themeAtom);
-  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/5';
+  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/[0.08]';
 
   return (
     <div

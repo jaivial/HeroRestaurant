@@ -1,7 +1,11 @@
-import { Modal, Input, Textarea, Button, Text, Checkbox, Divider } from '@/components/ui';
+import { Modal, Input, Button, Text, Checkbox } from '@/components/ui';
 import { PERMISSIONS, hasPermission } from '@/utils/permissions';
 import { useRoleEditor } from '../../hooks/useRoleEditor';
 import type { Role } from '@/atoms/memberAtoms';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
+import { cn } from '@/utils/cn';
+import { useEffect } from 'react';
 
 interface RoleEditorProps {
   isOpen: boolean;
@@ -15,9 +19,9 @@ const PERMISSION_GROUPS = [
   {
     name: 'General',
     permissions: [
-      { key: 'VIEW_DASHBOARD', label: 'View Dashboard' },
-      { key: 'VIEW_ANALYTICS', label: 'View Analytics' },
-      { key: 'VIEW_AUDIT_LOG', label: 'View Audit Logs' },
+      { key: 'VIEW_DASHBOARD', label: 'Dashboard' },
+      { key: 'VIEW_ANALYTICS', label: 'Analytics' },
+      { key: 'VIEW_AUDIT_LOG', label: 'Audit Logs' },
     ]
   },
   {
@@ -62,6 +66,7 @@ const PERMISSION_GROUPS = [
 ];
 
 export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority }: RoleEditorProps) {
+  const theme = useAtomValue(themeAtom);
   const {
     name,
     setName,
@@ -75,6 +80,25 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
     setIsSubmitting,
     handleTogglePermission,
   } = useRoleEditor(role, currentUserPriority, isOpen);
+
+  // Auto-generate description based on permissions
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const selectedLabels = PERMISSION_GROUPS.flatMap(group => 
+      group.permissions
+        .filter(perm => hasPermission(permissions, PERMISSIONS[perm.key as keyof typeof PERMISSIONS]))
+        .map(perm => perm.label)
+    );
+
+    if (selectedLabels.length === 0) {
+      setDescription('No permissions assigned');
+    } else if (selectedLabels.length === PERMISSION_GROUPS.flatMap(g => g.permissions).length) {
+      setDescription('Full administrative access with all permissions');
+    } else {
+      setDescription(`Access to: ${selectedLabels.join(', ')}`);
+    }
+  }, [permissions, isOpen, setDescription]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,79 +117,144 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
     }
   };
 
+  const primaryText = theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]';
+  const secondaryText = theme === 'dark' ? 'text-white/70' : 'text-[#1D1D1F]/60';
+  const tertiaryText = theme === 'dark' ? 'text-white/50' : 'text-[#1D1D1F]/45';
+  const modalBg = theme === 'dark' ? 'bg-[#1C1C1E]' : 'bg-[#F5F5F7]';
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={role ? 'Edit Role' : 'Create New Role'}
       size="lg"
-      className="rounded-[2.2rem] shadow-apple-float"
+      className={cn('rounded-[2.2rem] shadow-apple-float overflow-hidden', modalBg)}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Role Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="e.g. Manager, Server"
-            className="rounded-[1rem]"
-          />
-          <Input
-            label="Priority (0-100)"
-            type="number"
-            value={displayOrder}
-            onChange={(e) => setDisplayOrder(parseInt(e.target.value))}
-            min={0}
-            max={currentUserPriority - 1}
-            required
-            helperText={`Must be less than your priority (${currentUserPriority})`}
-            className="rounded-[1rem]"
-          />
+      <form onSubmit={handleSubmit} className="space-y-6 relative">
+        {/* Background decor */}
+        <div className="pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full bg-apple-blue/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-apple-purple/10 blur-3xl" />
+
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest px-1')}>
+              Role Identity
+            </Text>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="e.g. Manager, Server"
+              className={cn('rounded-2xl border-none h-12 text-lg font-medium ring-1 ring-inset', 
+                theme === 'dark' ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
+            />
+          </div>
+          <div className="space-y-2">
+            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest px-1')}>
+              Priority Level
+            </Text>
+            <Input
+              type="number"
+              value={displayOrder}
+              onChange={(e) => setDisplayOrder(parseInt(e.target.value))}
+              min={0}
+              max={currentUserPriority - 1}
+              required
+              className={cn('rounded-2xl border-none h-12 text-lg font-medium ring-1 ring-inset', 
+                theme === 'dark' ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
+              helperText={
+                <span className={cn('text-[10px] font-medium uppercase tracking-tighter', theme === 'dark' ? 'text-white/30' : 'text-black/30')}>
+                  Must be below {currentUserPriority}
+                </span>
+              }
+            />
+          </div>
         </div>
 
-        <Textarea
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="What can this role do?"
-          className="rounded-[1rem]"
-        />
+        <div className="relative z-10 p-4 rounded-2xl border bg-apple-blue/5 border-apple-blue/10">
+          <Text variant="caption1" weight="bold" className="text-apple-blue uppercase tracking-widest mb-1 block">
+            Auto-generated Description
+          </Text>
+          <Text className={cn(secondaryText, 'leading-relaxed text-sm italic')}>
+            &quot;{description}&quot;
+          </Text>
+        </div>
 
-        <div>
-          <Text weight="bold" className="mb-3 block">Permissions</Text>
-          <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest')}>
+              Permissions Map
+            </Text>
+            <Text variant="caption2" className={cn(tertiaryText)}>
+              Select capabilities for this role
+            </Text>
+          </div>
+          
+          <div className="space-y-8 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
             {PERMISSION_GROUPS.map((group) => (
-              <div key={group.name} className="space-y-3">
-                <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-wider">
-                  {group.name}
-                </Text>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {group.permissions.map((perm) => (
-                    <div key={perm.key} className="flex items-center gap-3 p-3 rounded-[1rem] bg-surface-secondary/50 border border-surface-tertiary">
-                      <Checkbox
-                        id={perm.key}
-                        checked={hasPermission(permissions, PERMISSIONS[perm.key as keyof typeof PERMISSIONS])}
-                        onChange={() => handleTogglePermission(perm.key as keyof typeof PERMISSIONS)}
-                      />
-                      <label htmlFor={perm.key} className="text-sm font-medium cursor-pointer">
-                        {perm.label}
-                      </label>
-                    </div>
-                  ))}
+              <div key={group.name} className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-current opacity-10" />
+                  <Text variant="caption1" weight="bold" className={cn(secondaryText, 'uppercase tracking-widest text-[10px]')}>
+                    {group.name}
+                  </Text>
+                  <div className="h-px flex-1 bg-gradient-to-l from-transparent via-current opacity-10" />
                 </div>
-                <Divider />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {group.permissions.map((perm) => {
+                    const isChecked = hasPermission(permissions, PERMISSIONS[perm.key as keyof typeof PERMISSIONS]);
+                    return (
+                      <label
+                        key={perm.key}
+                        htmlFor={perm.key}
+                        className={cn(
+                          'flex items-center gap-3 p-4 rounded-2xl border transition-all cursor-pointer group',
+                          isChecked 
+                            ? (theme === 'dark' ? 'bg-apple-blue/10 border-apple-blue/30' : 'bg-apple-blue/5 border-apple-blue/20 shadow-sm')
+                            : (theme === 'dark' ? 'bg-white/5 border-white/5 hover:border-white/10' : 'bg-white border-black/5 hover:border-black/10 shadow-sm')
+                        )}
+                      >
+                        <div className={cn(
+                          'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
+                          isChecked 
+                            ? 'bg-apple-blue border-apple-blue' 
+                            : (theme === 'dark' ? 'border-white/20' : 'border-black/10 group-hover:border-black/20')
+                        )}>
+                          {isChecked && (
+                            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        <Checkbox
+                          id={perm.key}
+                          checked={isChecked}
+                          onChange={() => handleTogglePermission(perm.key as keyof typeof PERMISSIONS)}
+                          className="hidden"
+                        />
+                        <Text weight="medium" className={cn('text-sm transition-colors', isChecked ? primaryText : secondaryText)}>
+                          {perm.label}
+                        </Text>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button variant="ghost" onClick={onClose} type="button" className="rounded-[1rem]">
+        <div className="relative z-10 flex justify-end gap-3 pt-6 border-t border-white/5">
+          <Button variant="ghost" onClick={onClose} type="button" className="rounded-full px-6 font-semibold">
             Cancel
           </Button>
-          <Button type="submit" loading={isSubmitting} className="rounded-[1rem] shadow-apple-md">
-            {role ? 'Save Changes' : 'Create Role'}
+          <Button 
+            type="submit" 
+            loading={isSubmitting} 
+            className="rounded-full px-8 font-bold shadow-apple-md bg-apple-blue text-white hover:bg-apple-blue/90"
+          >
+            {role ? 'Update Role' : 'Create Role'}
           </Button>
         </div>
       </form>

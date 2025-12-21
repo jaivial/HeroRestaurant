@@ -9,7 +9,7 @@ export function StatCard({ label, value, icon, color }: StatCardProps) {
 
   const glassClasses = isDark
     ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border-black/[0.05] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
+    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.04)]';
 
   const colorStyles = {
     blue: isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-50 text-blue-600',

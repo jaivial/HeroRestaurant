@@ -90,6 +90,12 @@ export interface RestaurantDTO {
   country: string | null;
   timezone: string;
   currency: string;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  primaryColor: string;
+  defaultLanguage: string;
+  defaultTaxRate: number;
   contactEmail: string | null;
   contactPhone: string | null;
   featureFlags: string; // BigInt serialized as string
@@ -98,6 +104,10 @@ export interface RestaurantDTO {
   trialEndsAt: string | null;
   createdAt: string;
   updatedAt: string;
+  settings?: {
+    openingHours: any[];
+    mealSchedules: any;
+  };
 }
 
 // ============================================================================

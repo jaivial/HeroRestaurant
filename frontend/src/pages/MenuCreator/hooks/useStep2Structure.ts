@@ -20,7 +20,7 @@ export function useStep2Structure() {
         ]
       }));
     }
-  }, [menu?.sections?.length, setMenu]);
+  }, [menu, setMenu]);
 
   const addSection = useCallback((name: string) => {
     if (!name.trim()) return;
@@ -50,7 +50,7 @@ export function useStep2Structure() {
     if (targetIndex < 0 || targetIndex >= newSections.length) return;
     [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
     setMenu(prev => ({ ...prev!, sections: newSections.map((s, i) => ({ ...s, displayOrder: i })) }));
-  }, [menu?.sections, setMenu]);
+  }, [menu, setMenu]);
 
   const updateSectionName = useCallback((id: string, name: string) => {
     setMenu(prev => ({
