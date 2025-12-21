@@ -10,25 +10,116 @@ This document defines the styling rules for the HeroRestaurant SaaS application.
 
 ### Apple Aesthetic Core Values
 
-1. **Clarity** - Clean, minimal interfaces with purposeful whitespace
-2. **Deference** - Content takes priority over chrome
-3. **Depth** - Layered interfaces with subtle glass effects
-4. **Consistency** - Unified design language across all viewports
+1. **Clarity** - Clean, minimal interfaces with purposeful whitespace and high contrast.
+2. **Deference** - Content takes priority over chrome; UI elements are subtle and support the content.
+3. **Depth** - Layered interfaces using `z-index`, subtle glass effects, and dynamic shadows to communicate hierarchy.
+4. **Consistency** - Unified design language across all viewports using a shared set of semantic tokens.
+5. **Fluidity** - Motion and interactions feel natural, using spring-based animations that respond to user intent.
 
 ### Primary Design Tokens
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| Border Radius (Primary) | `2.2rem` | Cards, modals, containers |
-| Border Radius (Secondary) | `1rem` | Buttons, inputs, small elements |
-| Glass Blur | `20px` | All glass effect elements |
-| Glass Saturation | `180%` | Enhanced color vibrancy |
+| Border Radius (Primary) | `2.2rem` | Cards, modals, panels, large containers |
+| Border Radius (Secondary) | `1rem` | Buttons, inputs, small elements, tooltips |
+| Glass Blur | `20px` | Background blur for all translucent elements |
+| Glass Saturation | `180%` | Enhanced color vibrancy for "Liquid Glass" effect |
+| Grid Unit | `4px / 8px` | Base unit for all spacing, margins, and padding |
+
+---
+
+## Component Extensibility & SOLID
+
+To maintain a scalable and flexible UI system, all reusable components must adhere to the following architectural standards:
+
+### 1. SOLID Principles
+
+- **Single Responsibility (SRP):** Each component should do one thing. If a component grows too complex, split it into smaller sub-components.
+- **Open/Closed (OCP):** Components should be open for extension but closed for modification. Use props to change behavior or appearance without altering the internal logic.
+- **Interface Segregation (ISP):** Components should only require the props they actually use. Avoid passing giant "config" objects if only two fields are needed.
+
+### 2. Styling Extensibility
+
+Every reusable component **MUST** accept and correctly merge the following props:
+
+1.  `className`: For overriding or adding Tailwind classes from the parent.
+2.  `style`: For specific inline CSS adjustments (e.g., dynamic positioning).
+
+**Correct Implementation Pattern:**
+
+```tsx
+interface MyComponentProps {
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}
+
+export function MyComponent({ className = '', style, children }: MyComponentProps) {
+  return (
+    <div 
+      style={style}
+      className={`base-classes-here ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+---
+
+## Typography
+
+We use the Apple system font stack (San Francisco) to ensure a native feel. Avoid custom web fonts to maintain performance and "deference" to the OS environment.
+
+### Font Stack Implementation
+
+```tsx
+// Apply this to the root or specific text blocks
+const fontStack = "font-['-apple-system','BlinkMacSystemFont','_Segoe_UI','Roboto','Helvetica','Arial',sans-serif]";
+```
+
+### Semantic Type Hierarchy
+
+Use arbitrary font sizes to match Apple's standard dynamic type sizes:
+
+| Level | Size (px) | Weight | Tailwind Class | Usage |
+|-------|-----------|--------|----------------|-------|
+| Large Title | `34px` | `bold` | `text-[34px] font-bold leading-tight` | Main page headers |
+| Title 1 | `28px` | `semibold`| `text-[28px] font-semibold leading-snug` | Section headers |
+| Title 2 | `22px` | `semibold`| `text-[22px] font-semibold leading-normal`| Sub-sections |
+| Body | `17px` | `normal` | `text-[17px] leading-relaxed` | Default text |
+| Callout | `16px` | `semibold`| `text-[16px] font-semibold` | Action labels |
+| Caption | `12px` | `normal` | `text-[12px] opacity-60` | Footnotes, meta info |
+
+---
+
+## Semantic Color System
+
+Instead of fixed hex codes, use semantic names based on their function. Always define values for both `light` and `dark` themes.
+
+### System Colors (Vibrant)
+
+| Name | Light Mode | Dark Mode | Usage |
+|------|------------|-----------|-------|
+| `systemBlue` | `#007AFF` | `#0A84FF` | Primary actions, links |
+| `systemRed` | `#FF3B30` | `#FF453A` | Errors, destructive actions |
+| `systemGreen`| `#34C759` | `#30D158` | Success states |
+| `systemGray` | `#8E8E93` | `#8E8E93` | Neutral icons, borders |
+
+### Background & Surface Colors
+
+| Name | Light Mode | Dark Mode | Usage |
+|------|------------|-----------|-------|
+| `primaryBG` | `#F2F2F7` | `#000000` | Main application background |
+| `secondaryBG`| `#FFFFFF` | `#1C1C1E` | Card surfaces, grouped lists |
+| `tertiaryBG` | `#F2F2F7` | `#2C2C2E` | Inner nested elements |
 
 ---
 
 ## Liquid Glass Effect
 
-Instead of global CSS classes, use inline Tailwind with arbitrary values and conditional logic based on the current theme.
+Instead of global CSS classes, use inline Tailwind with arbitrary values and conditional logic based on the current theme. The "Liquid Glass" effect requires three layers: **Translucency**, **Saturation**, and **Inner Stroke**.
 
 ### Implementation Pattern
 
@@ -39,27 +130,82 @@ import { themeAtom } from '@/atoms/themeAtoms';
 export function GlassComponent() {
   const theme = useAtomValue(themeAtom);
   
-  const glassClasses = theme === 'dark'
-    ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/72 border border-white/[0.18] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)]';
+  // 1. Translucency & Blur
+  const baseClasses = "backdrop-blur-[20px] saturate-[180%]";
+  
+  // 2. Theme-specific colors and shadows
+  const themeClasses = theme === 'dark'
+    ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
+    : 'bg-white/72 border-white/[0.18] shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]';
 
   return (
-    <div className={`${glassClasses} rounded-[2.2rem]`}>
+    <div className={`${baseClasses} ${themeClasses} border rounded-[2.2rem]`}>
       {/* Content */}
     </div>
   );
 }
 ```
 
-### Glass Intensity Variants
+### Inner Stroke (The "Apple Edge")
 
-Since we don't use global config, we apply opacity values directly:
+To give glass elements a premium feel, add a subtle inner border (stroke) that is lighter than the background in dark mode, and darker in light mode.
 
-| Variant | Light Mode Class | Dark Mode Class | Use Case |
-|---------|------------------|-----------------|----------|
-| `subtle` | `bg-white/50` | `bg-black/30` | Overlays, tooltips |
-| `default` | `bg-white/72` | `bg-black/50` | Cards, panels |
-| `solid` | `bg-white/90` | `bg-black/75` | Modals, dialogs |
+```tsx
+const innerStroke = theme === 'dark' 
+  ? 'border-white/20' // Lighter edge for dark mode
+  : 'border-black/[0.05]'; // Darker edge for light mode
+```
+
+---
+
+## Button Styles
+
+We follow the four standard Apple button configurations. Buttons should always have a `rounded-[1rem]` radius and a minimum touch target of `44x44px`.
+
+| Variant | Visuals | Usage |
+|---------|---------|-------|
+| **Filled** | High contrast (e.g., `systemBlue` bg) | Primary action of a view |
+| **Tinted** | Low contrast (e.g., `systemBlue/10` bg) | Secondary actions |
+| **Gray** | Neutral (e.g., `systemGray/10` bg) | Tertiary actions, cancel buttons |
+| **Plain** | Text only (no bg) | Navigation items, minor actions |
+
+### Button Implementation
+
+```tsx
+const buttonBase = "h-[44px] px-6 rounded-[1rem] font-semibold transition-all duration-200 active:scale-[0.98]";
+
+const variantClasses = {
+  filled: theme === 'dark' ? 'bg-[#0A84FF] text-white' : 'bg-[#007AFF] text-white',
+  tinted: theme === 'dark' ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-[#007AFF]/10 text-[#007AFF]',
+  gray: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+  plain: 'bg-transparent text-[#007AFF]'
+};
+```
+
+---
+
+## Fluid Motion & Animations
+
+Animations must feel "physical" and "liquid". Avoid linear or harsh easing. Use spring-like cubic-beziers.
+
+### Recommended Bezier Curves
+
+| Type | Cubic Bezier | Usage |
+|------|--------------|-------|
+| **Standard** | `cubic-bezier(0.25, 0.1, 0.25, 1)` | Default movement |
+| **Entrance** | `cubic-bezier(0, 0, 0.2, 1)` | Modals appearing |
+| **Exit** | `cubic-bezier(0.4, 0, 1, 1)` | Elements disappearing |
+| **Spring** | `[transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]` | Popups, scale effects |
+
+---
+
+## Spacing & The 8pt Grid
+
+All layout dimensions must be multiples of **8px** (or **4px** for micro-adjustments). This ensures alignment across all Apple devices.
+
+- **Margins/Padding:** `p-2 (8px)`, `p-4 (16px)`, `p-8 (32px)`, `p-12 (48px)`
+- **Component Heights:** `h-11 (44px)` for standard interactive elements.
+- **Icon Sizes:** `17px`, `20px`, `24px`.
 
 ---
 
@@ -279,8 +425,9 @@ export function ResponsiveContainer({ children }: { children: React.ReactNode })
 - Use `rounded-[2.2rem]` for primary containers (cards, modals, panels)
 - Use `rounded-[1rem]` for secondary elements (buttons, inputs)
 - Use `useAtomValue(themeAtom)` to get the current theme for conditional styling
-- Prefer arbitrary Tailwind values `[...]` for project-specific design tokens
-- Use height media queries `[@media(min-height:800px)]:` for tall-viewport specific layouts
+- **Follow the 8pt grid:** Ensure all padding and margins are multiples of 4 or 8.
+- **Use SF Symbols:** Prefer Apple's icon set for internal tools or common UI actions (Home, Settings, etc.).
+- **Prioritize "Vibrancy":** Use saturation and translucency to let background colors bleed through glass layers.
 
 ### Don'ts
 
@@ -289,6 +436,8 @@ export function ResponsiveContainer({ children }: { children: React.ReactNode })
 - Don't define custom themes or tokens in `tailwind.config.js`
 - Don't use `prefers-color-scheme` or `<html data-theme>` for theming
 - Don't nest multiple glass layers (performance impact)
+- **Avoid harsh shadows:** Use large, soft, low-opacity shadows for depth.
+- **Don't use "Pure Black" text on "Pure White" backgrounds:** Use `#1D1D1F` for light mode text to reduce eye strain.
 
 ---
 

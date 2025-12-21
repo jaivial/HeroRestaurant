@@ -1,127 +1,118 @@
-import { forwardRef } from 'react';
-import type { InputHTMLAttributes, ReactNode } from 'react';
+import React, { forwardRef, memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
   variant?: 'default' | 'filled' | 'ghost';
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  className?: string;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   wrapperClassName?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      variant = 'default',
-      leftIcon,
-      rightIcon,
-      className,
-      wrapperClassName,
-      disabled,
-      ...props
-    },
-    ref
-  ) => {
-    const hasError = Boolean(error);
+/**
+ * Layer 3: UI Component - Input
+ * Follows Apple aesthetic for form elements.
+ */
+export const Input = memo(
+  forwardRef<HTMLInputElement, InputProps>(
+    (
+      {
+        label,
+        error,
+        helperText,
+        variant = 'default',
+        leftIcon,
+        rightIcon,
+        className = '',
+        style,
+        wrapperClassName = '',
+        disabled,
+        ...props
+      },
+      ref
+    ) => {
+      const theme = useAtomValue(themeAtom);
+      const hasError = Boolean(error);
 
-    return (
-      <div className={cn('w-full', wrapperClassName)}>
-        {label && (
-          <label
-            className={cn(
-              'block text-sm font-medium mb-1.5',
-              'text-content-secondary',
-              disabled && 'opacity-50'
+      const labelClasses = cn(
+        'block text-[14px] font-medium mb-2',
+        theme === 'dark' ? 'text-white/60' : 'text-black/60',
+        disabled && 'opacity-50'
+      );
+
+      const inputBaseClasses = cn(
+        'w-full h-[44px] rounded-[1rem] transition-all duration-200 focus:outline-none',
+        'text-[17px]',
+        leftIcon ? 'pl-11' : 'pl-4',
+        rightIcon ? 'pr-11' : 'pr-4',
+        disabled && 'opacity-50 cursor-not-allowed'
+      );
+
+      const variantClasses = {
+        default: theme === 'dark'
+          ? 'bg-white/5 border-white/10 focus:border-[#0A84FF] text-white placeholder:text-white/30'
+          : 'bg-black/5 border-black/5 focus:border-[#007AFF] text-black placeholder:text-black/30',
+        filled: theme === 'dark'
+          ? 'bg-white/10 border-transparent focus:bg-white/15 text-white placeholder:text-white/30'
+          : 'bg-black/5 border-transparent focus:bg-black/10 text-black placeholder:text-black/30',
+        ghost: 'bg-transparent border-transparent text-current',
+      };
+
+      const errorClasses = theme === 'dark'
+        ? 'border-[#FF453A] focus:border-[#FF453A]'
+        : 'border-[#FF3B30] focus:border-[#FF3B30]';
+
+      const helperClasses = cn(
+        'mt-1.5 text-[12px]',
+        hasError 
+          ? (theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]') 
+          : (theme === 'dark' ? 'text-white/40' : 'text-black/40')
+      );
+
+      return (
+        <div className={cn('w-full', wrapperClassName)} style={style}>
+          {label && <label className={labelClasses}>{label}</label>}
+
+          <div className="relative">
+            {leftIcon && (
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-current opacity-40">
+                {leftIcon}
+              </div>
             )}
-          >
-            {label}
-          </label>
-        )}
 
-        <div className="relative">
-          {leftIcon && (
-            <div
+            <input
+              ref={ref}
+              disabled={disabled}
               className={cn(
-                'absolute left-3 top-1/2 -translate-y-1/2',
-                'text-content-tertiary',
-                'pointer-events-none'
+                inputBaseClasses,
+                variantClasses[variant],
+                hasError && errorClasses,
+                'border-[1.5px]',
+                className
               )}
-            >
-              {leftIcon}
-            </div>
-          )}
+              {...props}
+            />
 
-          <input
-            ref={ref}
-            disabled={disabled}
-            className={cn(
-              // Base styles
-              'w-full rounded-[0.875rem]',
-              'text-content-primary placeholder:text-content-quaternary',
-              'transition-all duration-200 ease-apple',
-              'focus:outline-none',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-
-              // Variant styles
-              {
-                // Default - Subtle glass with border (enhanced contrast)
-                'glass-subtle border-2 border-input-border-default-light dark:border-input-border-default-dark hover:border-input-border-hover-light dark:hover:border-input-border-hover-dark focus:border-input-border-focus-light dark:focus:border-input-border-focus-dark focus:ring-4 focus:ring-input-border-focus-light/20 dark:focus:ring-input-border-focus-dark/20':
-                  variant === 'default',
-
-                // Filled - Solid background
-                'bg-surface-tertiary border-2 border-transparent focus:border-input-border-focus-light dark:focus:border-input-border-focus-dark focus:bg-surface-primary':
-                  variant === 'filled',
-
-                // Ghost - Transparent background, no border until focus (or custom)
-                'bg-transparent border-transparent shadow-none':
-                  variant === 'ghost',
-              },
-
-              // Error state (enhanced contrast)
-              hasError && 'border-info-border-red-light dark:border-info-border-red-dark focus:border-info-border-red-light dark:focus:border-info-border-red-dark focus:ring-info-border-red-light/20 dark:focus:ring-info-border-red-dark/20',
-
-              // Padding based on icons
-              leftIcon ? 'pl-10' : 'pl-4',
-              rightIcon ? 'pr-10' : 'pr-4',
-              'py-2.5',
-
-              className
+            {rightIcon && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-current opacity-40">
+                {rightIcon}
+              </div>
             )}
-            {...props}
-          />
+          </div>
 
-          {rightIcon && (
-            <div
-              className={cn(
-                'absolute right-3 top-1/2 -translate-y-1/2',
-                'text-content-tertiary'
-              )}
-            >
-              {rightIcon}
-            </div>
+          {(error || helperText) && (
+            <p className={helperClasses}>
+              {error || helperText}
+            </p>
           )}
         </div>
-
-        {(error || helperText) && (
-          <p
-            className={cn(
-              'mt-1.5 text-sm',
-              hasError ? 'text-info-text-red-light dark:text-info-text-red-dark' : 'text-content-tertiary'
-            )}
-          >
-            {error || helperText}
-          </p>
-        )}
-      </div>
-    );
-  }
+      );
+    }
+  )
 );
 
 Input.displayName = 'Input';

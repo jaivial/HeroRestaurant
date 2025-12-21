@@ -211,6 +211,8 @@ UI components are **pure presentational** components. They receive data via prop
 | No logic | No conditions beyond simple ternaries |
 | Pure render | Same props = same output |
 | Reusable first | Prefer global UI components |
+| **SOLID** | **Follow SRP and OCP (Open for extension, closed for modification)** |
+| **Extensible** | **Always support `className` and `style` props for customization** |
 
 ### Template
 

@@ -1,21 +1,30 @@
-import type { HTMLAttributes } from 'react';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-interface DividerProps extends HTMLAttributes<HTMLHRElement> {
+interface DividerProps extends React.HTMLAttributes<HTMLDivElement> {
   orientation?: 'horizontal' | 'vertical';
   variant?: 'full' | 'inset' | 'middle';
   label?: string;
-  className?: string;
 }
 
-export function Divider({
+/**
+ * Layer 3: UI Component - Divider
+ * Follows Apple aesthetic for subtle layout separation.
+ */
+export const Divider = memo(function Divider({
   orientation = 'horizontal',
   variant = 'full',
   label,
-  className,
+  className = '',
+  style,
   ...props
 }: DividerProps) {
+  const theme = useAtomValue(themeAtom);
   const isHorizontal = orientation === 'horizontal';
+
+  const colorClass = theme === 'dark' ? 'bg-white/10' : 'bg-black/5';
 
   const variantClasses = {
     full: '',
@@ -23,28 +32,34 @@ export function Divider({
     middle: isHorizontal ? 'mx-8' : 'my-8',
   };
 
-  // Divider with label
   if (label && isHorizontal) {
     return (
       <div
+        style={style}
         className={cn('flex items-center gap-4', variantClasses[variant], className)}
         role="separator"
         {...props}
       >
-        <div className="flex-1 h-px bg-content-quaternary/20" />
-        <span className="text-sm text-content-tertiary font-medium">{label}</span>
-        <div className="flex-1 h-px bg-content-quaternary/20" />
+        <div className={cn('flex-1 h-[1px]', colorClass)} />
+        <span className={cn(
+          'text-[13px] font-semibold select-none',
+          theme === 'dark' ? 'text-white/40' : 'text-black/40'
+        )}>
+          {label}
+        </span>
+        <div className={cn('flex-1 h-[1px]', colorClass)} />
       </div>
     );
   }
 
   return (
-    <hr
+    <div
+      style={style}
       className={cn(
-        'border-0',
+        'border-0 shrink-0',
         isHorizontal
-          ? 'w-full h-px bg-content-quaternary/20'
-          : 'h-full w-px bg-content-quaternary/20',
+          ? `w-full h-[1px] ${colorClass}`
+          : `h-full w-[1px] ${colorClass}`,
         variantClasses[variant],
         className
       )}
@@ -53,4 +68,4 @@ export function Divider({
       {...props}
     />
   );
-}
+});

@@ -86,21 +86,21 @@ export default {
         '5xl': ['3rem', { lineHeight: '3.5rem', letterSpacing: '-0.025em' }],
       },
 
-      // Apple system colors
+      // Apple system colors (hardcoded for component control)
       colors: {
         apple: {
-          blue: 'var(--apple-blue)',
-          'blue-hover': 'var(--apple-blue-hover)',
-          green: 'var(--apple-green)',
-          'green-hover': 'var(--apple-green-hover)',
-          red: 'var(--apple-red)',
-          'red-hover': 'var(--apple-red-hover)',
-          orange: 'var(--apple-orange)',
-          yellow: 'var(--apple-yellow)',
-          purple: 'var(--apple-purple)',
-          pink: 'var(--apple-pink)',
-          teal: 'var(--apple-teal)',
-          indigo: 'var(--apple-indigo)',
+          blue: '#007AFF',
+          'blue-hover': '#0A84FF',
+          green: '#34C759',
+          'green-hover': '#30B0C0',
+          red: '#FF3B30',
+          'red-hover': '#FF453A',
+          orange: '#FF9500',
+          yellow: '#FFCC00',
+          purple: '#AF52DE',
+          pink: '#FF2D55',
+          teal: '#30B0C0',
+          indigo: '#5856D6',
           gray: {
             50: '#F9F9FB',
             100: '#F2F2F7',
@@ -114,18 +114,6 @@ export default {
             900: '#3A3A3C',
             950: '#1C1C1E',
           }
-        },
-        surface: {
-          primary: 'var(--bg-primary)',
-          secondary: 'var(--bg-secondary)',
-          tertiary: 'var(--bg-tertiary)',
-          grouped: 'var(--bg-grouped)',
-        },
-        content: {
-          primary: 'var(--text-primary)',
-          secondary: 'var(--text-secondary)',
-          tertiary: 'var(--text-tertiary)',
-          quaternary: 'var(--text-quaternary)',
         },
         // Accessible info card backgrounds (WCAG AA compliant)
         'info-bg': {
@@ -216,15 +204,15 @@ export default {
         },
       },
 
-      // Apple-style shadows
+      // Apple-style shadows (hardcoded values)
       boxShadow: {
-        'apple-sm': 'var(--shadow-apple-sm)',
-        'apple-md': 'var(--shadow-apple-md)',
-        'apple-lg': 'var(--shadow-apple-lg)',
-        'apple-xl': 'var(--shadow-apple-xl)',
-        'apple-float': 'var(--shadow-apple-float)',
-        'apple-inset': 'var(--shadow-apple-inset)',
-        'glass': 'var(--glass-shadow)',
+        'apple-sm': '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
+        'apple-md': '0 4px 12px 0 rgba(0, 0, 0, 0.12)',
+        'apple-lg': '0 12px 24px 0 rgba(0, 0, 0, 0.16)',
+        'apple-xl': '0 20px 48px 0 rgba(0, 0, 0, 0.20)',
+        'apple-float': '0 8px 32px 0 rgba(0, 0, 0, 0.12)',
+        'apple-inset': 'inset 0 1px 3px 0 rgba(0, 0, 0, 0.06)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
         'glass-lg': '0 12px 48px 0 rgba(31, 38, 135, 0.2)',
       },
 

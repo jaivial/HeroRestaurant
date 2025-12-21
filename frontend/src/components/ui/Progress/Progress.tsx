@@ -1,3 +1,6 @@
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 /* =============================================================================
@@ -12,38 +15,45 @@ interface ProgressProps {
   showValue?: boolean;
   indeterminate?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Progress({
+/**
+ * Layer 3: UI Component - Linear Progress
+ * Follows Apple aesthetic for activity indicators.
+ */
+export const Progress = memo(function Progress({
   value = 0,
   max = 100,
   variant = 'default',
   size = 'md',
   showValue = false,
   indeterminate = false,
-  className,
+  className = '',
+  style,
 }: ProgressProps) {
+  const theme = useAtomValue(themeAtom);
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
   const sizeClasses = {
-    sm: 'h-1',
-    md: 'h-2',
-    lg: 'h-3',
+    sm: 'h-[4px]',
+    md: 'h-[8px]',
+    lg: 'h-[12px]',
   };
 
-  const variantClasses = {
-    default: 'bg-apple-blue',
-    success: 'bg-apple-green',
-    warning: 'bg-apple-orange',
-    error: 'bg-apple-red',
+  const variantColors = {
+    default: theme === 'dark' ? 'bg-[#0A84FF]' : 'bg-[#007AFF]',
+    success: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#34C759]',
+    warning: theme === 'dark' ? 'bg-[#FF9F0A]' : 'bg-[#FF9500]',
+    error: theme === 'dark' ? 'bg-[#FF453A]' : 'bg-[#FF3B30]',
   };
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full', className)} style={style}>
       <div
         className={cn(
           'w-full rounded-full overflow-hidden',
-          'bg-surface-tertiary',
+          theme === 'dark' ? 'bg-white/10' : 'bg-black/5',
           sizeClasses[size]
         )}
         role="progressbar"
@@ -53,23 +63,25 @@ export function Progress({
       >
         <div
           className={cn(
-            'h-full rounded-full',
-            'transition-all duration-300 ease-apple',
-            variantClasses[variant],
-            indeterminate && 'animate-indeterminate'
+            'h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]',
+            variantColors[variant],
+            indeterminate && 'animate-indeterminate w-1/3'
           )}
           style={indeterminate ? undefined : { width: `${percentage}%` }}
         />
       </div>
 
       {showValue && !indeterminate && (
-        <p className="mt-1 text-xs text-content-secondary text-right">
+        <p className={cn(
+          'mt-2 text-[12px] text-right font-medium',
+          theme === 'dark' ? 'text-white/40' : 'text-black/40'
+        )}>
           {Math.round(percentage)}%
         </p>
       )}
     </div>
   );
-}
+});
 
 /* =============================================================================
    Circular Progress
@@ -84,9 +96,13 @@ interface CircularProgressProps {
   showValue?: boolean;
   indeterminate?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function CircularProgress({
+/**
+ * Layer 3: UI Component - Circular Progress
+ */
+export const CircularProgress = memo(function CircularProgress({
   value = 0,
   max = 100,
   variant = 'default',
@@ -94,24 +110,26 @@ export function CircularProgress({
   strokeWidth = 4,
   showValue = false,
   indeterminate = false,
-  className,
+  className = '',
+  style,
 }: CircularProgressProps) {
+  const theme = useAtomValue(themeAtom);
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-  const variantClasses = {
-    default: 'text-apple-blue',
-    success: 'text-apple-green',
-    warning: 'text-apple-orange',
-    error: 'text-apple-red',
+  const variantColors = {
+    default: theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]',
+    success: theme === 'dark' ? 'text-[#30D158]' : 'text-[#34C759]',
+    warning: theme === 'dark' ? 'text-[#FF9F0A]' : 'text-[#FF9500]',
+    error: theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]',
   };
 
   return (
     <div
       className={cn('relative inline-flex', className)}
-      style={{ width: size, height: size }}
+      style={{ ...style, width: size, height: size }}
       role="progressbar"
       aria-valuenow={indeterminate ? undefined : value}
       aria-valuemin={0}
@@ -127,7 +145,7 @@ export function CircularProgress({
       >
         {/* Background circle */}
         <circle
-          className="text-surface-tertiary"
+          className={theme === 'dark' ? 'text-white/10' : 'text-black/5'}
           stroke="currentColor"
           fill="none"
           cx={size / 2}
@@ -139,8 +157,8 @@ export function CircularProgress({
         {/* Progress circle */}
         <circle
           className={cn(
-            variantClasses[variant],
-            'transition-all duration-300 ease-apple'
+            variantColors[variant],
+            'transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]'
           )}
           stroke="currentColor"
           fill="none"
@@ -157,9 +175,8 @@ export function CircularProgress({
       {showValue && !indeterminate && (
         <span
           className={cn(
-            'absolute inset-0',
-            'flex items-center justify-center',
-            'text-xs font-medium text-content-primary'
+            'absolute inset-0 flex items-center justify-center text-[12px] font-semibold',
+            theme === 'dark' ? 'text-white' : 'text-black'
           )}
         >
           {Math.round(percentage)}%
@@ -167,39 +184,39 @@ export function CircularProgress({
       )}
     </div>
   );
-}
+});
 
 /* =============================================================================
    Spinner (Simple loading indicator)
    ============================================================================= */
 
 interface SpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | number;
   variant?: 'default' | 'primary' | 'white';
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Spinner({ size = 'md', variant = 'default', className }: SpinnerProps) {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
-  };
+/**
+ * Layer 3: UI Component - Spinner
+ */
+export const Spinner = memo(function Spinner({ size = 'md', variant = 'default', className = '', style }: SpinnerProps) {
+  const theme = useAtomValue(themeAtom);
+  
+  const sizeValue = typeof size === 'number' 
+    ? size 
+    : { sm: 16, md: 24, lg: 32 }[size];
 
-  const variantClasses = {
-    default: 'text-content-tertiary',
-    primary: 'text-apple-blue',
+  const variantColors = {
+    default: theme === 'dark' ? 'text-white/40' : 'text-black/40',
+    primary: theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]',
     white: 'text-white',
   };
 
   return (
     <svg
-      className={cn(
-        'animate-spin',
-        sizeClasses[size],
-        variantClasses[variant],
-        className
-      )}
+      className={cn('animate-spin', variantColors[variant], className)}
+      style={{ ...style, width: sizeValue, height: sizeValue }}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -219,4 +236,4 @@ export function Spinner({ size = 'md', variant = 'default', className }: Spinner
       />
     </svg>
   );
-}
+});

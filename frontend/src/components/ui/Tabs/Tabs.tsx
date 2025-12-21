@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, createContext, useContext } from 'react';
-import type { ReactNode } from 'react';
+import React, { useState, useRef, useEffect, createContext, useContext, memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 /* =============================================================================
@@ -29,16 +30,21 @@ interface TabsProps {
   defaultValue: string;
   value?: string;
   onChange?: (value: string) => void;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Tabs({
+/**
+ * Layer 3: UI Component - Tabs
+ */
+export const Tabs = memo(function Tabs({
   defaultValue,
   value,
   onChange,
   children,
-  className,
+  className = '',
+  style,
 }: TabsProps) {
   const [internalValue, setInternalValue] = useState(defaultValue);
 
@@ -53,22 +59,24 @@ export function Tabs({
 
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
-      <div className={className}>{children}</div>
+      <div className={className} style={style}>{children}</div>
     </TabsContext.Provider>
   );
-}
+});
 
 /* =============================================================================
    TabsList - Segmented Control Style
    ============================================================================= */
 
 interface TabsListProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'pills' | 'underline';
+  style?: React.CSSProperties;
+  variant?: 'default' | 'pills' | 'underline' | 'glass';
 }
 
-export function TabsList({ children, className, variant = 'default' }: TabsListProps) {
+export const TabsList = memo(function TabsList({ children, className = '', style, variant = 'default' }: TabsListProps) {
+  const theme = useAtomValue(themeAtom);
   const { activeTab } = useTabsContext();
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const listRef = useRef<HTMLDivElement>(null);
@@ -89,12 +97,38 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
     }
   }, [activeTab]);
 
+  if (variant === 'glass') {
+    return (
+      <div
+        ref={listRef}
+        style={style}
+        className={cn(
+          'relative inline-flex p-1 rounded-[1.2rem] overflow-hidden border backdrop-blur-[20px] saturate-[180%]',
+          theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/5',
+          className
+        )}
+        role="tablist"
+      >
+        <div
+          className={cn(
+            'absolute top-1 h-[calc(100%-0.5rem)] rounded-[1rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-sm',
+            theme === 'dark' ? 'bg-white/10' : 'bg-white'
+          )}
+          style={indicatorStyle}
+        />
+        {children}
+      </div>
+    );
+  }
+
   if (variant === 'underline') {
     return (
       <div
         ref={listRef}
+        style={style}
         className={cn(
-          'relative flex border-b border-content-quaternary/20',
+          'relative flex border-b',
+          theme === 'dark' ? 'border-white/10' : 'border-black/5',
           className
         )}
         role="tablist"
@@ -102,8 +136,8 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
         {children}
         <div
           className={cn(
-            'absolute bottom-0 h-0.5 bg-apple-blue',
-            'transition-all duration-250 ease-apple'
+            'absolute bottom-0 h-[2px] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]',
+            theme === 'dark' ? 'bg-[#0A84FF]' : 'bg-[#007AFF]'
           )}
           style={indicatorStyle}
         />
@@ -115,7 +149,8 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
     return (
       <div
         ref={listRef}
-        className={cn('flex gap-1', className)}
+        style={style}
+        className={cn('flex gap-2', className)}
         role="tablist"
       >
         {children}
@@ -123,14 +158,14 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
     );
   }
 
-  // Default: Segmented control style
+  // Default: Segmented control style (Apple aesthetic)
   return (
     <div
       ref={listRef}
+      style={style}
       className={cn(
-        'relative inline-flex',
-        'p-1 rounded-[0.875rem]',
-        'bg-surface-tertiary',
+        'relative inline-flex p-1 rounded-[1rem] transition-colors',
+        theme === 'dark' ? 'bg-white/5' : 'bg-black/5',
         className
       )}
       role="tablist"
@@ -138,17 +173,15 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
       {/* Sliding indicator */}
       <div
         className={cn(
-          'absolute top-1 h-[calc(100%-0.5rem)]',
-          'bg-surface-primary shadow-apple-sm rounded-[0.625rem]',
-          'transition-all duration-250 ease-apple'
+          'absolute top-1 h-[calc(100%-0.5rem)] rounded-[0.8rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-sm',
+          theme === 'dark' ? 'bg-white/10' : 'bg-white'
         )}
         style={indicatorStyle}
       />
-
       {children}
     </div>
   );
-}
+});
 
 /* =============================================================================
    TabsTrigger
@@ -156,22 +189,26 @@ export function TabsList({ children, className, variant = 'default' }: TabsListP
 
 interface TabsTriggerProps {
   value: string;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   disabled?: boolean;
 }
 
-export function TabsTrigger({
+export const TabsTrigger = memo(function TabsTrigger({
   value,
   children,
-  className,
+  className = '',
+  style,
   disabled,
 }: TabsTriggerProps) {
+  const theme = useAtomValue(themeAtom);
   const { activeTab, setActiveTab } = useTabsContext();
   const isActive = activeTab === value;
 
   return (
     <button
+      style={style}
       type="button"
       role="tab"
       data-tab-id={value}
@@ -179,23 +216,18 @@ export function TabsTrigger({
       disabled={disabled}
       onClick={() => setActiveTab(value)}
       className={cn(
-        'relative z-10',
-        'px-4 py-2',
-        'text-sm font-medium',
-        'rounded-[0.625rem]',
-        'transition-colors duration-200 ease-apple',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue focus-visible:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'relative z-10 px-6 py-2 text-[15px] font-semibold rounded-[0.8rem] transition-all duration-200 focus:outline-none',
+        'disabled:opacity-30 disabled:cursor-not-allowed',
         isActive
-          ? 'text-content-primary'
-          : 'text-content-secondary hover:text-content-primary',
+          ? (theme === 'dark' ? 'text-white' : 'text-black')
+          : (theme === 'dark' ? 'text-white/40 hover:text-white' : 'text-black/40 hover:text-black'),
         className
       )}
     >
       {children}
     </button>
   );
-}
+});
 
 /* =============================================================================
    TabsContent
@@ -203,11 +235,12 @@ export function TabsTrigger({
 
 interface TabsContentProps {
   value: string;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function TabsContent({ value, children, className }: TabsContentProps) {
+export const TabsContent = memo(function TabsContent({ value, children, className = '', style }: TabsContentProps) {
   const { activeTab } = useTabsContext();
 
   if (activeTab !== value) return null;
@@ -215,9 +248,10 @@ export function TabsContent({ value, children, className }: TabsContentProps) {
   return (
     <div
       role="tabpanel"
-      className={cn('animate-fade-in', className)}
+      style={style}
+      className={cn('animate-fade-in duration-300', className)}
     >
       {children}
     </div>
   );
-}
+});

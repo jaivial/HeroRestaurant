@@ -8,6 +8,7 @@ import { MembersList } from './components/MembersList/MembersList';
 import { RolesList } from './components/RolesList/RolesList';
 import { RoleEditor } from './components/RoleEditor/RoleEditor';
 import { MemberEditor } from './components/MemberEditor/MemberEditor';
+import { MemberDetailModal } from './components/MemberDetail/MemberDetailModal';
 import { Container, Heading, Text, Button, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 
 export function Members() {
@@ -24,11 +25,15 @@ export function Members() {
     selectedRole,
     isMemberEditorOpen,
     selectedMember,
+    isMemberDetailOpen,
+    selectedMemberDetail,
     handleEditRole,
     handleCreateRole,
     handleEditMember,
+    handleViewMember,
     closeRoleEditor,
     closeMemberEditor,
+    closeMemberDetail,
   } = useMembersUI();
 
   useEffect(() => {
@@ -68,15 +73,15 @@ export function Members() {
         )}
       </div>
 
-      <div className="mb-6">
+      <div className="mb-8 flex justify-center">
         <Tabs
           defaultValue={activeTab}
           value={activeTab}
           onChange={(id) => setActiveTab(id as any)}
         >
-          <TabsList variant="pills">
+          <TabsList variant="glass" className="min-w-[240px]">
             {tabs.map(tab => (
-              <TabsTrigger key={tab.id} value={tab.id}>
+              <TabsTrigger key={tab.id} value={tab.id} className="flex-1 px-8 py-2.5 text-base">
                 {tab.label}
               </TabsTrigger>
             ))}
@@ -90,6 +95,11 @@ export function Members() {
           isLoading={membersLoading} 
           currentUserPriority={currentUserPriority}
           onEdit={handleEditMember}
+          onView={handleViewMember}
+          onRemove={(member) => {
+             // We need to pass this too!
+             console.log('Remove member', member);
+          }}
         />
       ) : (
         <RolesList 
@@ -123,6 +133,12 @@ export function Members() {
         member={selectedMember}
         roles={roles}
         currentUserPriority={currentUserPriority}
+      />
+
+      <MemberDetailModal
+        isOpen={isMemberDetailOpen}
+        onClose={closeMemberDetail}
+        member={selectedMemberDetail}
       />
     </Container>
   );

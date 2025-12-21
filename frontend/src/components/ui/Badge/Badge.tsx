@@ -1,98 +1,86 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info';
-type BadgeSize = 'sm' | 'md' | 'lg';
+export type BadgeVariant = 'default' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+export type BadgeSize = 'sm' | 'md' | 'lg';
 
-interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
   size?: BadgeSize;
   dot?: boolean;
-  icon?: ReactNode;
-  children: ReactNode;
-  className?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
 }
 
-export function Badge({
+/**
+ * Layer 3: UI Component - Badge
+ * Follows Apple aesthetic for status indicators and labels.
+ */
+export const Badge = memo(function Badge({
   variant = 'default',
   size = 'md',
   dot = false,
   icon,
   children,
-  className,
+  className = '',
+  style,
   ...props
 }: BadgeProps) {
-  const variantClasses: Record<BadgeVariant, { bg: string; text: string; dot: string }> = {
-    default: {
-      bg: 'bg-surface-tertiary',
-      text: 'text-content-primary',
-      dot: 'bg-content-tertiary',
-    },
-    success: {
-      bg: 'bg-apple-green/20',
-      text: 'text-apple-green',
-      dot: 'bg-apple-green',
-    },
-    warning: {
-      bg: 'bg-apple-orange/20',
-      text: 'text-apple-orange',
-      dot: 'bg-apple-orange',
-    },
-    error: {
-      bg: 'bg-apple-red/20',
-      text: 'text-apple-red',
-      dot: 'bg-apple-red',
-    },
-    info: {
-      bg: 'bg-apple-blue/20',
-      text: 'text-apple-blue',
-      dot: 'bg-apple-blue',
-    },
+  const theme = useAtomValue(themeAtom);
+
+  const variantClasses: Record<BadgeVariant, string> = {
+    default: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+    secondary: theme === 'dark' ? 'bg-white/5 text-white/60' : 'bg-black/[0.03] text-black/60',
+    success: theme === 'dark' ? 'bg-[#30D158]/15 text-[#30D158]' : 'bg-[#34C759]/15 text-[#34C759]',
+    warning: theme === 'dark' ? 'bg-[#FF9F0A]/15 text-[#FF9F0A]' : 'bg-[#FF9500]/15 text-[#FF9500]',
+    error: theme === 'dark' ? 'bg-[#FF453A]/15 text-[#FF453A]' : 'bg-[#FF3B30]/15 text-[#FF3B30]',
+    info: theme === 'dark' ? 'bg-[#0A84FF]/15 text-[#0A84FF]' : 'bg-[#007AFF]/15 text-[#007AFF]',
   };
 
-  const sizeClasses: Record<BadgeSize, { container: string; dot: string; icon: string }> = {
-    sm: {
-      container: 'px-2 py-0.5 text-xs gap-1',
-      dot: 'w-1.5 h-1.5',
-      icon: 'w-3 h-3',
-    },
-    md: {
-      container: 'px-2.5 py-1 text-sm gap-1.5',
-      dot: 'w-2 h-2',
-      icon: 'w-3.5 h-3.5',
-    },
-    lg: {
-      container: 'px-3 py-1.5 text-base gap-2',
-      dot: 'w-2.5 h-2.5',
-      icon: 'w-4 h-4',
-    },
+  const dotColors: Record<BadgeVariant, string> = {
+    default: theme === 'dark' ? 'bg-white/40' : 'bg-black/40',
+    secondary: theme === 'dark' ? 'bg-white/20' : 'bg-black/20',
+    success: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#34C759]',
+    warning: theme === 'dark' ? 'bg-[#FF9F0A]' : 'bg-[#FF9500]',
+    error: theme === 'dark' ? 'bg-[#FF453A]' : 'bg-[#FF3B30]',
+    info: theme === 'dark' ? 'bg-[#0A84FF]' : 'bg-[#007AFF]',
   };
 
-  const styles = variantClasses[variant];
-  const sizes = sizeClasses[size];
+  const sizeClasses: Record<BadgeSize, string> = {
+    sm: 'px-2 py-0.5 text-[11px] gap-1',
+    md: 'px-2.5 py-1 text-[13px] gap-1.5',
+    lg: 'px-3 py-1.5 text-[15px] gap-2',
+  };
+
+  const dotSizeClasses: Record<BadgeSize, string> = {
+    sm: 'w-1.5 h-1.5',
+    md: 'w-2 h-2',
+    lg: 'w-2.5 h-2.5',
+  };
 
   return (
     <span
+      style={style}
       className={cn(
-        'inline-flex items-center',
-        'font-medium rounded-full',
-        sizes.container,
-        styles.bg,
-        styles.text,
+        'inline-flex items-center font-semibold rounded-full select-none',
+        sizeClasses[size],
+        variantClasses[variant],
         className
       )}
       {...props}
     >
       {dot && (
-        <span className={cn('rounded-full flex-shrink-0', sizes.dot, styles.dot)} />
+        <span className={cn('rounded-full flex-shrink-0', dotSizeClasses[size], dotColors[variant])} />
       )}
       {icon && (
-        <span className={cn('flex-shrink-0', sizes.icon)}>{icon}</span>
+        <span className="flex-shrink-0 opacity-80">{icon}</span>
       )}
       {children}
     </span>
   );
-}
+});
 
 /* =============================================================================
    Status Badge (Predefined variants for common use cases)
@@ -102,7 +90,7 @@ interface StatusBadgeProps extends Omit<BadgeProps, 'variant' | 'dot'> {
   status: 'active' | 'inactive' | 'pending' | 'error' | 'success';
 }
 
-export function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
+export const StatusBadge = memo(function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
   const statusConfig: Record<
     StatusBadgeProps['status'],
     { variant: BadgeVariant; label: string }
@@ -121,4 +109,4 @@ export function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
       {children || config.label}
     </Badge>
   );
-}
+});

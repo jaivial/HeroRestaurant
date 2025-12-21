@@ -1,12 +1,13 @@
-import { useEffect, useCallback } from 'react';
-import type { ReactNode } from 'react';
+import React, { useEffect, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  children: ReactNode;
+  children: React.ReactNode;
   title?: string;
   description?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -14,9 +15,14 @@ interface ModalProps {
   closeOnEscape?: boolean;
   showCloseButton?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Modal({
+/**
+ * Layer 3: UI Component - Modal
+ * Follows Apple aesthetic for centered overlays with Liquid Glass effect.
+ */
+export const Modal = memo(function Modal({
   isOpen,
   onClose,
   children,
@@ -26,8 +32,11 @@ export function Modal({
   closeOnBackdrop = true,
   closeOnEscape = true,
   showCloseButton = true,
-  className,
+  className = '',
+  style,
 }: ModalProps) {
+  const theme = useAtomValue(themeAtom);
+
   const handleEscape = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape' && closeOnEscape) {
@@ -52,16 +61,25 @@ export function Modal({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
+    sm: 'max-w-[400px]',
+    md: 'max-w-[560px]',
+    lg: 'max-w-[720px]',
+    xl: 'max-w-[960px]',
     full: 'max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]',
   };
 
+  const panelClasses = cn(
+    'relative w-full rounded-[2.2rem] backdrop-blur-[20px] saturate-[180%] border',
+    'animate-scale-in duration-300 ease-[cubic-bezier(0,0,0.2,1)]',
+    theme === 'dark'
+      ? 'bg-black/80 border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)]'
+      : 'bg-white/80 border-white/[0.18] shadow-[0_32px_64px_rgba(0,0,0,0.15)]',
+    className
+  );
+
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
@@ -69,8 +87,7 @@ export function Modal({
       {/* Backdrop */}
       <div
         className={cn(
-          'absolute inset-0',
-          'bg-black/40 backdrop-blur-sm',
+          'absolute inset-0 bg-black/40 backdrop-blur-[4px] transition-opacity duration-300',
           'animate-fade-in'
         )}
         onClick={closeOnBackdrop ? onClose : undefined}
@@ -79,29 +96,31 @@ export function Modal({
 
       {/* Modal panel */}
       <div
-        className={cn(
-          'relative w-full',
-          sizeClasses[size],
-          'rounded-2xl',
-          'glass-solid shadow-apple-float',
-          'animate-scale-in',
-          className
-        )}
+        style={style}
+        className={cn('relative w-full', sizeClasses[size], panelClasses)}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between px-6 pt-5 pb-3">
+          <div className="flex items-start justify-between px-8 pt-8 pb-4">
             <div>
               {title && (
                 <h2
                   id="modal-title"
-                  className="text-xl font-semibold text-content-primary"
+                  className={cn(
+                    'text-[28px] font-semibold leading-tight',
+                    theme === 'dark' ? 'text-white' : 'text-black'
+                  )}
                 >
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-1 text-sm text-content-secondary">{description}</p>
+                <p className={cn(
+                  'mt-2 text-[17px]',
+                  theme === 'dark' ? 'text-white/60' : 'text-black/60'
+                )}>
+                  {description}
+                </p>
               )}
             </div>
 
@@ -110,16 +129,13 @@ export function Modal({
                 type="button"
                 onClick={onClose}
                 className={cn(
-                  'p-1.5 -mr-1.5 -mt-0.5',
-                  'rounded-full',
-                  'text-content-tertiary hover:text-content-primary',
-                  'hover:bg-surface-tertiary',
-                  'transition-colors duration-150 ease-apple',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue'
+                  'p-2 -mr-2 -mt-2 rounded-full transition-colors duration-200',
+                  theme === 'dark' ? 'text-white/40 hover:text-white hover:bg-white/10' : 'text-black/40 hover:text-black hover:bg-black/5',
+                  'focus:outline-none'
                 )}
                 aria-label="Close modal"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -128,34 +144,43 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className={cn('px-6', title ? 'py-3' : 'py-5')}>{children}</div>
+        <div className={cn('px-8', title ? 'pb-8' : 'py-8')}>{children}</div>
       </div>
     </div>,
     document.body
   );
-}
+});
 
 /* =============================================================================
    ModalFooter Component
    ============================================================================= */
 
 interface ModalFooterProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function ModalFooter({ children, className }: ModalFooterProps) {
+export const ModalFooter = memo(function ModalFooter({ 
+  children, 
+  className = '', 
+  style 
+}: ModalFooterProps) {
+  const theme = useAtomValue(themeAtom);
+
   return (
     <div
+      style={style}
       className={cn(
-        'flex items-center justify-end gap-3',
-        'px-6 py-4 mt-2',
+        'flex items-center justify-end gap-4',
+        'px-8 py-5 mt-4',
         'border-t',
-        '-mx-6 -mb-5',
+        theme === 'dark' ? 'border-white/10' : 'border-black/5',
+        '-mx-8 -mb-8', // Align with parent padding
         className
       )}
     >
       {children}
     </div>
   );
-}
+});

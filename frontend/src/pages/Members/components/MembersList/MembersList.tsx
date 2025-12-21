@@ -1,22 +1,26 @@
 import { useAtomValue } from 'jotai';
-import { canManageMembersAtom } from '@/atoms/permissionAtoms';
+import { canManageMembersAtom, canRemoveMembersAtom } from '@/atoms/permissionAtoms';
 import { Card, Text, Skeleton } from '@/components/ui';
-import { MemberRow } from './ui/MemberRow';
+import { MemberCard } from './ui/MemberCard';
 import type { MembersListProps } from '../../types';
 import type { Member } from '@/atoms/memberAtoms';
 
 interface ExtendedMembersListProps extends MembersListProps {
   onEdit: (member: Member) => void;
+  onView: (member: Member) => void;
+  onRemove: (member: Member) => void;
 }
 
-export function MembersList({ members, isLoading, currentUserPriority, onEdit }: ExtendedMembersListProps) {
+export function MembersList(props: ExtendedMembersListProps) {
+  const { members, isLoading, currentUserPriority, onEdit, onView, onRemove } = props;
   const canManageMembers = useAtomValue(canManageMembersAtom);
+  const canRemoveMembers = useAtomValue(canRemoveMembersAtom);
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-20 w-full rounded-[2.2rem]" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <Skeleton key={i} className="aspect-[3/4] w-full rounded-[2.2rem]" />
         ))}
       </div>
     );
@@ -31,14 +35,16 @@ export function MembersList({ members, isLoading, currentUserPriority, onEdit }:
   }
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {members.map((member) => (
-        <MemberRow 
+        <MemberCard 
           key={member.id} 
           member={member} 
           canEdit={canManageMembers && (member.rolePriority || 0) < currentUserPriority}
+          canRemove={canRemoveMembers && (member.rolePriority || 0) < currentUserPriority}
           onEdit={onEdit} 
-          onRemove={() => {}}
+          onRemove={onRemove}
+          onView={onView}
         />
       ))}
     </div>

@@ -1,8 +1,9 @@
-import { forwardRef, useEffect, useRef } from 'react';
-import type { TextareaHTMLAttributes } from 'react';
+import React, { forwardRef, useEffect, useRef, memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -10,124 +11,123 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   autoResize?: boolean;
   minRows?: number;
   maxRows?: number;
-  className?: string;
   wrapperClassName?: string;
 }
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    {
-      label,
-      error,
-      helperText,
-      variant = 'default',
-      autoResize = false,
-      minRows = 3,
-      maxRows = 10,
-      className,
-      wrapperClassName,
-      disabled,
-      onChange,
-      ...props
-    },
-    ref
-  ) => {
-    const internalRef = useRef<HTMLTextAreaElement>(null);
-    const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
-    const hasError = Boolean(error);
+/**
+ * Layer 3: UI Component - Textarea
+ * Follows Apple aesthetic for multi-line text input.
+ */
+export const Textarea = memo(
+  forwardRef<HTMLTextAreaElement, TextareaProps>(
+    (
+      {
+        label,
+        error,
+        helperText,
+        variant = 'default',
+        autoResize = false,
+        minRows = 3,
+        maxRows = 10,
+        className = '',
+        style,
+        wrapperClassName = '',
+        disabled,
+        onChange,
+        ...props
+      },
+      ref
+    ) => {
+      const theme = useAtomValue(themeAtom);
+      const internalRef = useRef<HTMLTextAreaElement>(null);
+      const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+      const hasError = Boolean(error);
 
-    // Auto-resize logic
-    const adjustHeight = () => {
-      const textarea = textareaRef.current;
-      if (!textarea || !autoResize) return;
+      const adjustHeight = () => {
+        const textarea = textareaRef.current;
+        if (!textarea || !autoResize) return;
 
-      // Reset height to calculate scrollHeight accurately
-      textarea.style.height = 'auto';
+        textarea.style.height = 'auto';
+        const computedStyle = window.getComputedStyle(textarea);
+        const lineHeight = parseFloat(computedStyle.lineHeight) || 24;
+        const paddingTop = parseFloat(computedStyle.paddingTop);
+        const paddingBottom = parseFloat(computedStyle.paddingBottom);
 
-      // Calculate line height
-      const computedStyle = window.getComputedStyle(textarea);
-      const lineHeight = parseFloat(computedStyle.lineHeight) || 24;
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+        const minHeight = lineHeight * minRows + paddingTop + paddingBottom;
+        const maxHeight = lineHeight * maxRows + paddingTop + paddingBottom;
 
-      const minHeight = lineHeight * minRows + paddingTop + paddingBottom;
-      const maxHeight = lineHeight * maxRows + paddingTop + paddingBottom;
+        const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
+        textarea.style.height = `${newHeight}px`;
+      };
 
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
-      textarea.style.height = `${newHeight}px`;
-    };
+      useEffect(() => {
+        adjustHeight();
+      }, [props.value, autoResize]);
 
-    useEffect(() => {
-      adjustHeight();
-    }, [props.value, autoResize]);
+      const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        onChange?.(e);
+        adjustHeight();
+      };
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChange?.(e);
-      adjustHeight();
-    };
+      const labelClasses = cn(
+        'block text-[14px] font-medium mb-2',
+        theme === 'dark' ? 'text-white/60' : 'text-black/60',
+        disabled && 'opacity-50'
+      );
 
-    return (
-      <div className={cn('w-full', wrapperClassName)}>
-        {label && (
-          <label
+      const textareaBaseClasses = cn(
+        'w-full rounded-[1rem] resize-none transition-all duration-200 focus:outline-none',
+        'text-[17px] px-4 py-3 border-[1.5px]',
+        disabled && 'opacity-50 cursor-not-allowed'
+      );
+
+      const variantClasses = {
+        default: theme === 'dark'
+          ? 'bg-white/5 border-white/10 text-white focus:border-[#0A84FF] placeholder:text-white/30'
+          : 'bg-black/5 border-black/5 text-black focus:border-[#007AFF] placeholder:text-black/30',
+        filled: theme === 'dark'
+          ? 'bg-white/10 border-transparent focus:bg-white/15 text-white placeholder:text-white/30'
+          : 'bg-black/5 border-transparent focus:bg-black/10 text-black placeholder:text-black/30',
+      };
+
+      const errorClasses = theme === 'dark'
+        ? 'border-[#FF453A] focus:border-[#FF453A]'
+        : 'border-[#FF3B30] focus:border-[#FF3B30]';
+
+      const helperClasses = cn(
+        'mt-1.5 text-[12px]',
+        hasError 
+          ? (theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]') 
+          : (theme === 'dark' ? 'text-white/40' : 'text-black/40')
+      );
+
+      return (
+        <div className={cn('w-full', wrapperClassName)} style={style}>
+          {label && <label className={labelClasses}>{label}</label>}
+
+          <textarea
+            ref={textareaRef}
+            disabled={disabled}
+            onChange={handleChange}
+            rows={autoResize ? minRows : props.rows || minRows}
             className={cn(
-              'block text-sm font-medium mb-1.5',
-              'text-content-secondary',
-              disabled && 'opacity-50'
+              textareaBaseClasses,
+              variantClasses[variant],
+              hasError && errorClasses,
+              className
             )}
-          >
-            {label}
-          </label>
-        )}
+            {...props}
+          />
 
-        <textarea
-          ref={textareaRef}
-          disabled={disabled}
-          onChange={handleChange}
-          rows={autoResize ? minRows : props.rows || minRows}
-          className={cn(
-            // Base styles
-            'w-full rounded-[0.875rem] resize-none',
-            'text-content-primary placeholder:text-content-quaternary',
-            'transition-all duration-200 ease-apple',
-            'focus:outline-none',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
-
-            // Variant styles
-            {
-              // Default - Subtle glass with border
-              'glass-subtle border border-transparent focus:border-apple-blue focus:ring-2 focus:ring-apple-blue/20':
-                variant === 'default',
-
-              // Filled - Solid background
-              'bg-surface-tertiary border-2 border-transparent focus:border-apple-blue focus:bg-surface-secondary':
-                variant === 'filled',
-            },
-
-            // Error state
-            hasError && 'border-apple-red focus:border-apple-red focus:ring-apple-red/20',
-
-            // Padding
-            'px-4 py-3',
-
-            className
+          {(error || helperText) && (
+            <p className={helperClasses}>
+              {error || helperText}
+            </p>
           )}
-          {...props}
-        />
-
-        {(error || helperText) && (
-          <p
-            className={cn(
-              'mt-1.5 text-sm',
-              hasError ? 'text-apple-red' : 'text-content-tertiary'
-            )}
-          >
-            {error || helperText}
-          </p>
-        )}
-      </div>
-    );
-  }
+        </div>
+      );
+    }
+  )
 );
 
 Textarea.displayName = 'Textarea';

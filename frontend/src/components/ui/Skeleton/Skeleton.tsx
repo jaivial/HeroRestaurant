@@ -1,3 +1,6 @@
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 interface SkeletonProps {
@@ -6,50 +9,56 @@ interface SkeletonProps {
   height?: string | number;
   lines?: number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Skeleton({
+/**
+ * Layer 3: UI Component - Skeleton
+ * Follows Apple aesthetic with subtle pulsing animation.
+ */
+export const Skeleton = memo(function Skeleton({
   variant = 'text',
   width,
   height,
   lines = 1,
-  className,
+  className = '',
+  style: customStyle,
 }: SkeletonProps) {
+  const theme = useAtomValue(themeAtom);
+
   const baseClasses = cn(
-    'bg-surface-tertiary',
-    'animate-pulse',
-    'relative overflow-hidden',
-    // Shimmer effect overlay
+    'animate-pulse relative overflow-hidden',
+    theme === 'dark' ? 'bg-white/10' : 'bg-black/5',
     'after:absolute after:inset-0',
-    'after:bg-gradient-to-r after:from-transparent after:via-white/10 after:to-transparent',
+    'after:bg-gradient-to-r after:from-transparent after:via-white/5 after:to-transparent',
     'after:animate-shimmer'
   );
 
   const variantClasses = {
-    text: 'h-4 rounded-md',
+    text: 'h-4 rounded-[4px]',
     circular: 'rounded-full',
     rectangular: 'rounded-none',
-    rounded: 'rounded-[0.875rem]',
+    rounded: 'rounded-[1rem]',
   };
 
   const style = {
+    ...customStyle,
     width: typeof width === 'number' ? `${width}px` : width,
     height: typeof height === 'number' ? `${height}px` : height,
   };
 
   if (variant === 'text' && lines > 1) {
     return (
-      <div className={cn('space-y-2', className)}>
+      <div className={cn('space-y-3', className)} style={customStyle}>
         {Array.from({ length: lines }).map((_, index) => (
           <div
             key={index}
             className={cn(
               baseClasses,
               variantClasses.text,
-              // Make last line shorter
-              index === lines - 1 && 'w-3/4'
+              index === lines - 1 && 'w-[75%]'
             )}
-            style={index !== lines - 1 ? style : undefined}
+            style={index !== lines - 1 ? { width: style.width } : undefined}
           />
         ))}
       </div>
@@ -58,11 +67,11 @@ export function Skeleton({
 
   return (
     <div
-      className={cn(baseClasses, variantClasses[variant], className)}
       style={style}
+      className={cn(baseClasses, variantClasses[variant], className)}
     />
   );
-}
+});
 
 /* =============================================================================
    Skeleton Presets
@@ -71,73 +80,104 @@ export function Skeleton({
 interface SkeletonCardProps {
   hasImage?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function SkeletonCard({ hasImage = true, className }: SkeletonCardProps) {
+export const SkeletonCard = memo(function SkeletonCard({ 
+  hasImage = true, 
+  className = '',
+  style 
+}: SkeletonCardProps) {
+  const theme = useAtomValue(themeAtom);
+  
   return (
-    <div className={cn('bg-surface-secondary rounded-2xl p-5', className)}>
-      {hasImage && (
-        <Skeleton variant="rounded" className="w-full h-40 mb-4" />
+    <div 
+      style={style}
+      className={cn(
+        'rounded-[2.2rem] p-8 border',
+        theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/72 border-white/[0.18]',
+        className
       )}
-      <Skeleton variant="text" className="w-3/4 mb-2" />
-      <Skeleton variant="text" lines={2} className="mb-4" />
-      <div className="flex gap-2">
-        <Skeleton variant="rounded" className="w-20 h-8" />
-        <Skeleton variant="rounded" className="w-20 h-8" />
+    >
+      {hasImage && (
+        <Skeleton variant="rounded" className="w-full h-48 mb-6" />
+      )}
+      <Skeleton variant="text" className="w-[70%] mb-4 h-6" />
+      <Skeleton variant="text" lines={2} className="mb-6" />
+      <div className="flex gap-4">
+        <Skeleton variant="rounded" className="w-24 h-11" />
+        <Skeleton variant="rounded" className="w-24 h-11" />
       </div>
     </div>
   );
-}
+});
 
 interface SkeletonAvatarProps {
   size?: 'sm' | 'md' | 'lg';
   withText?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function SkeletonAvatar({ size = 'md', withText = false, className }: SkeletonAvatarProps) {
+export const SkeletonAvatar = memo(function SkeletonAvatar({ 
+  size = 'md', 
+  withText = false, 
+  className = '',
+  style 
+}: SkeletonAvatarProps) {
   const sizes = {
     sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12',
+    md: 'w-11 h-11',
+    lg: 'w-14 h-14',
   };
 
   return (
-    <div className={cn('flex items-center gap-3', className)}>
+    <div className={cn('flex items-center gap-4', className)} style={style}>
       <Skeleton variant="circular" className={sizes[size]} />
       {withText && (
         <div className="flex-1">
-          <Skeleton variant="text" className="w-24 mb-1" />
-          <Skeleton variant="text" className="w-16 h-3" />
+          <Skeleton variant="text" className="w-32 mb-2 h-4" />
+          <Skeleton variant="text" className="w-20 h-3" />
         </div>
       )}
     </div>
   );
-}
+});
 
 interface SkeletonTableProps {
   rows?: number;
   columns?: number;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function SkeletonTable({ rows = 5, columns = 4, className }: SkeletonTableProps) {
+export const SkeletonTable = memo(function SkeletonTable({ 
+  rows = 5, 
+  columns = 4, 
+  className = '',
+  style 
+}: SkeletonTableProps) {
+  const theme = useAtomValue(themeAtom);
+
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('space-y-4', className)} style={style}>
       {/* Header */}
-      <div className="flex gap-4 pb-3 border-b border-content-quaternary/10">
+      <div className={cn(
+        'flex gap-6 pb-4 border-b',
+        theme === 'dark' ? 'border-white/10' : 'border-black/5'
+      )}>
         {Array.from({ length: columns }).map((_, i) => (
-          <Skeleton key={i} variant="text" className="flex-1 h-4" />
+          <Skeleton key={i} variant="text" className="flex-1 h-5" />
         ))}
       </div>
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="flex gap-4 py-2">
+        <div key={rowIndex} className="flex gap-6 py-3">
           {Array.from({ length: columns }).map((_, colIndex) => (
-            <Skeleton key={colIndex} variant="text" className="flex-1" />
+            <Skeleton key={colIndex} variant="text" className="flex-1 h-4" />
           ))}
         </div>
       ))}
     </div>
   );
-}
+});

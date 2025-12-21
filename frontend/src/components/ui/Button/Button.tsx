@@ -1,74 +1,66 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'tinted';
-  size?: 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'filled' | 'tinted' | 'gray' | 'plain' | 'danger' | 'primary' | 'secondary' | 'ghost';
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export function Button({
-  variant = 'primary',
+/**
+ * Layer 3: UI Component - Button
+ * Follows Apple standard button configurations and aesthetic.
+ */
+export const Button = memo(function Button({
+  variant = 'filled',
   size = 'md',
   loading = false,
   children,
-  className,
+  className = '',
+  style,
   disabled,
   ...props
 }: ButtonProps) {
+  const theme = useAtomValue(themeAtom);
   const isDisabled = disabled || loading;
+
+  const buttonBase = "inline-flex items-center justify-center gap-2 rounded-[1rem] font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+
+  const sizeClasses = {
+    sm: "h-[32px] px-3 text-[14px]",
+    md: "h-[44px] px-6 text-[17px]",
+    lg: "h-[54px] px-8 text-[20px]",
+  };
+
+  const variantClasses: Record<ButtonVariant, string> = {
+    filled: theme === 'dark' ? 'bg-[#0A84FF] text-white' : 'bg-[#007AFF] text-white',
+    primary: theme === 'dark' ? 'bg-[#0A84FF] text-white' : 'bg-[#007AFF] text-white',
+    tinted: theme === 'dark' ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-[#007AFF]/10 text-[#007AFF]',
+    secondary: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+    gray: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+    plain: 'bg-transparent text-[#007AFF]',
+    ghost: 'bg-transparent text-[#007AFF]',
+    danger: theme === 'dark' ? 'bg-[#FF453A] text-white' : 'bg-[#FF3B30] text-white',
+  };
 
   return (
     <button
-      className={cn(
-        // Base styles
-        'inline-flex items-center justify-center gap-2',
-        'font-medium rounded-[0.875rem]',
-        'transition-all duration-250 ease-apple',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue focus-visible:ring-offset-2',
-        'active:scale-[0.98]',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
-
-        // Variant styles
-        {
-          // Primary - Solid blue
-          'bg-apple-blue text-white shadow-apple-sm hover:bg-apple-blue-hover active:shadow-none':
-            variant === 'primary',
-
-          // Secondary - Subtle glass
-          'glass-subtle text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800':
-            variant === 'secondary',
-
-          // Danger - Solid red
-          'bg-apple-red text-white shadow-apple-sm hover:bg-apple-red-hover active:shadow-none':
-            variant === 'danger',
-
-          // Ghost - No background
-          'text-content-primary hover:bg-surface-secondary active:bg-surface-tertiary':
-            variant === 'ghost',
-
-          // Tinted - Light blue background with blue text
-          'bg-apple-blue/10 text-apple-blue hover:bg-apple-blue/20 active:bg-apple-blue/25':
-            variant === 'tinted',
-        },
-
-        // Size styles
-        {
-          'px-3 py-1.5 text-sm': size === 'sm',
-          'px-4 py-2.5 text-base': size === 'md',
-          'px-6 py-3 text-lg': size === 'lg',
-        },
-
-        className
-      )}
+      style={style}
+      className={cn(buttonBase, sizeClasses[size], variantClasses[variant], className)}
       disabled={isDisabled}
       {...props}
     >
       {loading && (
         <svg
-          className="animate-spin h-4 w-4"
+          className="animate-spin -ml-1 mr-2 h-4 w-4"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -91,4 +83,4 @@ export function Button({
       {children}
     </button>
   );
-}
+});

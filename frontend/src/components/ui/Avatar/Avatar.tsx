@@ -1,48 +1,63 @@
-import { useState } from 'react';
-import type { ImgHTMLAttributes } from 'react';
+import React, { useState, memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-type AvatarStatus = 'online' | 'offline' | 'busy' | 'away';
+export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away';
 
-interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'size'> {
+interface AvatarProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'size'> {
   src?: string;
   alt?: string;
   name?: string;
   size?: AvatarSize;
   status?: AvatarStatus;
   rounded?: boolean;
-  className?: string;
   imgClassName?: string;
 }
 
-export function Avatar({
+/**
+ * Layer 3: UI Component - Avatar
+ * Follows Apple aesthetic for user profiles and identities.
+ */
+export const Avatar = memo(function Avatar({
   src,
   alt,
   name,
   size = 'md',
   status,
   rounded = true,
-  className,
-  imgClassName,
+  className = '',
+  style,
+  imgClassName = '',
   ...props
 }: AvatarProps) {
+  const theme = useAtomValue(themeAtom);
   const [imageError, setImageError] = useState(false);
 
-  const sizeClasses: Record<AvatarSize, { container: string; text: string; status: string }> = {
-    xs: { container: 'w-6 h-6', text: 'text-xs', status: 'w-2 h-2 border' },
-    sm: { container: 'w-8 h-8', text: 'text-sm', status: 'w-2.5 h-2.5 border' },
-    md: { container: 'w-10 h-10', text: 'text-base', status: 'w-3 h-3 border-2' },
-    lg: { container: 'w-12 h-12', text: 'text-lg', status: 'w-3.5 h-3.5 border-2' },
-    xl: { container: 'w-16 h-16', text: 'text-xl', status: 'w-4 h-4 border-2' },
-    '2xl': { container: 'w-20 h-20', text: 'text-2xl', status: 'w-5 h-5 border-2' },
+  const sizeClasses: Record<AvatarSize, string> = {
+    xs: 'w-6 h-6 text-[10px]',
+    sm: 'w-8 h-8 text-[12px]',
+    md: 'w-11 h-11 text-[15px]',
+    lg: 'w-14 h-14 text-[18px]',
+    xl: 'w-18 h-18 text-[22px]',
+    '2xl': 'w-24 h-24 text-[28px]',
+  };
+
+  const statusSizeClasses: Record<AvatarSize, string> = {
+    xs: 'w-2 h-2',
+    sm: 'w-2.5 h-2.5',
+    md: 'w-3.5 h-3.5',
+    lg: 'w-4 h-4',
+    xl: 'w-5 h-5',
+    '2xl': 'w-6 h-6',
   };
 
   const statusColors: Record<AvatarStatus, string> = {
-    online: 'bg-apple-green',
-    offline: 'bg-apple-gray-400',
-    busy: 'bg-apple-red',
-    away: 'bg-apple-orange',
+    online: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#34C759]',
+    offline: theme === 'dark' ? 'bg-white/20' : 'bg-black/20',
+    busy: theme === 'dark' ? 'bg-[#FF453A]' : 'bg-[#FF3B30]',
+    away: theme === 'dark' ? 'bg-[#FF9F0A]' : 'bg-[#FF9500]',
   };
 
   const getInitials = (name: string) => {
@@ -54,27 +69,24 @@ export function Avatar({
       .toUpperCase();
   };
 
-  const sizes = sizeClasses[size];
   const showFallback = !src || imageError;
 
   return (
-    <div className={cn('relative inline-flex flex-shrink-0', className)}>
+    <div className={cn('relative inline-flex flex-shrink-0', className)} style={style}>
       <div
         className={cn(
-          sizes.container,
-          rounded ? 'rounded-full' : 'rounded-[0.875rem]',
-          'bg-surface-tertiary',
-          'flex items-center justify-center',
-          'shadow-apple-sm',
-          !rounded && 'overflow-hidden'
+          sizeClasses[size],
+          rounded ? 'rounded-full' : 'rounded-[1rem]',
+          theme === 'dark' ? 'bg-white/10' : 'bg-black/5',
+          'flex items-center justify-center overflow-hidden',
+          'border border-black/5 dark:border-white/5'
         )}
       >
         {showFallback ? (
           <span
             className={cn(
-              sizes.text,
-              'font-semibold text-content-secondary',
-              'select-none'
+              'font-bold select-none',
+              theme === 'dark' ? 'text-white/60' : 'text-black/60'
             )}
           >
             {name ? getInitials(name) : '?'}
@@ -85,7 +97,7 @@ export function Avatar({
             alt={alt || name || 'Avatar'}
             onError={() => setImageError(true)}
             className={cn("w-full h-full object-cover", imgClassName)}
-            {...(props as any)}
+            {...props}
           />
         )}
       </div>
@@ -94,63 +106,66 @@ export function Avatar({
         <span
           className={cn(
             'absolute bottom-0 right-0',
-            sizes.status,
-            'rounded-full',
-            'border-2 border-surface-primary',
+            statusSizeClasses[size],
+            'rounded-full border-2',
+            theme === 'dark' ? 'border-black' : 'border-white',
             statusColors[status]
           )}
         />
       )}
     </div>
   );
-}
+});
 
 /* =============================================================================
    AvatarGroup Component
    ============================================================================= */
 
-interface AvatarGroupProps {
+interface AvatarGroupProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   max?: number;
   size?: AvatarSize;
-  className?: string;
 }
 
-export function AvatarGroup({
+export const AvatarGroup = memo(function AvatarGroup({
   children,
   max = 5,
   size = 'md',
-  className,
+  className = '',
+  style,
+  ...props
 }: AvatarGroupProps) {
-  const avatars = Array.isArray(children) ? children : [children];
+  const theme = useAtomValue(themeAtom);
+  const avatars = React.Children.toArray(children);
   const visibleAvatars = avatars.slice(0, max);
   const remainingCount = avatars.length - max;
 
   const overlapClasses: Record<AvatarSize, string> = {
     xs: '-ml-2',
-    sm: '-ml-2.5',
-    md: '-ml-3',
-    lg: '-ml-4',
-    xl: '-ml-5',
-    '2xl': '-ml-6',
+    sm: '-ml-3',
+    md: '-ml-4',
+    lg: '-ml-5',
+    xl: '-ml-6',
+    '2xl': '-ml-8',
   };
 
   const sizeClasses: Record<AvatarSize, string> = {
-    xs: 'w-6 h-6 text-xs',
-    sm: 'w-8 h-8 text-xs',
-    md: 'w-10 h-10 text-sm',
-    lg: 'w-12 h-12 text-base',
-    xl: 'w-16 h-16 text-lg',
-    '2xl': 'w-20 h-20 text-xl',
+    xs: 'w-6 h-6 text-[10px]',
+    sm: 'w-8 h-8 text-[12px]',
+    md: 'w-11 h-11 text-[15px]',
+    lg: 'w-14 h-14 text-[18px]',
+    xl: 'w-18 h-18 text-[22px]',
+    '2xl': 'w-24 h-24 text-[28px]',
   };
 
   return (
-    <div className={cn('flex items-center', className)}>
+    <div className={cn('flex items-center', className)} style={style} {...props}>
       {visibleAvatars.map((avatar, index) => (
         <div
           key={index}
           className={cn(
-            'ring-2 ring-surface-primary rounded-full',
+            'relative rounded-full border-2',
+            theme === 'dark' ? 'border-black' : 'border-white',
             index > 0 && overlapClasses[size]
           )}
         >
@@ -163,11 +178,8 @@ export function AvatarGroup({
           className={cn(
             overlapClasses[size],
             sizeClasses[size],
-            'rounded-full',
-            'bg-surface-tertiary',
-            'flex items-center justify-center',
-            'font-medium text-content-secondary',
-            'ring-2 ring-surface-primary'
+            'rounded-full border-2 flex items-center justify-center font-bold select-none',
+            theme === 'dark' ? 'bg-white/10 text-white/60 border-black' : 'bg-black/5 text-black/60 border-white'
           )}
         >
           +{remainingCount}
@@ -175,4 +187,4 @@ export function AvatarGroup({
       )}
     </div>
   );
-}
+});

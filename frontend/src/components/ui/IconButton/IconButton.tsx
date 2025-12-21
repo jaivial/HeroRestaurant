@@ -1,106 +1,79 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
-type IconButtonVariant = 'default' | 'ghost' | 'tinted' | 'filled';
-type IconButtonSize = 'sm' | 'md' | 'lg';
-type IconButtonColor = 'default' | 'blue' | 'green' | 'red' | 'orange';
+export type IconButtonVariant = 'filled' | 'tinted' | 'gray' | 'plain' | 'danger' | 'default' | 'ghost';
+export type IconButtonSize = 'sm' | 'md' | 'lg';
 
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: ReactNode;
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: React.ReactNode;
   variant?: IconButtonVariant;
   size?: IconButtonSize;
-  color?: IconButtonColor;
   rounded?: boolean;
   loading?: boolean;
   label?: string;
-  className?: string;
 }
 
-export function IconButton({
+/**
+ * Layer 3: UI Component - IconButton
+ * Follows Apple aesthetic for compact action elements.
+ */
+export const IconButton = memo(function IconButton({
   icon,
-  variant = 'default',
+  variant = 'gray',
   size = 'md',
-  color = 'default',
   rounded = true,
   loading = false,
   label,
-  className,
+  className = '',
+  style,
   disabled,
   ...props
 }: IconButtonProps) {
+  const theme = useAtomValue(themeAtom);
   const isDisabled = disabled || loading;
 
-  const sizeClasses: Record<IconButtonSize, { container: string; icon: string }> = {
-    sm: { container: 'w-8 h-8', icon: 'w-4 h-4' },
-    md: { container: 'w-10 h-10', icon: 'w-5 h-5' },
-    lg: { container: 'w-12 h-12', icon: 'w-6 h-6' },
+  const baseClasses = cn(
+    'inline-flex items-center justify-center transition-all duration-200 active:scale-[0.90]',
+    'focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
+    rounded ? 'rounded-full' : 'rounded-[1rem]'
+  );
+
+  const sizeClasses: Record<IconButtonSize, string> = {
+    sm: 'w-[32px] h-[32px]',
+    md: 'w-[44px] h-[44px]',
+    lg: 'w-[54px] h-[54px]',
   };
 
-  const colorConfig: Record<
-    IconButtonColor,
-    {
-      default: string;
-      ghost: string;
-      tinted: string;
-      filled: string;
-    }
-  > = {
-    default: {
-      default: 'bg-surface-tertiary text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800',
-      ghost: 'text-content-secondary hover:text-content-primary hover:bg-surface-tertiary',
-      tinted: 'bg-apple-gray-300/50 dark:bg-apple-gray-700/50 text-content-primary hover:bg-apple-gray-300 dark:hover:bg-apple-gray-700',
-      filled: 'bg-surface-tertiary text-content-primary hover:bg-apple-gray-200 dark:hover:bg-apple-gray-800',
-    },
-    blue: {
-      default: 'bg-apple-blue/15 text-apple-blue hover:bg-apple-blue/25',
-      ghost: 'text-apple-blue hover:bg-apple-blue/10',
-      tinted: 'bg-apple-blue/20 text-apple-blue hover:bg-apple-blue/30',
-      filled: 'bg-apple-blue text-white hover:bg-apple-blue-hover',
-    },
-    green: {
-      default: 'bg-apple-green/15 text-apple-green hover:bg-apple-green/25',
-      ghost: 'text-apple-green hover:bg-apple-green/10',
-      tinted: 'bg-apple-green/20 text-apple-green hover:bg-apple-green/30',
-      filled: 'bg-apple-green text-white hover:bg-apple-green-hover',
-    },
-    red: {
-      default: 'bg-apple-red/15 text-apple-red hover:bg-apple-red/25',
-      ghost: 'text-apple-red hover:bg-apple-red/10',
-      tinted: 'bg-apple-red/20 text-apple-red hover:bg-apple-red/30',
-      filled: 'bg-apple-red text-white hover:bg-apple-red-hover',
-    },
-    orange: {
-      default: 'bg-apple-orange/15 text-apple-orange hover:bg-apple-orange/25',
-      ghost: 'text-apple-orange hover:bg-apple-orange/10',
-      tinted: 'bg-apple-orange/20 text-apple-orange hover:bg-apple-orange/30',
-      filled: 'bg-apple-orange text-white hover:bg-apple-orange/90',
-    },
+  const iconSizeClasses: Record<IconButtonSize, string> = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
   };
 
-  const sizes = sizeClasses[size];
-  const colorStyles = colorConfig[color][variant];
+  const variantClasses: Record<IconButtonVariant, string> = {
+    filled: theme === 'dark' ? 'bg-[#0A84FF] text-white' : 'bg-[#007AFF] text-white',
+    tinted: theme === 'dark' ? 'bg-[#0A84FF]/20 text-[#0A84FF]' : 'bg-[#007AFF]/10 text-[#007AFF]',
+    gray: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+    default: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
+    plain: theme === 'dark' ? 'bg-transparent text-[#0A84FF]' : 'bg-transparent text-[#007AFF]',
+    ghost: theme === 'dark' ? 'bg-transparent text-[#0A84FF]' : 'bg-transparent text-[#007AFF]',
+    danger: theme === 'dark' ? 'bg-[#FF453A] text-white' : 'bg-[#FF3B30] text-white',
+  };
 
   return (
     <button
+      style={style}
       type="button"
       disabled={isDisabled}
       aria-label={label}
-      className={cn(
-        'inline-flex items-center justify-center',
-        sizes.container,
-        rounded ? 'rounded-full' : 'rounded-[0.5rem]',
-        'transition-all duration-200 ease-apple',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-apple-blue focus-visible:ring-offset-2',
-        'active:scale-95',
-        'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
-        colorStyles,
-        className
-      )}
+      className={cn(baseClasses, sizeClasses[size], variantClasses[variant], className)}
       {...props}
     >
       {loading ? (
         <svg
-          className={cn('animate-spin', sizes.icon)}
+          className={cn('animate-spin', iconSizeClasses[size])}
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -120,8 +93,8 @@ export function IconButton({
           />
         </svg>
       ) : (
-        <span className={sizes.icon}>{icon}</span>
+        <span className={iconSizeClasses[size]}>{icon}</span>
       )}
     </button>
   );
-}
+});

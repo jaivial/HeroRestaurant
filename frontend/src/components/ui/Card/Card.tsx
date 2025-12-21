@@ -1,53 +1,58 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import React, { memo } from 'react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 /* =============================================================================
    Card Component
    ============================================================================= */
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'elevated' | 'glass' | 'outlined';
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'subtle' | 'solid' | 'outlined';
   hoverable?: boolean;
-  children: ReactNode;
-  className?: string;
+  children: React.ReactNode;
 }
 
-export function Card({
+/**
+ * Layer 3: UI Component - Card
+ * Implements the Liquid Glass effect with Apple aesthetic.
+ */
+export const Card = memo(function Card({
   variant = 'default',
   hoverable = false,
   children,
-  className,
+  className = '',
+  style,
   ...props
 }: CardProps) {
+  const theme = useAtomValue(themeAtom);
+
+  const baseClasses = "backdrop-blur-[20px] saturate-[180%] rounded-[2.2rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]";
+
+  const variantClasses = {
+    default: theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/72 border-white/[0.18]',
+    subtle: theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-white/50 border-white/[0.10]',
+    solid: theme === 'dark' ? 'bg-black/75 border-white/20' : 'bg-white/90 border-white/[0.25]',
+    outlined: 'bg-transparent border-black/10 dark:border-white/10',
+  };
+
+  const shadowClass = theme === 'dark'
+    ? 'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
+    : 'shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]';
+
+  const hoverClasses = hoverable 
+    ? "cursor-pointer hover:scale-[1.01] hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.15)] active:scale-[0.99]" 
+    : "";
+
   return (
     <div
+      style={style}
       className={cn(
-        // Base styles
-        'rounded-apple',
-        'transition-all duration-250 ease-apple',
-
-        // Variant styles
-        {
-          // Default - Solid background
-          'bg-surface-secondary': variant === 'default',
-
-          // Elevated - With shadow
-          'bg-surface-primary shadow-apple-lg': variant === 'elevated',
-
-          // Glass - Frosted glass effect
-          'glass': variant === 'glass',
-
-          // Outlined - Border only
-          'bg-transparent border-2 border-apple-gray-200 dark:border-apple-gray-800': variant === 'outlined',
-        },
-
-        // Hoverable effect
-        hoverable && [
-          'cursor-pointer',
-          'hover:shadow-apple-xl hover:-translate-y-0.5 hover:border-apple-blue/30',
-          'active:scale-[0.99] active:shadow-apple-md',
-        ],
-
+        baseClasses,
+        variantClasses[variant],
+        shadowClass,
+        hoverClasses,
+        'border',
         className
       )}
       {...props}
@@ -55,24 +60,33 @@ export function Card({
       {children}
     </div>
   );
-}
+});
 
 /* =============================================================================
    CardHeader Component
    ============================================================================= */
 
-interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  className?: string;
+interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
 }
 
-export function CardHeader({ children, className, ...props }: CardHeaderProps) {
+export const CardHeader = memo(function CardHeader({ 
+  children, 
+  className = '', 
+  style, 
+  ...props 
+}: CardHeaderProps) {
+  const theme = useAtomValue(themeAtom);
+  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/5';
+
   return (
     <div
+      style={style}
       className={cn(
         'flex items-center justify-between',
-        'px-5 py-4',
+        'px-8 py-5',
         'border-b',
+        borderColor,
         className
       )}
       {...props}
@@ -80,29 +94,29 @@ export function CardHeader({ children, className, ...props }: CardHeaderProps) {
       {children}
     </div>
   );
-}
+});
 
 /* =============================================================================
    CardTitle Component
    ============================================================================= */
 
-interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
-  children: ReactNode;
-  className?: string;
+interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  children: React.ReactNode;
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-export function CardTitle({
+export const CardTitle = memo(function CardTitle({
   children,
-  className,
+  className = '',
+  style,
   as: Component = 'h3',
   ...props
 }: CardTitleProps) {
   return (
     <Component
+      style={style}
       className={cn(
-        'text-lg font-semibold',
-        'text-content-primary',
+        'text-[22px] font-semibold leading-normal',
         className
       )}
       {...props}
@@ -110,50 +124,60 @@ export function CardTitle({
       {children}
     </Component>
   );
-}
+});
 
 /* =============================================================================
    CardContent Component
    ============================================================================= */
 
-interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  className?: string;
+interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
   noPadding?: boolean;
 }
 
-export function CardContent({
+export const CardContent = memo(function CardContent({
   children,
-  className,
+  className = '',
+  style,
   noPadding = false,
   ...props
 }: CardContentProps) {
   return (
     <div
-      className={cn(!noPadding && 'p-5', className)}
+      style={style}
+      className={cn(!noPadding && 'p-8', className)}
       {...props}
     >
       {children}
     </div>
   );
-}
+});
 
 /* =============================================================================
    CardFooter Component
    ============================================================================= */
 
-interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  className?: string;
+interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
 }
 
-export function CardFooter({ children, className, ...props }: CardFooterProps) {
+export const CardFooter = memo(function CardFooter({ 
+  children, 
+  className = '', 
+  style, 
+  ...props 
+}: CardFooterProps) {
+  const theme = useAtomValue(themeAtom);
+  const borderColor = theme === 'dark' ? 'border-white/10' : 'border-black/5';
+
   return (
     <div
+      style={style}
       className={cn(
-        'flex items-center justify-end gap-3',
-        'px-5 py-4',
+        'flex items-center justify-end gap-4',
+        'px-8 py-5',
         'border-t',
+        borderColor,
         className
       )}
       {...props}
@@ -161,4 +185,4 @@ export function CardFooter({ children, className, ...props }: CardFooterProps) {
       {children}
     </div>
   );
-}
+});

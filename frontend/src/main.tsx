@@ -1,7 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
-import './styles/globals.css';
+import './styles/tailwind.css';
+import './styles/fonts.css';
 import { useAuthInit } from '@/hooks/useAuthInit';
 import { ConnectionStatus } from '@/components/ConnectionStatus';
 
