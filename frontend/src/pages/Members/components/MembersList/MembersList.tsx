@@ -20,7 +20,7 @@ export function MembersList(props: ExtendedMembersListProps) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-          <Skeleton key={i} className="aspect-[3/4] w-full rounded-[2.2rem]" />
+          <Skeleton key={i} className="h-[440px] w-full rounded-[2.2rem]" />
         ))}
       </div>
     );

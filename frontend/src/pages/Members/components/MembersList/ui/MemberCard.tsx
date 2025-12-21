@@ -28,8 +28,8 @@ export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove,
   return (
     <Card 
       className={cn(
-        "p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col items-center text-center relative group overflow-hidden border",
-        "aspect-4/5 justify-between",
+        "p-5 sm:p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col items-center text-center relative group overflow-hidden border",
+        "min-h-min max-h-min justify-between",
         "hover:scale-[1.02] active:scale-[0.98]",
         glassClasses,
         hoverShadow
@@ -39,7 +39,7 @@ export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove,
       <div className="absolute -top-12 -right-12 w-24 h-24 bg-apple-blue/10 rounded-full blur-2xl group-hover:bg-apple-blue/20 transition-all duration-700" />
       <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-apple-purple/5 rounded-full blur-2xl group-hover:bg-apple-purple/15 transition-all duration-700" />
       
-      <div className="space-y-4 pt-2 relative z-10 w-full">
+      <div className="space-y-4 pt-2 relative z-10 w-full flex-1 flex flex-col justify-center">
         <div className="relative inline-block">
           <Avatar 
             src={member.user.avatarUrl || undefined} 
@@ -72,7 +72,7 @@ export const MemberCard = memo(function MemberCard({ member, canEdit, canRemove,
         </div>
       </div>
 
-      <div className="w-full space-y-2 relative z-10">
+      <div className="w-full space-y-4 relative z-10">
         <div className={cn(
           "flex justify-around items-center px-2 py-3 rounded-2xl border transition-colors duration-300",
           theme === 'dark' ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"

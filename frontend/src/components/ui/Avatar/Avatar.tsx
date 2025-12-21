@@ -72,14 +72,20 @@ export const Avatar = memo(function Avatar({
   const showFallback = !src || imageError;
 
   return (
-    <div className={cn('relative inline-flex flex-shrink-0', className)} style={style}>
+    <div 
+      className={cn(
+        'relative inline-flex flex-shrink-0', 
+        rounded ? 'rounded-full' : 'rounded-[1rem]',
+        className
+      )} 
+      style={style}
+    >
       <div
         className={cn(
           sizeClasses[size],
           rounded ? 'rounded-full' : 'rounded-[1rem]',
           theme === 'dark' ? 'bg-white/10' : 'bg-black/5',
-          'flex items-center justify-center overflow-hidden',
-          'border border-black/5 dark:border-white/5'
+          'flex items-center justify-center overflow-hidden'
         )}
       >
         {showFallback ? (

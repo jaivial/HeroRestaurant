@@ -1,4 +1,4 @@
-import { Modal, Avatar, Badge, Divider, Button } from '@/components/ui';
+import { Modal, Text, Avatar, Badge, Divider, Button } from '@/components/ui';
 import type { Member } from '@/atoms/memberAtoms';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
@@ -37,20 +37,25 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
   if (!member) return null;
 
   const surfaceCard = cn(
-    'rounded-[1.2rem] border backdrop-blur-xl transition-all duration-200',
+    'rounded-[1.2rem] border',
     theme === 'dark'
-      ? 'bg-white/[0.08] border-white/[0.15] hover:bg-white/[0.12] hover:border-white/20'
-      : 'bg-black/[0.04] border-black/[0.08] hover:bg-black/[0.06] hover:border-black/[0.12]'
+      ? 'bg-white/5 border-white/10'
+      : 'bg-black/[0.03] border-black/[0.06]'
   );
 
   const headerPill = cn(
-    'inline-flex items-center justify-center rounded-full border px-4 py-1.5 backdrop-blur-xl transition-all duration-200',
+    'inline-flex items-center justify-center rounded-full border px-4 py-1.5',
     theme === 'dark'
-      ? 'bg-white/[0.08] border-white/[0.15] hover:bg-white/[0.12]'
-      : 'bg-black/[0.04] border-black/[0.08] hover:bg-black/[0.06]'
+      ? 'bg-white/5 border-white/10'
+      : 'bg-black/[0.03] border-black/[0.06]'
   );
 
-  const modalBg = theme === 'dark' ? 'bg-[#1C1C1E]' : 'bg-[#F5F5F7]';
+  // High-contrast text for dark mode readability
+  const primaryText = theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]';
+  const secondaryText = theme === 'dark' ? 'text-white/70' : 'text-[#1D1D1F]/60';
+  const tertiaryText = theme === 'dark' ? 'text-white/50' : 'text-[#1D1D1F]/45';
+
+  const modalBg = theme === 'dark' ? 'bg-[#2C2A26]' : 'bg-[#FAF8F5]';
 
   return (
     <Modal
@@ -61,15 +66,9 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
       className={cn('rounded-[2.2rem] shadow-apple-float overflow-hidden', modalBg)}
     >
       <div className="relative space-y-6 pb-4">
-        {/* Background decor with enhanced visibility */}
-        <div className={cn(
-          "pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full blur-3xl",
-          theme === 'dark' ? 'bg-apple-blue/15' : 'bg-apple-blue/8'
-        )} />
-        <div className={cn(
-          "pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full blur-3xl",
-          theme === 'dark' ? 'bg-apple-purple/15' : 'bg-apple-purple/8'
-        )} />
+        {/* Background decor (single layer to avoid nested glass) */}
+        <div className="pointer-events-none absolute -top-20 -right-20 h-48 w-48 rounded-full bg-apple-blue/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-apple-purple/10 blur-3xl" />
 
         {/* Header Section */}
         <div className="relative z-10 flex flex-col items-center text-center gap-4 pt-2">
@@ -78,76 +77,46 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
             name={member.user.name}
             size="2xl"
             status={member.status === 'active' ? 'online' : 'offline'}
-            className={cn(
-              "ring-4 shadow-xl",
-              theme === 'dark'
-                ? 'ring-apple-blue/30 shadow-apple-blue/10'
-                : 'ring-apple-blue/20 shadow-apple-blue/5'
-            )}
+            className="ring-4 ring-apple-blue/20"
           />
           
           <div className="space-y-1">
-            <h1 className={cn(
-              'text-3xl font-bold tracking-tight leading-tight',
-              theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]'
-            )}>
+            <Text variant="title1" weight="bold" className={cn(primaryText, 'tracking-tight leading-tight')}>
               {member.user.name}
-            </h1>
-            <p className={cn(
-              'text-sm mx-auto max-w-[52ch]',
-              theme === 'dark' ? 'text-white/65' : 'text-[#1D1D1F]/55'
-            )}>
+            </Text>
+            <Text variant="subheadline" className={cn(tertiaryText, 'mx-auto max-w-[52ch]')}>
               Member ID: {member.id}
-            </p>
+            </Text>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Badge
+            <Badge 
               className={cn(
-                'px-4 py-1.5 text-sm font-semibold rounded-full border backdrop-blur-xl transition-all duration-200',
-                !member.roleName && cn(
-                  'border-dashed',
-                  theme === 'dark'
-                    ? 'bg-white/[0.05] border-white/20 text-white/65'
-                    : 'bg-black/[0.03] border-black/15 text-black/55'
-                )
+                'px-4 py-1.5 text-sm font-semibold rounded-full border',
+                !member.roleName && 'bg-transparent border-dashed border-content-tertiary/50 text-content-tertiary'
               )}
               style={member.roleName ? {
-                backgroundColor: member.roleColor ? `${member.roleColor}${theme === 'dark' ? '20' : '15'}` : undefined,
+                backgroundColor: member.roleColor ? `${member.roleColor}15` : undefined,
                 color: member.roleColor || undefined,
-                borderColor: member.roleColor ? `${member.roleColor}${theme === 'dark' ? '40' : '30'}` : undefined,
-                borderWidth: member.roleColor ? '1.5px' : '0',
+                borderColor: member.roleColor ? `${member.roleColor}30` : undefined,
+                borderWidth: member.roleColor ? '1px' : '0',
               } : {}}
             >
               {member.roleName || 'No Role'}
             </Badge>
             <span className={headerPill}>
-              <span className={cn(
-                'text-xs font-bold uppercase tracking-widest',
-                theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-              )}>
+              <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest')}>
                 Priority
-              </span>
-              <span className={cn(
-                "ml-2 font-bold",
-                theme === 'dark' ? 'text-apple-blue' : 'text-blue-600'
-              )}>
+              </Text>
+              <Text as="span" weight="bold" className="ml-2 text-apple-blue">
                 {member.rolePriority ?? 0}
-              </span>
+              </Text>
             </span>
             <span className={headerPill}>
-              <span className={cn(
-                'mr-2 h-2.5 w-2.5 rounded-full shadow-lg',
-                member.status === 'active'
-                  ? 'bg-apple-green shadow-apple-green/30'
-                  : 'bg-apple-red shadow-apple-red/30'
-              )} />
-              <span className={cn(
-                'font-semibold capitalize',
-                theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]'
-              )}>
+              <span className={cn('mr-2 h-2.5 w-2.5 rounded-full', member.status === 'active' ? 'bg-apple-green' : 'bg-apple-red')} />
+              <Text as="span" weight="semibold" className={cn(primaryText, 'capitalize')}>
                 {member.status === 'active' ? 'Active' : 'Inactive'}
-              </span>
+              </Text>
             </span>
           </div>
         </div>
@@ -158,92 +127,57 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 px-1">
           <div className="space-y-6">
             <div>
-              <label className={cn(
-                'text-xs font-bold uppercase tracking-widest mb-3 block',
-                theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-              )}>
+              <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest mb-2 block')}>
                 Account Status
-              </label>
-              <div className={cn(surfaceCard, 'flex items-center gap-3 p-4')}>
-                <span className={cn(
-                  'h-2.5 w-2.5 rounded-full shadow-lg',
-                  member.status === 'active'
-                    ? 'bg-apple-green shadow-apple-green/30'
-                    : 'bg-apple-red shadow-apple-red/30'
-                )} />
-                <span className={cn(
-                  'font-semibold capitalize',
-                  theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]'
-                )}>
+              </Text>
+              <div className={cn(surfaceCard, 'flex items-center gap-2 p-4')}>
+                <span className={cn('h-2.5 w-2.5 rounded-full', member.status === 'active' ? 'bg-apple-green' : 'bg-apple-red')} />
+                <Text weight="semibold" className={cn(primaryText, 'capitalize')}>
                   {member.status === 'active' ? 'Active' : 'Inactive'}
-                </span>
+                </Text>
               </div>
             </div>
 
             <div>
-              <label className={cn(
-                'text-xs font-bold uppercase tracking-widest mb-3 block',
-                theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-              )}>
+              <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest mb-2 block')}>
                 Joined Workspace
-              </label>
-              <div className={cn(surfaceCard, 'p-4 font-semibold', theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]')}>
+              </Text>
+              <Text weight="semibold" className={cn(surfaceCard, primaryText, 'p-4 block')}>
                 {formatDate(member.joinedAt)}
-              </div>
+              </Text>
             </div>
           </div>
 
           <div className="space-y-6">
             <div>
-              <label className={cn(
-                'text-xs font-bold uppercase tracking-widest mb-3 block',
-                theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-              )}>
+              <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest mb-2 block')}>
                 Last Active
-              </label>
-              <div className={cn(surfaceCard, 'p-4 font-semibold', theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]')}>
+              </Text>
+              <Text weight="semibold" className={cn(surfaceCard, primaryText, 'p-4 block')}>
                 {member.lastActiveAt ? formatDateTime(member.lastActiveAt) : 'Never'}
-              </div>
+              </Text>
             </div>
 
             <div>
-              <label className={cn(
-                'text-xs font-bold uppercase tracking-widest mb-3 block',
-                theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-              )}>
+              <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest mb-2 block')}>
                 Assigned Role
-              </label>
-              <div className={cn(surfaceCard, 'p-4 space-y-2')}>
-                <h3 className={cn(
-                  'font-bold block',
-                  member.roleName
-                    ? theme === 'dark' ? 'text-apple-blue' : 'text-blue-600'
-                    : theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70'
-                )}>
+              </Text>
+              <div className={cn(surfaceCard, 'p-4')}>
+                <Text weight="bold" className={cn('block mb-1', member.roleName ? 'text-apple-blue' : tertiaryText)}>
                   {member.roleName || 'No Role assigned'}
-                </h3>
-                <p className={cn('text-sm leading-relaxed', theme === 'dark' ? 'text-white/80' : 'text-[#1D1D1F]/70')}>
+                </Text>
+                <Text variant="footnote" className={cn(secondaryText, 'leading-relaxed')}>
                   {member.roleName
                     ? 'Role and permissions are managed by your workspace administrator.'
                     : 'Assign a role to grant permissions and set priority.'}
-                </p>
+                </Text>
               </div>
             </div>
           </div>
         </div>
 
         <div className="relative z-10 flex justify-center pt-4">
-          <Button
-            onClick={onClose}
-            variant="secondary"
-            size="lg"
-            className={cn(
-              "rounded-full px-12 font-bold shadow-apple-md transition-all duration-200",
-              theme === 'dark'
-                ? 'hover:bg-white/[0.15] hover:shadow-xl text-white'
-                : 'hover:bg-black/[0.08] hover:shadow-xl text-[#1D1D1F]'
-            )}
-          >
+          <Button onClick={onClose} variant="secondary" size="lg" className="rounded-full px-12 font-bold shadow-apple-md">
             Done
           </Button>
         </div>
