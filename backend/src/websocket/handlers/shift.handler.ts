@@ -124,7 +124,7 @@ export const shiftHandlers = {
     const { userId } = ws.data;
     if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
 
-    const { restaurantId } = payload;
+    const { restaurantId, period } = payload;
 
     try {
       // Check permission
@@ -138,7 +138,7 @@ export const shiftHandlers = {
         };
       }
 
-      const stats = await ShiftService.getTeamStats(restaurantId);
+      const stats = await ShiftService.getTeamStats(restaurantId, period || 'weekly');
       return { data: { members: stats } };
     } catch (error: any) {
       return {

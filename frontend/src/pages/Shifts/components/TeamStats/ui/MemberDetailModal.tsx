@@ -43,7 +43,7 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
     {
       header: 'Total',
       key: 'totalMinutes',
-      render: (s) => s.totalMinutes ? formatMinutes(s.totalMinutes) : 'Active'
+      render: (s) => s.totalMinutes ? `${formatMinutes(s.totalMinutes)}h` : 'Active'
     }
   ];
 

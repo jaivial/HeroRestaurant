@@ -85,8 +85,8 @@ export class ShiftService {
   /**
    * Gets team statistics for all members (admin)
    */
-  static async getTeamStats(restaurantId: string) {
-    const { startDate, endDate } = this.getDateRange('weekly');
+  static async getTeamStats(restaurantId: string, period: string = 'weekly') {
+    const { startDate, endDate } = this.getDateRange(period);
     const stats = await ShiftRepository.getMemberStats(restaurantId, startDate, endDate);
 
     return stats.map(member => {
@@ -142,7 +142,7 @@ export class ShiftService {
 
   private static calculateContractedMinutes(contract: MemberContract | null, period: string): number {
     if (!contract) return 0;
-    const weeklyMinutes = contract.weekly_hours * 60;
+    const weeklyMinutes = Number(contract.weekly_hours) * 60;
 
     switch (period) {
       case 'daily': return Math.round(weeklyMinutes / 7);

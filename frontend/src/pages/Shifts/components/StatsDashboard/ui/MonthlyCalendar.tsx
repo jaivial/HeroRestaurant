@@ -149,7 +149,6 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                       </Text>
                     )}
                   </div>
-// ... (rest of shifts) ...
                   <div className="space-y-1">
                     {item.shifts && item.shifts.slice(0, 2).map(s => (
                       <div 

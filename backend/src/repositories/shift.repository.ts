@@ -143,17 +143,18 @@ export class ShiftRepository {
             eb('member_contracts.effective_to', '>=', startDate)
           ]))
       )
-      .leftJoin('member_shifts', (join) => 
-        join.onRef('member_shifts.membership_id', '=', 'memberships.id')
-          .on('member_shifts.punch_in_at', '>=', startDate)
-          .on('member_shifts.punch_in_at', '<=', endDate)
-      )
       .select([
         'memberships.id',
         'users.name',
         'users.email',
         'member_contracts.weekly_hours',
-        sql<number>`SUM(COALESCE(member_shifts.total_minutes, 0))`.as('total_worked_minutes')
+        (eb) => eb
+          .selectFrom('member_shifts')
+          .select((eb) => eb.fn.sum(eb.fn.coalesce('total_minutes', eb.val(0))).as('sum'))
+          .whereRef('membership_id', '=', 'memberships.id')
+          .where('punch_in_at', '>=', startDate)
+          .where('punch_in_at', '<=', endDate)
+          .as('total_worked_minutes')
       ])
       .where('memberships.restaurant_id', '=', restaurantId)
       .where('memberships.deleted_at', 'is', null)

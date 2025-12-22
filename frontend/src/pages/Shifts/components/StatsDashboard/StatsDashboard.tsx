@@ -17,7 +17,7 @@ interface StatsDashboardProps {
 }
 
 export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
-  const { stats: periodStats, isLoading: statsLoading, period, setPeriod } = usePersonalStats(restaurantId);
+  const { stats: periodStats, isLoading: statsLoading, period, setPeriod } = usePersonalStats(restaurantId, 'monthly');
   const { stats: fullHistoryStats } = usePersonalStats(restaurantId, 'anual');
   const [viewMode, setViewMode] = useState('table');
   const timeFormat = useAtomValue(timeFormatAtom);
@@ -47,7 +47,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
     {
       header: 'Duration',
       key: 'totalMinutes',
-      render: (s) => s.totalMinutes ? formatMinutes(s.totalMinutes) : 'Active'
+      render: (s) => s.totalMinutes ? `${formatMinutes(s.totalMinutes)}h` : 'Active'
     }
   ];
 
