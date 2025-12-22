@@ -20,6 +20,7 @@ import { memberHandlers } from './member.handler';
 import { roleHandlers } from './role.handler';
 import { menuHandlers } from './menu.handler';
 import { shiftHandlers } from './shift.handler';
+import { preferenceHandlers } from './preference.handler';
 
 // Type for handler functions
 type MessageHandler = (
@@ -83,6 +84,9 @@ const handlers: Record<string, MessageHandler> = {
   'shift.get_status': shiftHandlers.getStatus,
   'shift.get_personal_stats': shiftHandlers.getPersonalStats,
   'shift.get_team_stats': shiftHandlers.getTeamStats,
+  // Preference handlers
+  'preference.get': preferenceHandlers.get,
+  'preference.set': preferenceHandlers.set,
 };
 
 /**

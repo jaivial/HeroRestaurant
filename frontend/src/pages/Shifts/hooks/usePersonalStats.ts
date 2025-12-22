@@ -8,8 +8,15 @@ import type { WSMessageCategory } from '@/websocket/types';
 export function usePersonalStats(restaurantId: string, initialPeriod: ShiftPeriod = 'weekly') {
   const isConnected = useAtomValue(isConnectedAtom);
   const [period, setPeriod] = useState<ShiftPeriod>(initialPeriod);
+  const [offset, setOffset] = useState(0);
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Sync internal period with initialPeriod if it changes externally
+  useEffect(() => {
+    setPeriod(initialPeriod);
+    setOffset(0); // Reset offset when period changes
+  }, [initialPeriod]);
 
   const fetchStats = useCallback(async () => {
     if (!isConnected) return;
@@ -18,7 +25,8 @@ export function usePersonalStats(restaurantId: string, initialPeriod: ShiftPerio
     try {
       const response = await wsClient.request<any>('shift' as WSMessageCategory, 'get_personal_stats', { 
         restaurantId,
-        period 
+        period,
+        offset
       });
 
       // Transform history from snake_case to camelCase
@@ -38,7 +46,7 @@ export function usePersonalStats(restaurantId: string, initialPeriod: ShiftPerio
     } finally {
       setIsLoading(false);
     }
-  }, [isConnected, restaurantId, period]);
+    }, [isConnected, restaurantId, period, offset]);
 
   useEffect(() => {
     fetchStats();
@@ -49,6 +57,8 @@ export function usePersonalStats(restaurantId: string, initialPeriod: ShiftPerio
     isLoading,
     period,
     setPeriod,
+    offset,
+    setOffset,
     refresh: fetchStats,
   };
 }

@@ -1,10 +1,11 @@
 // frontend/src/pages/Shifts/Shifts.tsx
 
-import { useState } from 'react';
-import { useAtomValue, useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import { workspaceIdAtom } from '@/atoms/workspaceAtoms';
 import { timeFormatAtom } from '@/atoms/shiftAtoms';
 import { themeAtom } from '@/atoms/themeAtoms';
+import { fetchPreferencesAtom } from '@/atoms/preferenceAtoms';
 import { Container, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { cn } from '@/utils/cn';
 import { ClockSection } from './components/ClockSection';
@@ -18,11 +19,16 @@ export function Shifts() {
   const theme = useAtomValue(themeAtom);
   const [timeFormat, setTimeFormat] = useAtom(timeFormatAtom);
   const [activeTab, setActiveTab] = useState('clock');
+  const fetchPreferences = useSetAtom(fetchPreferencesAtom);
   const { hasPermission } = usePermissions();
   const canViewPersonalStats = hasPermission(PERMISSIONS.VIEW_TIMESHEETS);
   const canViewTeamStats = hasPermission(PERMISSIONS.VIEW_MEMBERS);
 
-  if (!restaurantId) return null;
+  useEffect(() => {
+    if (restaurantId) {
+      fetchPreferences();
+    }
+  }, [restaurantId, fetchPreferences]);
 
   return (
     <Container className="py-8">

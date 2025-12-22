@@ -1,6 +1,7 @@
 import { useMemo, useRef, useCallback, useState, useEffect } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useAtom } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
+import { shiftsWeeklyLayoutPreferenceAtom } from '@/atoms/preferenceAtoms';
 import { Text, Badge, Button, Tabs, TabsList, TabsTrigger, IconButton } from '@/components/ui';
 import type { ShiftHistoryItem } from '../../../types';
 import { cn } from '@/utils/cn';
@@ -18,7 +19,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
   const isDark = theme === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
   const verticalContainerRef = useRef<HTMLDivElement>(null);
-  const [layout, setLayout] = useState<'horizontal' | 'vertical'>('horizontal');
+  const [layout, setLayout] = useAtom(shiftsWeeklyLayoutPreferenceAtom);
   const [weekOffset, setWeekOffset] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);

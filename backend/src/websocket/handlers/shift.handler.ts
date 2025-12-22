@@ -76,7 +76,7 @@ export const shiftHandlers = {
     const { userId } = ws.data;
     if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
 
-    const { restaurantId, period, memberId } = payload;
+    const { restaurantId, period, memberId, offset } = payload;
 
     try {
       let targetUserId = userId;
@@ -105,7 +105,7 @@ export const shiftHandlers = {
         targetUserId = targetMembership.user_id;
       }
 
-      const stats = await ShiftService.getPersonalStats(targetUserId, restaurantId, period);
+      const stats = await ShiftService.getPersonalStats(targetUserId, restaurantId, period, offset);
       return { data: stats };
     } catch (error: any) {
       return {

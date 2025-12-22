@@ -62,11 +62,11 @@ export class ShiftService {
   /**
    * Gets personal statistics for a member
    */
-  static async getPersonalStats(userId: string, restaurantId: string, period: string) {
+  static async getPersonalStats(userId: string, restaurantId: string, period: string, offset: number = 0) {
     const membership = await MembershipRepository.findByUserAndRestaurant(userId, restaurantId);
     if (!membership) throw Errors.FORBIDDEN;
 
-    const { startDate, endDate } = this.getDateRange(period);
+    const { startDate, endDate } = this.getDateRange(period, offset);
     const shifts = await ShiftRepository.findShiftsByMembership(membership.id, startDate, endDate);
     const contract = await ShiftRepository.findActiveContract(membership.id);
 
@@ -74,6 +74,8 @@ export class ShiftService {
     const contractedMinutes = this.calculateContractedMinutes(contract, period);
 
     return {
+      startDate,
+      endDate,
       workedMinutes,
       contractedMinutes,
       differenceMinutes: workedMinutes - contractedMinutes,
@@ -106,32 +108,42 @@ export class ShiftService {
 
   // --- Helpers ---
 
-  private static getDateRange(period: string) {
+  private static getDateRange(period: string, offset: number = 0) {
     const now = new Date();
     let startDate = new Date();
-    const endDate = new Date();
+    let endDate = new Date();
 
     switch (period) {
       case 'daily':
+        startDate.setDate(now.getDate() + offset);
         startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case 'weekly':
         const day = now.getDay();
-        const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+        const diff = now.getDate() - day + (day === 0 ? -6 : 1) + (offset * 7);
         startDate.setDate(diff);
         startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case 'monthly':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate = new Date(now.getFullYear(), now.getMonth() + offset, 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0, 23, 59, 59, 999);
         break;
       case 'trimestral':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        startDate = new Date(now.getFullYear(), now.getMonth() - 2 + (offset * 3), 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth() + (offset * 3) + 1, 0, 23, 59, 59, 999);
         break;
       case 'semmestral':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        startDate = new Date(now.getFullYear(), now.getMonth() - 5 + (offset * 6), 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth() + (offset * 6) + 1, 0, 23, 59, 59, 999);
         break;
       case 'anual':
-        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate = new Date(now.getFullYear() + offset, 0, 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear() + offset, 11, 31, 23, 59, 59, 999);
         break;
       default:
         startDate.setHours(0, 0, 0, 0);

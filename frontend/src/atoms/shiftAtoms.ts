@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
+import { shiftsTimeFormatPreferenceAtom } from './preferenceAtoms';
 
 export interface Shift {
   id: string;
@@ -26,5 +26,5 @@ export const activeShiftAtom = atom(
   (get) => get(shiftStatusAtom).activeShift
 );
 
-export const timeFormatAtom = atomWithStorage<'12h' | '24h'>('time-format', '24h');
+export const timeFormatAtom = shiftsTimeFormatPreferenceAtom;
 

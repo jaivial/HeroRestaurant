@@ -3,27 +3,51 @@ import { usePersonalStats } from '../../hooks/usePersonalStats';
 import { Card, Text, Heading, Select, Badge, DataTable, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import type { ShiftPeriod, ShiftHistoryItem } from '../../types';
-import { Clock, TrendingUp, ShieldCheck, Table as TableIcon, Calendar, CalendarDays } from 'lucide-react';
+import { Clock, TrendingUp, ShieldCheck, Table as TableIcon, Calendar, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { WeeklyCalendar } from './ui/WeeklyCalendar';
 import { MonthlyCalendar } from './ui/MonthlyCalendar';
 import { safeParseDate, formatMinutes, formatTime } from '@/utils/time';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useAtom } from 'jotai';
 import { timeFormatAtom } from '@/atoms/shiftAtoms';
 import { themeAtom } from '@/atoms/themeAtoms';
+import { shiftsStatsPeriodPreferenceAtom, shiftsHistoryTabPreferenceAtom } from '@/atoms/preferenceAtoms';
 import { cn } from '@/utils/cn';
+import { IconButton } from '@/components/ui';
+import { useMemo } from 'react';
 
 interface StatsDashboardProps {
   restaurantId: string;
 }
 
 export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
-  const { stats: periodStats, isLoading: statsLoading, period, setPeriod } = usePersonalStats(restaurantId, 'monthly');
+  const [period, setPeriod] = useAtom(shiftsStatsPeriodPreferenceAtom);
+  const { 
+    stats: periodStats, 
+    isLoading: statsLoading, 
+    offset, 
+    setOffset 
+  } = usePersonalStats(restaurantId, period as ShiftPeriod);
   const { stats: fullHistoryStats } = usePersonalStats(restaurantId, 'anual');
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useAtom(shiftsHistoryTabPreferenceAtom);
   const timeFormat = useAtomValue(timeFormatAtom);
   const theme = useAtomValue(themeAtom);
   const use24h = timeFormat === '24h';
   const isDark = theme === 'dark';
+
+  const rangeLabel = useMemo(() => {
+    if (!periodStats?.startDate || !periodStats?.endDate) return '';
+    const start = new Date(periodStats.startDate);
+    const end = new Date(periodStats.endDate);
+    
+    if (period === 'daily') return start.toLocaleDateString(undefined, { dateStyle: 'medium' });
+    if (period === 'weekly') {
+      return `${start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    }
+    if (period === 'monthly') return start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    if (period === 'anual') return start.getFullYear().toString();
+    
+    return `${start.toLocaleDateString(undefined, { dateStyle: 'medium' })} - ${end.toLocaleDateString(undefined, { dateStyle: 'medium' })}`;
+  }, [periodStats, period]);
 
   const historyColumns: Column<ShiftHistoryItem>[] = [
 // ... (rest of columns) ...
@@ -86,9 +110,9 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className={cn(
-          "p-6",
+          "p-6 w-full min-w-0",
           isDark ? "bg-white/5" : "bg-white"
         )}>
           <div className="flex justify-between items-start mb-4">
@@ -150,10 +174,36 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
       </div>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-        <Heading level={3} className={cn(
-          "text-[28px] font-semibold leading-snug",
-          isDark ? "text-white" : "text-black"
-        )}>Shift History</Heading>
+        <div className="flex items-center gap-6">
+          <Heading level={3} className={cn(
+            "text-[28px] font-semibold leading-snug",
+            isDark ? "text-white" : "text-black"
+          )}>Shift History</Heading>
+          
+          {viewMode === 'table' && (
+            <div className="flex items-center gap-3">
+              <IconButton 
+                icon={<ChevronLeft size={20} />} 
+                variant="glass" 
+                size="sm"
+                onClick={() => setOffset(prev => prev - 1)}
+              />
+              <Text weight="bold" className={cn(
+                "text-[14px] min-w-[140px] text-center",
+                isDark ? "text-white" : "text-black"
+              )}>
+                {rangeLabel}
+              </Text>
+              <IconButton 
+                icon={<ChevronRight size={20} />} 
+                variant="glass" 
+                size="sm"
+                onClick={() => setOffset(prev => prev + 1)}
+              />
+            </div>
+          )}
+        </div>
+
         <Tabs value={viewMode} onChange={setViewMode} defaultValue="table" className="w-full md:w-auto">
           <TabsList variant="glass" className="w-full md:w-auto">
             <TabsTrigger value="table" className="flex-1 md:flex-none gap-2 px-6">

@@ -14,6 +14,7 @@ export type WSMessageCategory =
   | 'section'
   | 'settings'
   | 'shift'
+  | 'preference'
   | 'system';
 
 // ============================================================================

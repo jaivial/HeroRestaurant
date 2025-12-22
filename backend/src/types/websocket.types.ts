@@ -25,6 +25,7 @@ export const WS_MESSAGE_CATEGORIES = [
   'section',
   'settings',
   'shift',
+  'preference',
   'system',
 ] as const;
 
@@ -69,6 +70,8 @@ export type ShiftAction =
   | 'get_status'
   | 'get_personal_stats'
   | 'get_team_stats';
+
+export type PreferenceAction = 'get' | 'set';
 
 // ============================================================================
 // Base Message Types
@@ -605,10 +608,21 @@ export const shiftGetStatusPayloadSchema = z.object({
 export const shiftGetPersonalStatsPayloadSchema = z.object({
   restaurantId: z.string().min(1),
   period: z.enum(['daily', 'weekly', 'monthly', 'trimestral', 'semmestral', 'anual']),
+  offset: z.number().optional(),
 });
 
 export const shiftGetTeamStatsPayloadSchema = z.object({
   restaurantId: z.string().min(1),
+});
+
+export const preferenceGetPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+});
+
+export const preferenceSetPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  key: z.string().min(1),
+  value: z.any(),
 });
 
 // ============================================================================
@@ -676,6 +690,8 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'shift.get_status': shiftGetStatusPayloadSchema,
   'shift.get_personal_stats': shiftGetPersonalStatsPayloadSchema,
   'shift.get_team_stats': shiftGetTeamStatsPayloadSchema,
+  'preference.get': preferenceGetPayloadSchema,
+  'preference.set': preferenceSetPayloadSchema,
 };
 
 // ============================================================================
