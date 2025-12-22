@@ -50,7 +50,7 @@ export function Step1BasicInfo() {
             >
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors", menu?.type === 'fixed_price' ? isDark ? "border-apple-blue bg-apple-blue" : "border-black bg-black" : isDark ? "border-[#A1A1A6] bg-[#1C1C1E]" : "border-[#424245] bg-[#E5E5EA]")}>
+                  <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors", menu?.type === 'fixed_price' ? isDark ? "border-apple-blue bg-apple-blue" : "border-black bg-black" : isDark ? "border-[#A1A1A6] bg-[#0A0A0B]" : "border-[#424245] bg-[#E5E5EA]")}>
                     {menu?.type === 'fixed_price' && <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" />}
                   </div>
                   <Text weight="semibold" className={cn("text-xl", menu?.type === 'fixed_price' && (isDark ? "text-white" : "text-black"))}>Fixed Price Menu</Text>
@@ -72,7 +72,7 @@ export function Step1BasicInfo() {
             >
               <CardContent className="p-8">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors", menu?.type === 'open_menu' ? isDark ? "border-apple-blue bg-apple-blue" : "border-black bg-black" : isDark ? "border-[#A1A1A6] bg-[#1C1C1E]" : "border-[#424245] bg-[#E5E5EA]")}>
+                  <div className={cn("w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors", menu?.type === 'open_menu' ? isDark ? "border-apple-blue bg-apple-blue" : "border-black bg-black" : isDark ? "border-[#A1A1A6] bg-[#0A0A0B]" : "border-[#424245] bg-[#E5E5EA]")}>
                     {menu?.type === 'open_menu' && <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" />}
                   </div>
                   <Text weight="semibold" className={cn("text-xl", menu?.type === 'open_menu' && (isDark ? "text-white" : "text-black"))}>Open Menu (à la carte)</Text>

@@ -4,6 +4,7 @@ import { Button, Card, Text, Heading } from '@/components/ui';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { timeFormatAtom } from '@/atoms/shiftAtoms';
+import { cn } from '@/utils/cn';
 import { Clock, LogIn, LogOut } from 'lucide-react';
 import { formatDuration, formatTime } from '@/utils/time';
 
@@ -43,37 +44,54 @@ export function ClockSection({ restaurantId }: ClockSectionProps) {
 
   if (isLoading) {
     return (
-      <Card className="p-12 flex items-center justify-center min-h-[400px]">
-        <div className="animate-pulse opacity-50">Loading clock status...</div>
+      <Card className={cn(
+        "p-12 flex items-center justify-center min-h-[400px]",
+        theme === 'dark' ? "bg-white/5" : "bg-white"
+      )}>
+        <div className={cn(
+          "animate-pulse",
+          theme === 'dark' ? "text-white/50" : "text-black/50"
+        )}>Loading clock status...</div>
       </Card>
     );
   }
 
   return (
-    <Card className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center">
-      <div className={`
-        w-32 h-32 rounded-full mb-8 flex items-center justify-center
-        ${isPunchedIn 
+    <Card className={cn(
+      "p-12 flex flex-col items-center justify-center min-h-[400px] text-center",
+      theme === 'dark' ? "bg-white/5" : "bg-white"
+    )}>
+      <div className={cn(
+        "w-32 h-32 rounded-full mb-8 flex items-center justify-center transition-colors",
+        isPunchedIn 
           ? (theme === 'dark' ? 'bg-[#30D158]/20 text-[#30D158]' : 'bg-[#34C759]/15 text-[#34C759]')
           : (theme === 'dark' ? 'bg-white/10 text-white/40' : 'bg-black/5 text-black/30')
-        }
-      `}>
+      )}>
         <Clock size={48} strokeWidth={1.5} />
       </div>
 
-      <Heading level={2} className="mb-2">
+      <Heading level={2} className={cn(
+        "mb-2",
+        theme === 'dark' ? "text-white" : "text-black"
+      )}>
         {isPunchedIn ? 'You are Punched In' : 'Ready to Start?'}
       </Heading>
 
       <div className="flex flex-col items-center gap-1 mb-12">
-        <Text className="opacity-60 max-w-sm">
+        <Text className={cn(
+          "max-w-sm",
+          theme === 'dark' ? "text-white/60" : "text-black/60"
+        )}>
           {isPunchedIn && activeShift?.punch_in_at
             ? `Working since ${formatTime(activeShift.punch_in_at, use24h)}`
             : 'Clock in to start tracking your working hours for today.'
           }
         </Text>
         {isPunchedIn && (
-          <Text className="text-3xl font-bold tracking-tight">
+          <Text className={cn(
+            "text-3xl font-bold tracking-tight",
+            theme === 'dark' ? "text-white" : "text-black"
+          )}>
             {elapsedTime}
           </Text>
         )}
@@ -83,20 +101,20 @@ export function ClockSection({ restaurantId }: ClockSectionProps) {
         {!isPunchedIn ? (
           <Button 
             size="lg" 
-            className="h-[60px] text-[20px] rounded-[1.5rem] flex items-center justify-center gap-3" 
+            className="h-11 text-[16px] rounded-[1rem] flex items-center justify-center gap-3" 
             onClick={punchIn}
           >
-            <LogIn size={24} />
+            <LogIn size={20} />
             Punch In
           </Button>
         ) : (
           <Button 
             variant="error" 
             size="lg" 
-            className="h-[60px] text-[20px] rounded-[1.5rem] flex items-center justify-center gap-3" 
+            className="h-11 text-[16px] rounded-[1rem] flex items-center justify-center gap-3" 
             onClick={() => punchOut()}
           >
-            <LogOut size={24} />
+            <LogOut size={20} />
             Punch Out
           </Button>
         )}

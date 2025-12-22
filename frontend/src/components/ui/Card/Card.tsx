@@ -33,7 +33,7 @@ export const Card = memo(function Card({
     default: theme === 'dark' ? 'bg-black/50 border-white/10' : 'bg-white/85 border-black/[0.08]',
     subtle: theme === 'dark' ? 'bg-black/30 border-white/5' : 'bg-white/60 border-black/[0.06]',
     solid: theme === 'dark' ? 'bg-black/75 border-white/20' : 'bg-white/95 border-black/[0.12]',
-    outlined: 'bg-transparent border-black/10 dark:border-white/10',
+    outlined: theme === 'dark' ? 'bg-transparent border-white/10' : 'bg-transparent border-black/10',
   };
 
   const shadowClass = theme === 'dark'

@@ -193,14 +193,14 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
           variant="glass" 
           size="sm" 
           onClick={() => scrollToToday(true)}
-          className="rounded-full font-bold text-[13px] border-white/10"
+          className="rounded-full font-bold text-[13px]"
         >
           Go to Today
         </Button>
       </div>
       <div 
         ref={scrollRef}
-        className="flex flex-col md:flex-row gap-3 md:gap-4 overflow-y-auto md:overflow-x-auto max-h-[60vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none md:px-8 min-[1024px]:px-16"
+        className="flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[60vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none md:px-8 min-[1024px]:px-16"
         style={{ 
           scrollSnapType: 'both proximity',
           touchAction: 'none' // Essential for custom physics on mobile
@@ -211,28 +211,32 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
           key={idx}
           data-today={day.isToday}
           className={cn(
-            "flex-shrink-0 w-full md:w-[240px] flex flex-col min-h-[140px] md:min-h-[200px] p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] transition-all duration-350 ease-apple",
+            "flex-shrink-0 w-full md:w-[260px] flex flex-col min-h-[160px] md:min-h-[220px] p-6 rounded-[2.2rem] transition-all duration-350 ease-apple",
             "border backdrop-blur-[20px] saturate-[180%] scroll-snap-align-center",
             day.isToday
-              ? (isDark ? "bg-apple-blue/20 border-apple-blue/40 ring-1 ring-apple-blue/20" : "bg-apple-blue/10 border-apple-blue/30 ring-1 ring-apple-blue/10")
-              : (isDark ? "bg-white/5 border-white/10" : "bg-white/80 border-black/[0.05]")
+              ? (isDark 
+                  ? "bg-apple-blue/20 border-apple-blue/40 border-white/20" 
+                  : "bg-apple-blue/10 border-apple-blue/30 border-black/[0.08]")
+              : (isDark 
+                  ? "bg-white/5 border-white/10" 
+                  : "bg-white/80 border-black/[0.05]")
           )}
         >
-          <div className="flex justify-between items-start mb-4 md:mb-6">
+          <div className="flex justify-between items-start mb-6">
             <div className="flex flex-col">
               <Text weight="bold" className={day.isToday ? "text-apple-blue" : (isDark ? "text-white/40" : "text-black/40")}>
                 {day.name}
               </Text>
               <div className="flex items-baseline gap-1">
                 <span className={cn(
-                  "text-[22px] md:text-[28px] font-bold leading-none",
+                  "text-[28px] font-bold leading-none",
                   isDark ? "text-white" : "text-black"
                 )}>
                   {day.dayNumber}
                 </span>
                 <span className={cn(
-                  "text-[12px] md:text-[14px] font-semibold uppercase opacity-40",
-                  isDark ? "text-white" : "text-black"
+                  "text-[14px] font-semibold uppercase",
+                  isDark ? "text-white/40" : "text-black/40"
                 )}>
                   {day.month}
                 </span>
@@ -245,26 +249,32 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
             )}
           </div>
 
-          <div className="flex-1 space-y-2 md:space-y-3 overflow-y-auto max-h-[100px] md:max-h-[120px] pr-1 scrollbar-hide">
+          <div className="flex-1 space-y-3 overflow-y-auto max-h-[120px] pr-1 scrollbar-hide">
             {day.shifts.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center opacity-20">
-                <Text variant="caption" className="italic font-medium">No activity</Text>
+              <div className="h-full flex flex-col items-center justify-center">
+                <Text variant="caption" className={cn(
+                  "italic font-medium",
+                  isDark ? "text-white/20" : "text-black/20"
+                )}>No activity</Text>
               </div>
             ) : (
               day.shifts.map((shift) => (
                 <div 
                   key={shift.id}
                   className={cn(
-                    "p-2 md:p-3 rounded-[0.8rem] md:rounded-[1rem] transition-colors",
+                    "p-3 rounded-[1rem] transition-colors",
                     isDark ? "bg-white/10 hover:bg-white/15" : "bg-black/5 hover:bg-black/[0.08]"
                   )}
                 >
-                  <div className="font-bold flex justify-between items-center text-[11px] md:text-[13px]">
+                  <div className={cn(
+                    "font-bold flex justify-between items-center text-[13px]",
+                    isDark ? "text-white" : "text-black"
+                  )}>
                     <span className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-apple-blue" />
                       {safeParseDate(shift.punchInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
-                    <span className="opacity-30">—</span>
+                    <span className={isDark ? "text-white/30" : "text-black/30"}>—</span>
                     <span>
                       {shift.punchOutAt 
                         ? safeParseDate(shift.punchOutAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -272,7 +282,10 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                     </span>
                   </div>
                   {shift.notes && (
-                    <Text variant="caption1" className="mt-1.5 opacity-60 text-[11px] leading-tight line-clamp-2" title={shift.notes}>
+                    <Text variant="caption1" className={cn(
+                      "mt-1.5 text-[11px] leading-tight line-clamp-2",
+                      isDark ? "text-white/60" : "text-black/60"
+                    )} title={shift.notes}>
                       {shift.notes}
                     </Text>
                   )}

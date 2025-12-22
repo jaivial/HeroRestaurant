@@ -66,7 +66,7 @@ export const OverviewTab = memo(({ workspace, stats, isLoading }: OverviewTabPro
             <div className="flex flex-col md:flex-row gap-8 -mt-12">
               <div className={cn(
                 "w-32 h-32 rounded-[2.2rem] flex-shrink-0 flex items-center justify-center overflow-hidden border-4",
-                isDark ? "bg-[#1C1C1E] border-white/10" : "bg-white border-black/5"
+                isDark ? "bg-[#0A0A0B] border-white/10" : "bg-white border-black/5"
               )}>
                 {workspace.logoUrl ? (
                   <img src={workspace.logoUrl} alt={workspace.name} className="w-full h-full object-cover" />

@@ -95,7 +95,7 @@ Use arbitrary font sizes to match Apple's standard dynamic type sizes:
 ---
 
 ## Semantic Color System
-
+<!--  -->
 Instead of fixed hex codes, use semantic names based on their function. Always define values for both `light` and `dark` themes.
 
 #### System Colors (Vibrant)
@@ -121,7 +121,7 @@ Instead of fixed hex codes, use semantic names based on their function. Always d
 | Name | Light Mode | Dark Mode | Usage |
 |------|------------|-----------|-------|
 | `primaryBG` | `#E5E5EA` | `#000000` | Main application background |
-| `secondaryBG`| `#FFFFFF` | `#1C1C1E` | Card surfaces, grouped lists |
+| `secondaryBG`| `#FFFFFF` | `#0A0A0B` | Card surfaces, grouped lists |
 | `tertiaryBG` | `#F2F2F7` | `#2C2C2E` | Inner nested elements |
 
 ---

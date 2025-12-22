@@ -40,8 +40,8 @@ export function LoginForm({
           className={`
             w-full px-4 py-2.5 rounded-[0.875rem] border-2 transition-all outline-none
             ${theme === 'dark'
-              ? 'bg-[#1C1C1E] border-[#3A3A3C] text-white focus:border-[#64B5F6] focus:ring-4 focus:ring-[#64B5F6]/20'
-              : 'bg-white border-[#E5E5EA] text-[#1C1C1E] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/20'}
+              ? 'bg-[#0A0A0B] border-[#3A3A3C] text-white focus:border-[#64B5F6] focus:ring-4 focus:ring-[#64B5F6]/20'
+              : 'bg-white border-[#E5E5EA] text-[#0A0A0B] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/20'}
             ${errors.email ? 'border-[#FF3B30]' : ''}
           `}
         />
@@ -62,8 +62,8 @@ export function LoginForm({
           className={`
             w-full px-4 py-2.5 rounded-[0.875rem] border-2 transition-all outline-none
             ${theme === 'dark'
-              ? 'bg-[#1C1C1E] border-[#3A3A3C] text-white focus:border-[#64B5F6] focus:ring-4 focus:ring-[#64B5F6]/20'
-              : 'bg-white border-[#E5E5EA] text-[#1C1C1E] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/20'}
+              ? 'bg-[#0A0A0B] border-[#3A3A3C] text-white focus:border-[#64B5F6] focus:ring-4 focus:ring-[#64B5F6]/20'
+              : 'bg-white border-[#E5E5EA] text-[#0A0A0B] focus:border-[#007AFF] focus:ring-4 focus:ring-[#007AFF]/20'}
             ${errors.password ? 'border-[#FF3B30]' : ''}
           `}
         />
@@ -77,13 +77,13 @@ export function LoginForm({
             className={`
               w-4 h-4 rounded-[0.5rem] border transition-colors cursor-pointer
               ${theme === 'dark' 
-                ? 'bg-[#1C1C1E] border-[#3A3A3C] checked:bg-[#64B5F6]' 
+                ? 'bg-[#0A0A0B] border-[#3A3A3C] checked:bg-[#64B5F6]' 
                 : 'bg-white border-[#D1D1D6] checked:bg-[#007AFF]'}
             `}
           />
           <span className={`
             ml-2 text-sm transition-colors
-            ${theme === 'dark' ? 'text-[#AEAEB2] group-hover:text-[#FFFFFF]' : 'text-[#636366] group-hover:text-[#1C1C1E]'}
+            ${theme === 'dark' ? 'text-[#AEAEB2] group-hover:text-[#FFFFFF]' : 'text-[#636366] group-hover:text-[#0A0A0B]'}
           `}>
             Remember me
           </span>
@@ -110,7 +110,7 @@ export function LoginForm({
           shadow-[0_4px_12px_rgba(0,0,0,0.15)]
           ${theme === 'dark'
             ? 'bg-[#FFFFFF] text-[#000000] hover:bg-[#F2F2F7]'
-            : 'bg-[#FFFFFF] text-[#000000] border-2 border-[#000000] hover:bg-[#1C1C1E] hover:text-[#FFFFFF]'}
+            : 'bg-[#FFFFFF] text-[#000000] border-2 border-[#000000] hover:bg-[#0A0A0B] hover:text-[#FFFFFF]'}
         `}
       >
         {isLoading ? (

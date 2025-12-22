@@ -120,7 +120,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
   const primaryText = theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]';
   const secondaryText = theme === 'dark' ? 'text-white/70' : 'text-[#1D1D1F]/60';
   const tertiaryText = theme === 'dark' ? 'text-white/50' : 'text-[#1D1D1F]/45';
-  const modalBg = theme === 'dark' ? 'bg-[#1C1C1E]' : 'bg-[#F5F5F7]';
+  const modalBg = theme === 'dark' ? 'bg-[#0A0A0B]' : 'bg-[#F5F5F7]';
 
   return (
     <Modal

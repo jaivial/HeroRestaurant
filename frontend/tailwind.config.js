@@ -112,7 +112,7 @@ export default {
             700: '#636366',
             800: '#48484A',
             900: '#3A3A3C',
-            950: '#1C1C1E',
+            950: '#0A0A0B',
           }
         },
         // Accessible info card backgrounds (WCAG AA compliant)

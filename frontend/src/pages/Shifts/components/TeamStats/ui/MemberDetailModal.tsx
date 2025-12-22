@@ -6,6 +6,8 @@ import { Clock, Briefcase, Activity } from 'lucide-react';
 import { safeParseDate, formatMinutes, formatTime } from '@/utils/time';
 import { useAtomValue } from 'jotai';
 import { timeFormatAtom } from '@/atoms/shiftAtoms';
+import { themeAtom } from '@/atoms/themeAtoms';
+import { cn } from '@/utils/cn';
 
 interface MemberDetailModalProps {
   memberId: string;
@@ -15,9 +17,12 @@ interface MemberDetailModalProps {
 export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps) {
   const { data, isLoading } = useMemberShiftDetail(memberId);
   const timeFormat = useAtomValue(timeFormatAtom);
+  const theme = useAtomValue(themeAtom);
   const use24h = timeFormat === '24h';
+  const isDark = theme === 'dark';
 
   const historyColumns: Column<ShiftHistoryItem>[] = [
+// ... (rest of columns) ...
     {
       header: 'Date',
       key: 'punchInAt',
@@ -42,8 +47,6 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
     }
   ];
 
-  const primaryText = 'text-[#1D1D1F] dark:text-white';
-
   return (
     <Modal
       isOpen={true}
@@ -54,7 +57,10 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
     >
       <div className="space-y-6">
         {isLoading ? (
-          <div className="p-12 text-center opacity-50">Loading history...</div>
+          <div className={cn(
+            "p-12 text-center",
+            isDark ? "text-white/50" : "text-black/50"
+          )}>Loading history...</div>
         ) : !data ? (
           <div className="p-12 text-center text-red-500">
             Failed to load member shift details.
@@ -62,32 +68,50 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-[1.2rem] bg-black/[0.03] dark:bg-white/5 border border-black/[0.06] dark:border-white/10">
+              <div className={cn(
+                "p-4 rounded-[1rem] border",
+                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+              )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock size={14} className="opacity-40" />
-                  <Text variant="caption1" weight="bold" className="uppercase tracking-widest opacity-40 block">
+                  <Clock size={14} className={isDark ? "text-white/40" : "text-black/40"} />
+                  <Text variant="caption1" weight="bold" className={cn(
+                    "uppercase tracking-widest block",
+                    isDark ? "text-white/40" : "text-black/40"
+                  )}>
                     Worked (30d)
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={primaryText}>
+                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
                   {(data.workedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
-              <div className="p-4 rounded-[1.2rem] bg-black/[0.03] dark:bg-white/5 border border-black/[0.06] dark:border-white/10">
+              <div className={cn(
+                "p-4 rounded-[1rem] border",
+                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+              )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Briefcase size={14} className="opacity-40" />
-                  <Text variant="caption1" weight="bold" className="uppercase tracking-widest opacity-40 block">
+                  <Briefcase size={14} className={isDark ? "text-white/40" : "text-black/40"} />
+                  <Text variant="caption1" weight="bold" className={cn(
+                    "uppercase tracking-widest block",
+                    isDark ? "text-white/40" : "text-black/40"
+                  )}>
                     Contracted
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={primaryText}>
+                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
                   {(data.contractedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
-              <div className="p-4 rounded-[1.2rem] bg-black/[0.03] dark:bg-white/5 border border-black/[0.06] dark:border-white/10">
+              <div className={cn(
+                "p-4 rounded-[1rem] border",
+                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+              )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Activity size={14} className="opacity-40" />
-                  <Text variant="caption1" weight="bold" className="uppercase tracking-widest opacity-40 block">
+                  <Activity size={14} className={isDark ? "text-white/40" : "text-black/40"} />
+                  <Text variant="caption1" weight="bold" className={cn(
+                    "uppercase tracking-widest block",
+                    isDark ? "text-white/40" : "text-black/40"
+                  )}>
                     Bank Status
                   </Text>
                 </div>

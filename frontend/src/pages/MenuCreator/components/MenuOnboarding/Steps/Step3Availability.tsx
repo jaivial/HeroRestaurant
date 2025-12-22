@@ -55,7 +55,7 @@ export function Step3Availability() {
                 "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors",
                 isMealActive 
                   ? isDark ? "border-apple-blue bg-apple-blue" : "border-black bg-black"
-                  : isDark ? "border-[#A1A1A6] bg-[#1C1C1E]" : "border-[#424245] bg-[#E5E5EA]"
+                  : isDark ? "border-[#A1A1A6] bg-[#0A0A0B]" : "border-[#424245] bg-[#E5E5EA]"
               )}>
                 {isMealActive && <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" />}
               </div>
@@ -111,7 +111,7 @@ export function Step3Availability() {
         {renderSchedule('dinner', 'Dinner')}
       </div>
 
-      <div className={cn("p-6 rounded-[2.2rem] border-2 flex items-start gap-4", isDark ? "bg-[#1C1C1E] border-[#424245]" : "bg-[#F5F5F7] border-[#E5E5EA]")}>
+      <div className={cn("p-6 rounded-[2.2rem] border-2 flex items-start gap-4", isDark ? "bg-[#0A0A0B] border-[#424245]" : "bg-[#F5F5F7] border-[#E5E5EA]")}>
         <div className={cn("w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5", isDark ? "bg-[#424245]" : "bg-[#E5E5EA]")}>
           <svg className={cn("w-4 h-4", isDark ? "text-[#A1A1A6]" : "text-[#757575]")} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth={2} strokeLinecap="round" />

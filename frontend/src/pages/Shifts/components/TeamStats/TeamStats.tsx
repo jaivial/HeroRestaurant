@@ -7,10 +7,15 @@ import type { TeamStatsProps, MemberShiftSummary } from '../../types';
 import { useTeamShifts } from '../../hooks/useTeamShifts';
 import { MemberDetailModal } from './ui/MemberDetailModal';
 import { Eye } from 'lucide-react';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
+import { cn } from '@/utils/cn';
 
 export function TeamStats({ restaurantId }: TeamStatsProps) {
   const { members, isLoading, filters: _filters, setFilters: _setFilters } = useTeamShifts(restaurantId);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
 
   const columns = useMemo<Column<MemberShiftSummary>[]>(() => [
     {
@@ -18,11 +23,18 @@ export function TeamStats({ restaurantId }: TeamStatsProps) {
       key: 'name',
       render: (m) => (
         <div className="flex flex-col">
-          <span className="font-semibold">{m.name}</span>
-          <span className="text-[13px] opacity-50">{m.email}</span>
+          <span className={cn(
+            "font-semibold",
+            isDark ? "text-white" : "text-black"
+          )}>{m.name}</span>
+          <span className={cn(
+            "text-[13px]",
+            isDark ? "text-white/40" : "text-black/40"
+          )}>{m.email}</span>
         </div>
       )
     },
+// ... (rest of columns) ...
     {
       header: 'Weekly Hours',
       key: 'totalWorkedThisWeek',
@@ -76,7 +88,7 @@ export function TeamStats({ restaurantId }: TeamStatsProps) {
         />
       )
     }
-  ], []);
+  ], [isDark]);
 
   return (
     <div className="space-y-6">

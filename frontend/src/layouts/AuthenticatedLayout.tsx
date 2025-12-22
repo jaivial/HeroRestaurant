@@ -40,7 +40,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   return (
     <div className={cn(
       'min-h-screen transition-colors duration-350 ease-apple',
-      isDark ? 'bg-apple-gray-950 text-white' : 'bg-apple-gray-200 text-black'
+      theme === 'dark' ? 'bg-[#0A0A0B] text-white' : 'bg-apple-gray-200 text-black'
     )}>
       <div className="flex h-screen overflow-hidden">
         <Sidebar />
@@ -53,7 +53,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
             'min-[480px]:p-6',
             'min-[1024px]:p-8',
             'transition-colors duration-350 ease-apple',
-            isDark ? 'bg-[#1C1C1E]' : 'bg-apple-gray-200'
+            theme === 'dark' ? 'bg-[#0A0A0B]' : 'bg-apple-gray-200'
           )}>
             <div className="max-w-[1600px] mx-auto">
               {children || <Outlet />}

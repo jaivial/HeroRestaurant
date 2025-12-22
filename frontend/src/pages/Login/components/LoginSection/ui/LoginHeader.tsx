@@ -9,7 +9,7 @@ export function LoginHeader({ title, subtitle }: LoginHeaderProps) {
     <div className="mb-8 text-center">
       <h1 className={`
         text-3xl font-bold mb-2
-        ${theme === 'dark' ? 'text-[#FFFFFF]' : 'text-[#1C1C1E]'}
+        ${theme === 'dark' ? 'text-[#FFFFFF]' : 'text-[#0A0A0B]'}
       `}>
         {title}
       </h1>

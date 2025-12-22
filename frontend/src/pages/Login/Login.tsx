@@ -15,7 +15,7 @@ export function Login() {
     <div className={`
       min-h-screen flex items-center justify-center
       transition-colors duration-500
-      ${theme === 'dark' ? 'bg-[#1C1C1E]' : 'bg-[#D1D1D6]'}
+      ${theme === 'dark' ? 'bg-[#0A0A0B]' : 'bg-[#D1D1D6]'}
       p-4
       min-[200px]:p-2
       min-[360px]:p-4
