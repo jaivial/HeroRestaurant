@@ -49,7 +49,7 @@ export const RoleCard = memo(function RoleCard({
           )}
         </div>
         
-        <Text variant="body" className="line-clamp-2 mb-6 text-content-secondary leading-relaxed h-12">
+        <Text variant="body" color="secondary" className="line-clamp-2 mb-6 leading-relaxed h-12">
           {role.description || 'No description provided for this role.'}
         </Text>
 
@@ -69,7 +69,15 @@ export const RoleCard = memo(function RoleCard({
             if (summary.length === 0) summary.push('Basic Access');
             
             return summary.map(s => (
-              <Badge key={s} variant="secondary" size="sm" className="bg-apple-gray-100/50 dark:bg-white/5 text-[10px] uppercase tracking-wider px-2 py-0.5">
+              <Badge 
+                key={s} 
+                variant="secondary" 
+                size="sm" 
+                className={cn(
+                  "text-[10px] uppercase tracking-wider px-2 py-0.5",
+                  theme === 'dark' ? "bg-white/5" : "bg-apple-gray-100/50"
+                )}
+              >
                 {s}
               </Badge>
             ));

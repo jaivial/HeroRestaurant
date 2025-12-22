@@ -1,9 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { canManageMembersAtom, canRemoveMembersAtom } from '@/atoms/permissionAtoms';
+import { themeAtom } from '@/atoms/themeAtoms';
 import { Card, Text, Skeleton } from '@/components/ui';
 import { MemberCard } from './ui/MemberCard';
 import type { MembersListProps } from '../../types';
 import type { Member } from '@/atoms/memberAtoms';
+import { cn } from '@/utils/cn';
 
 interface ExtendedMembersListProps extends MembersListProps {
   onEdit: (member: Member) => void;
@@ -15,6 +17,8 @@ export function MembersList(props: ExtendedMembersListProps) {
   const { members, isLoading, currentUserPriority, onEdit, onView, onRemove } = props;
   const canManageMembers = useAtomValue(canManageMembersAtom);
   const canRemoveMembers = useAtomValue(canRemoveMembersAtom);
+  const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
 
   if (isLoading) {
     return (
@@ -29,7 +33,10 @@ export function MembersList(props: ExtendedMembersListProps) {
   if (members.length === 0) {
     return (
       <Card className="p-16 text-center rounded-[2.2rem] border-dashed border-2 flex flex-col items-center justify-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-apple-gray-100 dark:bg-apple-gray-900 flex items-center justify-center text-apple-gray-400">
+        <div className={cn(
+          "w-16 h-16 rounded-full flex items-center justify-center text-apple-gray-400",
+          isDark ? "bg-apple-gray-900" : "bg-apple-gray-100"
+        )}>
           <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
@@ -58,4 +65,3 @@ export function MembersList(props: ExtendedMembersListProps) {
     </div>
   );
 }
-

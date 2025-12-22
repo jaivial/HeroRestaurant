@@ -67,6 +67,7 @@ const PERMISSION_GROUPS = [
 
 export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority }: RoleEditorProps) {
   const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
   const {
     name,
     setName,
@@ -117,10 +118,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
     }
   };
 
-  const primaryText = theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]';
-  const secondaryText = theme === 'dark' ? 'text-white/70' : 'text-[#1D1D1F]/60';
-  const tertiaryText = theme === 'dark' ? 'text-white/50' : 'text-[#1D1D1F]/45';
-  const modalBg = theme === 'dark' ? 'bg-[#0A0A0B]' : 'bg-[#F5F5F7]';
+  const modalBg = isDark ? 'bg-[#0A0A0B]' : 'bg-[#F5F5F7]';
 
   return (
     <Modal
@@ -137,7 +135,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
 
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest px-1')}>
+            <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest px-1">
               Role Identity
             </Text>
             <Input
@@ -146,11 +144,11 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
               required
               placeholder="e.g. Manager, Server"
               className={cn('rounded-2xl border-none h-12 text-lg font-medium ring-1 ring-inset', 
-                theme === 'dark' ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
+                isDark ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
             />
           </div>
           <div className="space-y-2">
-            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest px-1')}>
+            <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest px-1">
               Priority Level
             </Text>
             <Input
@@ -161,9 +159,9 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
               max={currentUserPriority - 1}
               required
               className={cn('rounded-2xl border-none h-12 text-lg font-medium ring-1 ring-inset', 
-                theme === 'dark' ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
+                isDark ? 'bg-white/5 ring-white/10 focus:ring-apple-blue' : 'bg-white ring-black/5 focus:ring-apple-blue shadow-sm')}
               helperText={
-                <span className={cn('text-[10px] font-medium uppercase tracking-tighter', theme === 'dark' ? 'text-white/30' : 'text-black/30')}>
+                <span className={cn('text-[10px] font-medium uppercase tracking-tighter', isDark ? 'text-white/30' : 'text-black/30')}>
                   Must be below {currentUserPriority}
                 </span>
               }
@@ -172,20 +170,20 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
         </div>
 
         <div className="relative z-10 p-4 rounded-2xl border bg-apple-blue/5 border-apple-blue/10">
-          <Text variant="caption1" weight="bold" className="text-apple-blue uppercase tracking-widest mb-1 block">
+          <Text variant="caption1" weight="bold" color="blue" className="uppercase tracking-widest mb-1 block">
             Auto-generated Description
           </Text>
-          <Text className={cn(secondaryText, 'leading-relaxed text-sm italic')}>
+          <Text color="secondary" className="leading-relaxed text-sm italic">
             &quot;{description}&quot;
           </Text>
         </div>
 
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4 px-1">
-            <Text variant="caption1" weight="bold" className={cn(tertiaryText, 'uppercase tracking-widest')}>
+            <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest">
               Permissions Map
             </Text>
-            <Text variant="caption2" className={cn(tertiaryText)}>
+            <Text variant="caption2" color="tertiary">
               Select capabilities for this role
             </Text>
           </div>
@@ -195,7 +193,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
               <div key={group.name} className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-current opacity-10" />
-                  <Text variant="caption1" weight="bold" className={cn(secondaryText, 'uppercase tracking-widest text-[10px]')}>
+                  <Text variant="caption1" weight="bold" color="secondary" className="uppercase tracking-widest text-[10px]">
                     {group.name}
                   </Text>
                   <div className="h-px flex-1 bg-gradient-to-l from-transparent via-current opacity-10" />
@@ -211,15 +209,15 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
                         className={cn(
                           'flex items-center gap-3 p-4 rounded-2xl border transition-all cursor-pointer group',
                           isChecked 
-                            ? (theme === 'dark' ? 'bg-apple-blue/10 border-apple-blue/30' : 'bg-apple-blue/5 border-apple-blue/20 shadow-sm')
-                            : (theme === 'dark' ? 'bg-white/5 border-white/5 hover:border-white/10' : 'bg-white border-black/5 hover:border-black/10 shadow-sm')
+                            ? (isDark ? 'bg-apple-blue/10 border-apple-blue/30' : 'bg-apple-blue/5 border-apple-blue/20 shadow-sm')
+                            : (isDark ? 'bg-white/5 border-white/5 hover:border-white/10' : 'bg-white border-black/5 hover:border-black/10 shadow-sm')
                         )}
                       >
                         <div className={cn(
                           'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
                           isChecked 
                             ? 'bg-apple-blue border-apple-blue' 
-                            : (theme === 'dark' ? 'border-white/20' : 'border-black/10 group-hover:border-black/20')
+                            : (isDark ? 'border-white/20' : 'border-black/10 group-hover:border-black/20')
                         )}>
                           {isChecked && (
                             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
@@ -233,7 +231,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
                           onChange={() => handleTogglePermission(perm.key as keyof typeof PERMISSIONS)}
                           className="hidden"
                         />
-                        <Text weight="medium" className={cn('text-sm transition-colors', isChecked ? primaryText : secondaryText)}>
+                        <Text weight="medium" color={isChecked ? "primary" : "secondary"} className="text-sm transition-colors">
                           {perm.label}
                         </Text>
                       </label>
@@ -245,7 +243,7 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
           </div>
         </div>
 
-        <div className="relative z-10 flex justify-end gap-3 pt-6 border-t border-white/5">
+        <div className={cn("relative z-10 flex justify-end gap-3 pt-6 border-t", isDark ? "border-white/5" : "border-black/5")}>
           <Button variant="ghost" onClick={onClose} type="button" className="rounded-full px-6 font-semibold">
             Cancel
           </Button>
@@ -261,4 +259,3 @@ export function RoleEditor({ isOpen, onClose, onSave, role, currentUserPriority 
     </Modal>
   );
 }
-

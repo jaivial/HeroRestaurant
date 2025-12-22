@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
+import { cn } from '@/utils/cn';
 
 export interface Column<T> {
   header: string | React.ReactNode;
@@ -43,8 +44,8 @@ function DataTableComponent<T>({
 
   if (isLoading) {
     return (
-      <div className={`w-full h-48 flex items-center justify-center ${className}`}>
-        <div className={`animate-pulse ${theme === 'dark' ? 'text-white/40' : 'text-black/40'}`}>
+      <div className={cn("w-full h-48 flex items-center justify-center", className)}>
+        <div className={cn("animate-pulse", theme === 'dark' ? 'text-white/40' : 'text-black/40')}>
           Loading...
         </div>
       </div>
@@ -52,20 +53,21 @@ function DataTableComponent<T>({
   }
 
   return (
-    <div className={`border rounded-[2.2rem] ${baseClasses} ${themeClasses} ${className}`}>
+    <div className={cn("border rounded-[2.2rem]", baseClasses, themeClasses, className)}>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className={`
-              ${theme === 'dark' ? 'border-b border-white/10 bg-white/5' : 'border-b border-black/[0.05] bg-black/[0.02]'}
-            `}>
+            <tr className={cn(
+              "border-b",
+              theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-black/[0.05] bg-black/[0.02]'
+            )}>
               {columns.map((col) => (
                 <th 
                   key={col.key} 
-                  className={`
-                    p-6 text-[12px] font-bold uppercase tracking-widest opacity-60
-                    ${col.className || ''}
-                  `}
+                  className={cn(
+                    "p-6 text-[12px] font-bold uppercase tracking-widest opacity-60",
+                    col.className
+                  )}
                 >
                   {col.header}
                 </th>
@@ -87,17 +89,17 @@ function DataTableComponent<T>({
                 <tr 
                   key={idx} 
                   onClick={() => onRowClick?.(item)}
-                  className={`
-                    transition-all duration-200
-                    ${onRowClick ? 'cursor-pointer' : ''}
-                    ${theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5'}
-                    ${idx !== data.length - 1 ? (theme === 'dark' ? 'border-b border-white/5' : 'border-b border-black/[0.03]') : ''}
-                  `}
+                  className={cn(
+                    "transition-all duration-200",
+                    onRowClick && "cursor-pointer",
+                    theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5',
+                    idx !== data.length - 1 && (theme === 'dark' ? 'border-b border-white/5' : 'border-b border-black/[0.03]')
+                  )}
                 >
                   {columns.map((col) => (
                     <td 
                       key={col.key} 
-                      className={`p-6 text-[17px] ${col.className || ''}`}
+                      className={cn("p-6 text-[17px]", col.className)}
                     >
                       {col.render ? col.render(item) : (item[col.key as keyof T] as React.ReactNode)}
                     </td>
@@ -113,4 +115,3 @@ function DataTableComponent<T>({
 }
 
 export const DataTable = memo(DataTableComponent) as typeof DataTableComponent;
-

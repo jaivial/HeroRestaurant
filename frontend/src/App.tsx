@@ -10,6 +10,7 @@ import { Members } from '@/pages/Members/Members';
 import { Shifts } from '@/pages/Shifts/Shifts';
 import { WorkspaceArea } from '@/pages/WorkspaceArea/WorkspaceArea';
 import { Settings } from '@/pages/Settings/Settings';
+import { InvitationPage } from '@/pages/Invitation/InvitationPage';
 import { PERMISSIONS } from '@/utils/permissions';
 import { useAuthInit } from '@/hooks/useAuthInit';
 
@@ -28,6 +29,8 @@ function App() {
         <Route element={<GuestGuard />}>
           <Route path="/login" element={<Login />} />
         </Route>
+
+        <Route path="/invite/:token" element={<InvitationPage />} />
 
         {/* Protected routes */}
         <Route

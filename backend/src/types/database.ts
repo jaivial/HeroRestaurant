@@ -11,6 +11,7 @@ export type {
   RestaurantStatus,
   SubscriptionTier,
   MembershipStatus,
+  InvitationStatus,
   RevocationReason,
   // Database schema
   DB,
@@ -29,6 +30,11 @@ export type {
   Role,
   NewRole,
   RoleUpdate,
+  // Invitations
+  InvitationsTable,
+  Invitation,
+  NewInvitation,
+  InvitationUpdate,
   // Memberships
   MembershipsTable,
   Membership,

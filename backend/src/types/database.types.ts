@@ -8,6 +8,7 @@ export type UserStatus = 'active' | 'suspended' | 'pending';
 export type RestaurantStatus = 'active' | 'trial' | 'suspended' | 'cancelled';
 export type SubscriptionTier = 'free' | 'starter' | 'professional' | 'enterprise';
 export type MembershipStatus = 'pending' | 'active' | 'suspended' | 'left';
+export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
 export type RevocationReason = 'logout' | 'password_change' | 'security' | 'admin_action';
 
 // ============================================================================
@@ -20,6 +21,7 @@ export interface DB {
   memberships: MembershipsTable;
   sessions: SessionsTable;
   roles: RolesTable;
+  invitations: InvitationsTable;
   login_attempts: LoginAttemptsTable;
   restaurant_settings: RestaurantSettingsTable;
   fixed_menus: FixedMenusTable;
@@ -302,3 +304,23 @@ export interface MemberShiftsTable {
 export type MemberShift = Selectable<MemberShiftsTable>;
 export type NewMemberShift = Insertable<MemberShiftsTable>;
 export type MemberShiftUpdate = Updateable<MemberShiftsTable>;
+
+// ============= Invitations Table =============
+export interface InvitationsTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  role_id: string | null;
+  inviter_id: string;
+  email: string | null;
+  token: string;
+  expires_at: Date;
+  used_at: Date | null;
+  status: InvitationStatus;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type Invitation = Selectable<InvitationsTable>;
+export type NewInvitation = Insertable<InvitationsTable>;
+export type InvitationUpdate = Updateable<InvitationsTable>;

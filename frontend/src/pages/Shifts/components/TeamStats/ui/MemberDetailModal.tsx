@@ -22,7 +22,6 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
   const isDark = theme === 'dark';
 
   const historyColumns: Column<ShiftHistoryItem>[] = [
-// ... (rest of columns) ...
     {
       header: 'Date',
       key: 'punchInAt',
@@ -47,71 +46,61 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
     }
   ];
 
+  const surfaceCard = cn(
+    'p-4 rounded-[1rem] border',
+    isDark ? 'bg-white/5 border-white/10' : 'bg-black/[0.03] border-black/[0.06]'
+  );
+
+  const modalBg = isDark ? 'bg-[#2C2A26]' : 'bg-[#FAF8F5]';
+
   return (
     <Modal
       isOpen={true}
       onClose={onClose}
       title="Shift History Detail"
       size="xl"
-      className="rounded-[2.2rem]"
+      className={cn("rounded-[2.2rem]", modalBg)}
     >
       <div className="space-y-6">
         {isLoading ? (
-          <div className={cn(
-            "p-12 text-center",
-            isDark ? "text-white/50" : "text-black/50"
-          )}>Loading history...</div>
+          <div className="p-12 text-center">
+            <Text color="tertiary">Loading history...</Text>
+          </div>
         ) : !data ? (
-          <div className="p-12 text-center text-red-500">
-            Failed to load member shift details.
+          <div className="p-12 text-center">
+            <Text color="red">Failed to load member shift details.</Text>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
-              )}>
+              <div className={surfaceCard}>
                 <div className="flex items-center gap-2 mb-1">
                   <Clock size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Worked (30d)
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
+                <Text variant="title2" weight="bold">
                   {(data.workedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
-              <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
-              )}>
+              
+              <div className={surfaceCard}>
                 <div className="flex items-center gap-2 mb-1">
                   <Briefcase size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Contracted
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
+                <Text variant="title2" weight="bold">
                   {(data.contractedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
-              <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
-              )}>
+
+              <div className={surfaceCard}>
                 <div className="flex items-center gap-2 mb-1">
                   <Activity size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Bank Status
                   </Text>
                 </div>
@@ -142,4 +131,3 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
     </Modal>
   );
 }
-

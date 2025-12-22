@@ -55,8 +55,8 @@ export const Input = memo(
 
       const variantClasses = {
         default: isDark
-          ? 'bg-white/5 border-white/10 focus:border-[#0A84FF] text-white placeholder:text-white/30'
-          : 'bg-black/5 border-black/5 focus:border-[#007AFF] text-black placeholder:text-black/30',
+          ? 'bg-white/10 border-white/20 focus:border-[#0A84FF] text-white placeholder:text-white/40'
+          : 'bg-black/[0.08] border-black/[0.12] focus:border-[#007AFF] text-[#1D1D1F] placeholder:text-black/40',
         filled: isDark
           ? 'bg-white/10 border-transparent focus:bg-white/15 text-white placeholder:text-white/30'
           : 'bg-black/5 border-transparent focus:bg-black/10 text-black placeholder:text-black/30',

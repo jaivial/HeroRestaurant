@@ -27,56 +27,64 @@ export const MemberCard = memo(function MemberCard({
   style
 }: MemberCardProps) {
   const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
 
-  const glassClasses = theme === 'dark'
-    ? 'backdrop-blur-[20px] saturate-[180%] bg-black/50 border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3),0_2px_4px_-2px_rgba(0,0,0,0.2)]'
-    : 'backdrop-blur-[20px] saturate-[180%] bg-white/85 border-black/[0.08] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.08),0_2px_4px_-2px_rgba(0,0,0,0.04)]';
+  const glassBase = "backdrop-blur-[20px] saturate-[180%]";
+  const innerStroke = isDark ? 'border-white/10' : 'border-black/[0.08]';
+  
+  const glassClasses = isDark
+    ? 'bg-black/40 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
+    : 'bg-white/70 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]';
 
-  const hoverShadow = theme === 'dark'
-    ? 'hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.4),0_8px_10px_-6px_rgba(0,0,0,0.4)]'
-    : 'hover:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]';
+  const hoverClasses = isDark
+    ? 'hover:bg-black/50 hover:border-white/20 hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.5)]'
+    : 'hover:bg-white/90 hover:border-black/15 hover:shadow-[0_12px_40px_0_rgba(0,0,0,0.1)]';
 
   return (
     <Card 
       className={cn(
-        "p-5 sm:p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col items-center text-center relative group overflow-hidden border",
+        "p-6 rounded-[2.2rem] transition-all duration-500 flex flex-col items-center text-center relative group overflow-hidden border",
         "min-h-min max-h-min justify-between",
         "hover:scale-[1.02] active:scale-[0.98]",
+        glassBase,
+        innerStroke,
         glassClasses,
-        hoverShadow,
+        hoverClasses,
         className
       )}
       style={style}
     >
       {/* Background Decor */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 bg-apple-blue/10 rounded-full blur-2xl group-hover:bg-apple-blue/20 transition-all duration-700" />
-      <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-apple-purple/5 rounded-full blur-2xl group-hover:bg-apple-purple/15 transition-all duration-700" />
+      <div className="absolute -top-12 -right-12 w-32 h-32 bg-apple-blue/10 rounded-full blur-3xl group-hover:bg-apple-blue/20 transition-all duration-700" />
+      <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-apple-purple/5 rounded-full blur-3xl group-hover:bg-apple-purple/15 transition-all duration-700" />
       
-      <div className="space-y-4 pt-2 relative z-10 w-full flex-1 flex flex-col justify-center">
+      <div className="space-y-5 pt-2 relative z-10 w-full flex-1 flex flex-col justify-center">
         <div className="relative inline-block">
           <Avatar 
             src={member.user.avatarUrl || undefined} 
             name={member.user.name} 
             size="xl"
             status={member.status === 'active' ? 'online' : 'offline'}
-            className="ring-4 ring-white/10 group-hover:ring-apple-blue/30 transition-all duration-500 shadow-apple-md"
+            className={cn(
+              "ring-4 transition-all duration-500 shadow-apple-md",
+              isDark ? "ring-white/10 group-hover:ring-apple-blue/30" : "ring-black/5 group-hover:ring-apple-blue/20"
+            )}
           />
         </div>
 
-        <div className="space-y-1">
-          <Text weight="bold" variant="headline" className="text-content-primary line-clamp-1 text-lg">{member.user.name}</Text>
-          <div className="flex justify-center pb-4">
+        <div className="space-y-2">
+          <Text weight="bold" variant="headline" className="line-clamp-1 text-[19px] tracking-tight">{member.user.name}</Text>
+          <div className="flex justify-center pb-2">
             <Badge 
               className={cn(
-                "font-semibold px-3 py-1 transition-all duration-300",
-                !member.roleName && "bg-transparent border border-dashed border-content-tertiary/50 text-content-tertiary shadow-none"
+                "font-semibold px-4 py-1 transition-all duration-300 rounded-full border shadow-sm",
+                !member.roleName && "bg-transparent border-dashed border-tertiary/50 text-tertiary shadow-none"
               )}
               style={member.roleName ? { 
-                backgroundColor: member.roleColor ? `${member.roleColor}15` : undefined,
+                backgroundColor: isDark ? `${member.roleColor}25` : `${member.roleColor}15`,
                 color: member.roleColor || undefined,
-                borderColor: member.roleColor ? `${member.roleColor}30` : undefined,
-                borderWidth: member.roleColor ? '1px' : '0',
-                boxShadow: member.roleColor ? `0 2px 8px -2px ${member.roleColor}40` : undefined
+                borderColor: isDark ? `${member.roleColor}35` : `${member.roleColor}25`,
+                borderWidth: '1px'
               } : {}}
             >
               {member.roleName || 'No Role'}
@@ -85,19 +93,19 @@ export const MemberCard = memo(function MemberCard({
         </div>
       </div>
 
-      <div className="w-full space-y-4 relative z-10">
+      <div className="w-full space-y-5 relative z-10">
         <div className={cn(
-          "flex justify-around items-center px-2 py-3 rounded-2xl border transition-colors duration-300",
-          theme === 'dark' ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"
+          "flex justify-around items-center px-2 py-3.5 rounded-[1.2rem] border transition-colors duration-300",
+          isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"
         )}>
           <div className="flex flex-col items-center">
-            <Text variant="caption2" color="tertiary" className="uppercase tracking-[0.15em] mb-0.5 font-bold">Priority</Text>
-            <Text variant="body" weight="bold" className="text-apple-blue">{member.rolePriority ?? 0}</Text>
+            <Text variant="caption2" color="tertiary" className="uppercase tracking-[0.12em] mb-1 font-bold text-[10px]">Priority</Text>
+            <Text variant="body" weight="bold" className="text-apple-blue text-[15px]">{member.rolePriority ?? 0}</Text>
           </div>
-          <div className={cn("h-8 w-px", theme === 'dark' ? "bg-white/10" : "bg-black/10")} />
+          <div className={cn("h-8 w-px", isDark ? "bg-white/10" : "bg-black/10")} />
           <div className="flex flex-col items-center">
-            <Text variant="caption2" color="tertiary" className="uppercase tracking-[0.15em] mb-0.5 font-bold">Status</Text>
-            <Text variant="body" weight="bold" className={cn(member.status === 'active' ? 'text-apple-green' : 'text-apple-red')}>
+            <Text variant="caption2" color="tertiary" className="uppercase tracking-[0.12em] mb-1 font-bold text-[10px]">Status</Text>
+            <Text variant="body" weight="bold" className={cn("text-[15px]", member.status === 'active' ? 'text-apple-green' : 'text-apple-red')}>
               {member.status === 'active' ? 'Active' : 'Inactive'}
             </Text>
           </div>
@@ -116,7 +124,7 @@ export const MemberCard = memo(function MemberCard({
             color="blue"
             size="md"
             label="View member details"
-            className="hover:scale-110 active:scale-90 transition-all shadow-sm"
+            className="hover:scale-110 active:scale-90 transition-all shadow-sm rounded-full"
           />
           
           {canEdit && (
@@ -131,7 +139,7 @@ export const MemberCard = memo(function MemberCard({
               color="orange"
               size="md"
               label="Edit member"
-              className="hover:scale-110 active:scale-90 transition-all shadow-sm"
+              className="hover:scale-110 active:scale-90 transition-all shadow-sm rounded-full"
             />
           )}
 
@@ -147,7 +155,7 @@ export const MemberCard = memo(function MemberCard({
               color="red"
               size="md"
               label="Remove member"
-              className="hover:scale-110 active:scale-90 transition-all shadow-sm"
+              className="hover:scale-110 active:scale-90 transition-all shadow-sm rounded-full"
             />
           )}
         </div>

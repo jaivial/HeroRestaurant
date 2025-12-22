@@ -20,6 +20,7 @@ import { memberHandlers } from './member.handler';
 import { roleHandlers } from './role.handler';
 import { menuHandlers } from './menu.handler';
 import { shiftHandlers } from './shift.handler';
+import { invitationHandlers } from './invitation.handler';
 
 // Type for handler functions
 type MessageHandler = (
@@ -64,6 +65,11 @@ const handlers: Record<string, MessageHandler> = {
   'role.create': roleHandlers.create,
   'role.update': roleHandlers.update,
   'role.delete': roleHandlers.delete,
+
+  // Invitation handlers
+  'invitation.create': invitationHandlers.create,
+  'invitation.validate': invitationHandlers.validate,
+  'invitation.accept': invitationHandlers.accept,
 
   // Menu Creator handlers
   'menu.create': menuHandlers.create,

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import type { LoginFormData, LoginFormErrors } from '../types';
 
@@ -13,6 +13,7 @@ export function useLoginForm() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const validate = useCallback((): boolean => {
     const newErrors: LoginFormErrors = {};
@@ -50,6 +51,11 @@ export function useLoginForm() {
           password: formData.password,
         });
 
+        if (location.state?.from) {
+          navigate(location.state.from);
+          return;
+        }
+
         if (result?.workspaceId) {
           navigate(`/w/${result.workspaceId}/dashboard`);
         }
@@ -62,7 +68,7 @@ export function useLoginForm() {
         setIsLoading(false);
       }
     },
-    [formData, validate, login, navigate]
+    [formData, validate, login, navigate, location.state]
   );
 
   const handleChange = useCallback(

@@ -25,6 +25,7 @@ export const WS_MESSAGE_CATEGORIES = [
   'section',
   'settings',
   'shift',
+  'invitation',
   'system',
 ] as const;
 
@@ -55,6 +56,11 @@ export type MemberAction =
   | 'invite'
   | 'update'
   | 'remove';
+
+export type InvitationAction = 
+  | 'create'
+  | 'validate'
+  | 'accept';
 
 export type RoleAction =
   | 'list'
@@ -588,6 +594,21 @@ export const roleDeletePayloadSchema = z.object({
   roleId: z.string().min(1),
 });
 
+export const invitationCreatePayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  roleId: z.string().optional(),
+  email: z.string().email().optional(),
+  expiresInDays: z.number().optional(),
+});
+
+export const invitationValidatePayloadSchema = z.object({
+  token: z.string().min(1),
+});
+
+export const invitationAcceptPayloadSchema = z.object({
+  token: z.string().min(1),
+});
+
 export const pingPayloadSchema = z.object({
   clientTime: z.string(),
 });
@@ -619,6 +640,7 @@ export const PUBLIC_ACTIONS = new Set([
   'auth.register',
   'auth.login',
   'auth.authenticate',
+  'invitation.validate',
   'system.ping',
 ]);
 
@@ -651,6 +673,9 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'role.create': roleCreatePayloadSchema,
   'role.update': roleUpdatePayloadSchema,
   'role.delete': roleDeletePayloadSchema,
+  'invitation.create': invitationCreatePayloadSchema,
+  'invitation.validate': invitationValidatePayloadSchema,
+  'invitation.accept': invitationAcceptPayloadSchema,
   // Menu Creator actions
   'menu.create': menuCreatePayloadSchema,
   'menu.list': z.object({ restaurantId: z.string().min(1) }),

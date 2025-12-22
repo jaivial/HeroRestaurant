@@ -26,6 +26,7 @@ interface TextProps extends React.HTMLAttributes<HTMLElement> {
   as?: React.ElementType;
   truncate?: boolean;
   align?: 'left' | 'center' | 'right';
+  vibrant?: boolean;
   children: React.ReactNode;
 }
 
@@ -40,12 +41,14 @@ export const Text = memo(function Text({
   as,
   truncate = false,
   align,
+  vibrant = false,
   children,
   className = '',
   style,
   ...props
 }: TextProps) {
   const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
 
   const defaultElement: Record<TextVariant, React.ElementType> = {
     largeTitle: 'h1',
@@ -103,14 +106,14 @@ export const Text = memo(function Text({
   };
 
   const colorClasses: Record<TextColor, string> = {
-    primary: theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]',
-    secondary: theme === 'dark' ? 'text-white/60' : 'text-black/70',
-    tertiary: theme === 'dark' ? 'text-white/45' : 'text-black/55',
-    quaternary: theme === 'dark' ? 'text-white/30' : 'text-black/35',
-    blue: theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]',
-    green: theme === 'dark' ? 'text-[#30D158]' : 'text-[#34C759]',
-    red: theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]',
-    orange: theme === 'dark' ? 'text-[#FF9F0A]' : 'text-[#FF9500]',
+    primary: isDark ? 'text-white' : 'text-[#1D1D1F]',
+    secondary: isDark ? 'text-white/60' : 'text-black/70',
+    tertiary: isDark ? (vibrant ? 'text-white/90' : 'text-white/70') : (vibrant ? 'text-black/90' : 'text-black/55'),
+    quaternary: isDark ? 'text-white/30' : 'text-black/35',
+    blue: isDark ? 'text-[#0A84FF]' : 'text-[#007AFF]',
+    green: isDark ? 'text-[#30D158]' : 'text-[#34C759]',
+    red: isDark ? 'text-[#FF453A]' : 'text-[#FF3B30]',
+    orange: isDark ? 'text-[#FF9F0A]' : 'text-[#FF9500]',
   };
 
   return (

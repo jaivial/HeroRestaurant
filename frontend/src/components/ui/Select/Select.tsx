@@ -1,7 +1,21 @@
-import React, { forwardRef, useState, useRef, useEffect, memo } from 'react';
+import React, { forwardRef, useState, memo } from 'react';
+import { createPortal } from 'react-dom';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
+import { 
+  useFloating, 
+  autoUpdate, 
+  offset, 
+  flip, 
+  shift, 
+  useDismiss, 
+  useRole, 
+  useClick, 
+  useInteractions,
+  FloatingPortal,
+  FloatingFocusManager
+} from '@floating-ui/react';
 
 export interface SelectOption {
   value: string;
@@ -27,6 +41,7 @@ interface SelectProps {
 /**
  * Layer 3: UI Component - Select
  * Follows Apple aesthetic for dropdown menus.
+ * Uses @floating-ui/react for portal and precise positioning.
  */
 export const Select = memo(
   forwardRef<HTMLButtonElement, SelectProps>(
@@ -45,40 +60,36 @@ export const Select = memo(
         style,
         icon,
       },
-      ref
+      _ref
     ) => {
       const theme = useAtomValue(themeAtom);
       const [isOpen, setIsOpen] = useState(false);
       const [internalValue, setInternalValue] = useState(defaultValue || '');
-      const containerRef = useRef<HTMLDivElement>(null);
+
+      const { refs, floatingStyles, context } = useFloating({
+        open: isOpen,
+        onOpenChange: setIsOpen,
+        middleware: [
+          offset(8),
+          flip({ padding: 8 }),
+          shift({ padding: 8 }),
+        ],
+        whileElementsMounted: autoUpdate,
+      });
+
+      const click = useClick(context);
+      const dismiss = useDismiss(context);
+      const role = useRole(context);
+
+      const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+        click,
+        dismiss,
+        role,
+      ]);
 
       const currentValue = value !== undefined ? value : internalValue;
       const selectedOption = options.find((opt) => opt.value === currentValue);
       const hasError = Boolean(error);
-
-      useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-          if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-            setIsOpen(false);
-          }
-        };
-
-        if (isOpen) {
-          document.addEventListener('mousedown', handleClickOutside);
-        }
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-      }, [isOpen]);
-
-      useEffect(() => {
-        const handleEscape = (event: KeyboardEvent) => {
-          if (event.key === 'Escape') setIsOpen(false);
-        };
-
-        if (isOpen) {
-          document.addEventListener('keydown', handleEscape);
-        }
-        return () => document.removeEventListener('keydown', handleEscape);
-      }, [isOpen]);
 
       const handleSelect = (optionValue: string) => {
         if (value === undefined) {
@@ -98,19 +109,19 @@ export const Select = memo(
         'w-full h-[44px] px-4 rounded-[1rem] flex items-center justify-between gap-2 transition-all duration-200 focus:outline-none',
         'text-[17px] border-[1.5px]',
         theme === 'dark'
-          ? 'bg-white/5 border-white/10 text-white focus:border-[#0A84FF]'
-          : 'bg-black/5 border-black/5 text-black focus:border-[#007AFF]',
+          ? 'bg-white/10 border-white/20 text-white focus:border-[#0A84FF]'
+          : 'bg-black/[0.08] border-black/[0.12] text-[#1D1D1F] focus:border-[#007AFF]',
         disabled && 'opacity-50 cursor-not-allowed',
         hasError && (theme === 'dark' ? 'border-[#FF453A]' : 'border-[#FF3B30]'),
         isOpen && (theme === 'dark' ? 'border-[#0A84FF]' : 'border-[#007AFF]')
       );
 
       const dropdownClasses = cn(
-        'absolute z-50 w-full mt-2 py-2 rounded-[1rem] backdrop-blur-[20px] saturate-[180%] border',
+        'z-50 py-2 rounded-[1rem] backdrop-blur-[20px] saturate-[180%] border',
         'animate-scale-in origin-top shadow-xl',
         theme === 'dark'
-          ? 'bg-black/80 border-white/10'
-          : 'bg-white/80 border-black/5'
+          ? 'bg-black/80 border-white/10 text-white'
+          : 'bg-white/80 border-black/5 text-black'
       );
 
       const helperClasses = cn(
@@ -121,15 +132,15 @@ export const Select = memo(
       );
 
       return (
-        <div ref={containerRef} className={cn('w-full relative', className)} style={style}>
+        <div className={cn('w-full', className)} style={style}>
           {label && <label className={labelClasses}>{label}</label>}
 
           <button
-            ref={ref}
+            ref={refs.setReference}
             type="button"
             disabled={disabled}
-            onClick={() => setIsOpen(!isOpen)}
             className={triggerClasses}
+            {...getReferenceProps()}
           >
             <div className="flex items-center gap-2 flex-1 min-w-0">
               {icon && <span className="opacity-40 flex-shrink-0">{icon}</span>}
@@ -152,30 +163,43 @@ export const Select = memo(
           </button>
 
           {isOpen && (
-            <div className={dropdownClasses}>
-              {options.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  disabled={option.disabled}
-                  onClick={() => handleSelect(option.value)}
-                  className={cn(
-                    'w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors duration-150',
-                    'text-[17px]',
-                    theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-black/5',
-                    disabled && 'opacity-50 cursor-not-allowed',
-                    option.value === currentValue && (theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]')
-                  )}
+            <FloatingPortal>
+              <FloatingFocusManager context={context} modal={false}>
+                <div
+                  ref={refs.setFloating}
+                  style={{
+                    ...floatingStyles,
+                    width: refs.domReference.current?.getBoundingClientRect().width,
+                  }}
+                  className={dropdownClasses}
+                  {...getFloatingProps()}
                 >
-                  <span className="font-medium">{option.label}</span>
-                  {option.value === currentValue && (
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
-              ))}
-            </div>
+                  {options.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={option.disabled}
+                      onClick={() => handleSelect(option.value)}
+                      className={cn(
+                        'w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors duration-150',
+                        'text-[17px]',
+                        theme === 'dark' ? 'hover:bg-white/10' : 'hover:bg-black/5',
+                        option.disabled && 'opacity-50 cursor-not-allowed',
+                        option.value === currentValue && (theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]')
+                      )}
+                      {...getItemProps()}
+                    >
+                      <span className="font-medium">{option.label}</span>
+                      {option.value === currentValue && (
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </FloatingFocusManager>
+            </FloatingPortal>
           )}
 
           {(error || helperText) && (

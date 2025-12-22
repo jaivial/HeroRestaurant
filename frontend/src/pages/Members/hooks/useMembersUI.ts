@@ -14,6 +14,8 @@ export function useMembersUI() {
   const [isMemberDetailOpen, setIsMemberDetailOpen] = useState(false);
   const [selectedMemberDetail, setSelectedMemberDetail] = useState<Member | null>(null);
 
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
   const handleEditRole = useCallback((role: Role) => {
     setSelectedRole(role);
     setIsRoleEditorOpen(true);
@@ -37,6 +39,10 @@ export function useMembersUI() {
     setIsMemberDetailOpen(true);
   }, []);
 
+  const handleOpenInviteModal = useCallback(() => {
+    setIsInviteModalOpen(true);
+  }, []);
+
   const closeRoleEditor = useCallback(() => {
     setIsRoleEditorOpen(false);
   }, []);
@@ -49,6 +55,10 @@ export function useMembersUI() {
     setIsMemberDetailOpen(false);
   }, []);
 
+  const closeInviteModal = useCallback(() => {
+    setIsInviteModalOpen(false);
+  }, []);
+
   return {
     activeTab,
     setActiveTab,
@@ -58,13 +68,16 @@ export function useMembersUI() {
     selectedMember,
     isMemberDetailOpen,
     selectedMemberDetail,
+    isInviteModalOpen,
     handleEditRole,
     handleCreateRole,
     handleEditMember,
     handleViewMember,
+    handleOpenInviteModal,
     closeRoleEditor,
     closeMemberEditor,
     closeMemberDetail,
+    closeInviteModal,
   };
 }
 
