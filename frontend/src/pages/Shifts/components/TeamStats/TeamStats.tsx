@@ -1,7 +1,7 @@
 // frontend/src/pages/Shifts/components/TeamStats/TeamStats.tsx
 
 import { useMemo, useState, useEffect } from 'react';
-import { DataTable, Badge, IconButton, Select, Heading } from '@/components/ui';
+import { DataTable, Badge, IconButton, Select, Heading, Text } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import type { TeamStatsProps, MemberShiftSummary, ShiftPeriod } from '../../types';
 import { useTeamShifts } from '../../hooks/useTeamShifts';
@@ -42,14 +42,8 @@ export function TeamStats({ restaurantId }: TeamStatsProps) {
       key: 'name',
       render: (m) => (
         <div className="flex flex-col">
-          <span className={cn(
-            "font-semibold",
-            isDark ? "text-white" : "text-black"
-          )}>{m.name}</span>
-          <span className={cn(
-            "text-[13px]",
-            isDark ? "text-white/40" : "text-black/40"
-          )}>{m.email}</span>
+          <Text weight="semibold">{m.name}</Text>
+          <Text variant="footnote" color="tertiary">{m.email}</Text>
         </div>
       )
     },
@@ -111,10 +105,7 @@ export function TeamStats({ restaurantId }: TeamStatsProps) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-2">
-        <Heading level={3} className={cn(
-          "text-[28px] font-semibold",
-          isDark ? "text-white" : "text-black"
-        )}>Team Performance</Heading>
+        <Heading level={1}>Team Performance</Heading>
         <div className="w-full md:w-48">
           <Select
             value={period}

@@ -1,4 +1,4 @@
-import { Modal, Text, Badge, DataTable, Divider, Button } from '@/components/ui';
+import { Modal, Text, Badge, DataTable, Divider, Button, ModalFooter } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import { useMemberShiftDetail } from '../../../hooks/useMemberShiftDetail';
 import type { ShiftHistoryItem } from '../../../types';
@@ -53,14 +53,12 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
       onClose={onClose}
       title="Shift History Detail"
       size="xl"
-      className="rounded-[2.2rem]"
     >
       <div className="space-y-6">
         {isLoading ? (
-          <div className={cn(
-            "p-12 text-center",
-            isDark ? "text-white/50" : "text-black/50"
-          )}>Loading history...</div>
+          <Text align="center" color="tertiary" className="p-12">
+            Loading history...
+          </Text>
         ) : !data ? (
           <div className="p-12 text-center text-red-500">
             Failed to load member shift details.
@@ -69,49 +67,40 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+                "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
+                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Clock size={14} className="opacity-40" />
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Worked (30d)
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
+                <Text variant="title2" weight="bold">
                   {(data.workedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
               <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+                "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
+                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Briefcase size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Briefcase size={14} className="opacity-40" />
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Contracted
                   </Text>
                 </div>
-                <Text variant="title2" weight="bold" className={isDark ? "text-white" : "text-black"}>
+                <Text variant="title2" weight="bold">
                   {(data.contractedMinutes / 60).toFixed(1)}h
                 </Text>
               </div>
               <div className={cn(
-                "p-4 rounded-[1rem] border",
-                isDark ? "bg-white/5 border-white/10" : "bg-black/[0.03] border-black/[0.06]"
+                "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
+                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Activity size={14} className={isDark ? "text-white/40" : "text-black/40"} />
-                  <Text variant="caption1" weight="bold" className={cn(
-                    "uppercase tracking-widest block",
-                    isDark ? "text-white/40" : "text-black/40"
-                  )}>
+                  <Activity size={14} className="opacity-40" />
+                  <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Bank Status
                   </Text>
                 </div>
@@ -131,11 +120,11 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
               />
             </div>
 
-            <div className="flex justify-end pt-4">
-              <Button onClick={onClose} variant="secondary" className="rounded-full px-8">
+            <ModalFooter>
+              <Button onClick={onClose} variant="secondary" className="px-8">
                 Close
               </Button>
-            </div>
+            </ModalFooter>
           </>
         )}
       </div>
