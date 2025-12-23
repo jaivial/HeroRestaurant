@@ -112,13 +112,11 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
 
             <Divider />
 
-            <div className="max-h-[400px] overflow-y-auto pr-2">
-              <DataTable 
-                data={data.history || []} 
-                columns={historyColumns} 
-                className="border-none shadow-none bg-transparent"
-              />
-            </div>
+            <DataTable 
+              data={data.history || []} 
+              columns={historyColumns} 
+              className="border-none shadow-none bg-transparent"
+            />
 
             <ModalFooter>
               <Button onClick={onClose} variant="secondary" className="px-8">

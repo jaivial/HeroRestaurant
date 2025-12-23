@@ -71,6 +71,7 @@ export const Modal = memo(function Modal({
   const panelClasses = cn(
     'relative w-full rounded-[2.2rem] backdrop-blur-[20px] saturate-[180%] border',
     'animate-scale-in duration-300 ease-[cubic-bezier(0,0,0.2,1)]',
+    'flex flex-col max-h-[95dvh]',
     theme === 'dark'
       ? 'bg-black/80 border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)] text-white'
       : 'bg-white/90 border-black/[0.08] shadow-[0_32px_64px_rgba(0,0,0,0.15)] text-black',
@@ -79,7 +80,7 @@ export const Modal = memo(function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
@@ -97,11 +98,11 @@ export const Modal = memo(function Modal({
       {/* Modal panel */}
       <div
         style={style}
-        className={cn('relative w-full', sizeClasses[size], panelClasses)}
+        className={cn('relative w-full overflow-hidden', sizeClasses[size], panelClasses)}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-start justify-between px-8 pt-8 pb-4">
+          <div className="flex-shrink-0 flex items-start justify-between px-8 pt-8 pb-4">
             <div>
               {title && (
                 <h2
@@ -144,7 +145,9 @@ export const Modal = memo(function Modal({
         )}
 
         {/* Content */}
-        <div className={cn('px-8', title ? 'pb-8' : 'py-8')}>{children}</div>
+        <div className={cn('flex-1 overflow-y-auto px-8 custom-scrollbar', title ? 'pb-8' : 'py-8')}>
+          {children}
+        </div>
       </div>
     </div>,
     document.body
