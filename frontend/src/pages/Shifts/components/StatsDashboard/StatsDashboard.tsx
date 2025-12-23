@@ -1,6 +1,17 @@
-import { useState } from 'react';
+// frontend/src/pages/Shifts/components/StatsDashboard/StatsDashboard.tsx
 import { usePersonalStats } from '../../hooks/usePersonalStats';
-import { Card, Text, Heading, Select, Badge, DataTable, Tabs, TabsList, TabsTrigger } from '@/components/ui';
+import { 
+  Card, 
+  Text, 
+  Heading, 
+  Select, 
+  Badge, 
+  DataTable, 
+  Tabs, 
+  TabsList, 
+  TabsTrigger,
+  IconButton
+} from '@/components/ui';
 import type { Column } from '@/components/ui';
 import type { ShiftPeriod, ShiftHistoryItem } from '../../types';
 import { Clock, TrendingUp, ShieldCheck, Table as TableIcon, Calendar, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -12,7 +23,6 @@ import { timeFormatAtom } from '@/atoms/shiftAtoms';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { shiftsStatsPeriodPreferenceAtom, shiftsHistoryTabPreferenceAtom } from '@/atoms/preferenceAtoms';
 import { cn } from '@/utils/cn';
-import { IconButton } from '@/components/ui';
 import { useMemo } from 'react';
 
 interface StatsDashboardProps {
@@ -24,7 +34,6 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
   const { 
     stats: periodStats, 
     isLoading: statsLoading, 
-    offset, 
     setOffset 
   } = usePersonalStats(restaurantId, period as ShiftPeriod);
   const { stats: fullHistoryStats } = usePersonalStats(restaurantId, 'anual');
@@ -50,7 +59,6 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
   }, [periodStats, period]);
 
   const historyColumns: Column<ShiftHistoryItem>[] = [
-// ... (rest of columns) ...
     {
       header: 'Date',
       key: 'punchInAt',
@@ -65,8 +73,8 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
       header: 'Punch Out',
       key: 'punchOutAt',
       render: (s) => s.punchOutAt 
-        ? formatTime(s.punchOutAt, use24h)
-        : '-'
+    ? formatTime(s.punchOutAt, use24h)
+    : '-'
     },
     {
       header: 'Duration',
@@ -239,4 +247,3 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
     </div>
   );
 }
-

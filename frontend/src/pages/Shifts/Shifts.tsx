@@ -11,8 +11,11 @@ import { cn } from '@/utils/cn';
 import { ClockSection } from './components/ClockSection';
 import { StatsDashboard } from './components/StatsDashboard';
 import { TeamStats } from './components/TeamStats';
+import { ShiftAssignment } from './components/ShiftAssignment';
 import { usePermissions } from '@/hooks/usePermissions';
-import { PERMISSIONS } from '@/utils/permissions';
+import { PERMISSIONS, USER_ACCESS_FLAGS } from '@/utils/permissions';
+import { canManageSchedulesAtom } from '@/atoms/permissionAtoms';
+import { currentUserGlobalFlagsAtom } from '@/atoms/authAtoms';
 
 export function Shifts() {
   const restaurantId = useAtomValue(workspaceIdAtom);
@@ -23,6 +26,11 @@ export function Shifts() {
   const { hasPermission } = usePermissions();
   const canViewPersonalStats = hasPermission(PERMISSIONS.VIEW_TIMESHEETS);
   const canViewTeamStats = hasPermission(PERMISSIONS.VIEW_MEMBERS);
+  const canManageSchedules = useAtomValue(canManageSchedulesAtom);
+  const globalFlags = useAtomValue(currentUserGlobalFlagsAtom);
+  const isRoot = (globalFlags & USER_ACCESS_FLAGS.ROOT) === USER_ACCESS_FLAGS.ROOT;
+
+  const showAssignmentTab = canManageSchedules || isRoot;
 
   useEffect(() => {
     if (restaurantId) {
@@ -87,6 +95,9 @@ export function Shifts() {
           {canViewTeamStats && (
             <TabsTrigger value="team">Team Overview</TabsTrigger>
           )}
+          {showAssignmentTab && (
+            <TabsTrigger value="assignment">Shift Assignment</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="clock">
@@ -102,6 +113,12 @@ export function Shifts() {
         {canViewTeamStats && (
           <TabsContent value="team">
             <TeamStats restaurantId={restaurantId} />
+          </TabsContent>
+        )}
+
+        {showAssignmentTab && (
+          <TabsContent value="assignment">
+            <ShiftAssignment restaurantId={restaurantId} />
           </TabsContent>
         )}
       </Tabs>

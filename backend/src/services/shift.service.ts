@@ -102,6 +102,10 @@ export class ShiftService {
         totalWorkedThisWeek: worked,
         totalBankOfHours: worked - contracted,
         status: this.calculateStatus(worked, contracted),
+        active_punch_in_at: member.active_punch_in_at,
+        role_name: member.role_name,
+        role_color: member.role_color,
+        membership_status: member.status,
       };
     });
   }

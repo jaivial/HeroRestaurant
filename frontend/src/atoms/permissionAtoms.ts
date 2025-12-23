@@ -73,6 +73,10 @@ export const canRemoveMembersAtom = atom((get) =>
   hasPermission(get(rawPermissionsAtom), PERMISSIONS.REMOVE_MEMBERS)
 );
 
+export const canManageSchedulesAtom = atom((get) =>
+  hasPermission(get(rawPermissionsAtom), PERMISSIONS.MANAGE_SCHEDULES)
+);
+
 export const canManageRolesAtom = atom((get) =>
   hasPermission(get(rawPermissionsAtom), PERMISSIONS.MANAGE_ROLES)
 );

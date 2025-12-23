@@ -28,6 +28,7 @@ export interface DB {
   dishes: DishesTable;
   member_contracts: MemberContractsTable;
   member_shifts: MemberShiftsTable;
+  scheduled_shifts: ScheduledShiftsTable;
   user_preferences: UserPreferencesTable;
 }
 
@@ -303,6 +304,21 @@ export interface MemberShiftsTable {
 export type MemberShift = Selectable<MemberShiftsTable>;
 export type NewMemberShift = Insertable<MemberShiftsTable>;
 export type MemberShiftUpdate = Updateable<MemberShiftsTable>;
+
+// ============= Scheduled Shifts Table =============
+export interface ScheduledShiftsTable {
+  id: Generated<string>;
+  membership_id: string;
+  start_at: Date;
+  end_at: Date;
+  notes: string | null;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export type ScheduledShift = Selectable<ScheduledShiftsTable>;
+export type NewScheduledShift = Insertable<ScheduledShiftsTable>;
+export type ScheduledShiftUpdate = Updateable<ScheduledShiftsTable>;
 
 // ============= User Preferences Table =============
 export interface UserPreferencesTable {

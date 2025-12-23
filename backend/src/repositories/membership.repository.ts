@@ -88,7 +88,15 @@ export class MembershipRepository {
         'users.avatar_url as user_avatar_url',
         'roles.name as role_name',
         'roles.color as role_color',
-        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${1n << 27n} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
+        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${1n << 27n} != 0 THEN 100 ELSE 0 END)`.as('role_priority'),
+        (eb) => eb
+          .selectFrom('member_shifts')
+          .select('punch_in_at')
+          .whereRef('membership_id', '=', 'memberships.id')
+          .where('punch_out_at', 'is', null)
+          .orderBy('punch_in_at', 'desc')
+          .limit(1)
+          .as('active_punch_in_at')
       ])
       .where('memberships.restaurant_id', '=', restaurantId)
       .where('memberships.deleted_at', 'is', null)

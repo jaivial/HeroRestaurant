@@ -40,3 +40,4 @@ export async function down(db: Kysely<any>): Promise<void> {
   console.log('✓ Migration 009: Rolled back expanded restaurant settings');
 }
 
+

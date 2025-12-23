@@ -1,4 +1,4 @@
-import { useMemo, useRef, useCallback, useState, useEffect } from 'react';
+import { useMemo, useRef, useCallback, useState } from 'react';
 import { useAtomValue, useAtom } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { shiftsWeeklyLayoutPreferenceAtom } from '@/atoms/preferenceAtoms';
@@ -12,9 +12,10 @@ import { LayoutGrid, List, ChevronLeft, ChevronRight, Clock } from 'lucide-react
 
 interface WeeklyCalendarProps {
   history: ShiftHistoryItem[];
+  isConstrained?: boolean;
 }
 
-export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ history, isConstrained = false }: WeeklyCalendarProps) {
   const theme = useAtomValue(themeAtom);
   const isDark = theme === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -27,16 +28,19 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
   const animationFrame = useRef<number | null>(null);
 
   const applyInertia = useCallback(() => {
-    if (!scrollRef.current) return;
-    
-    scrollRef.current.scrollLeft -= velocity.current;
-    velocity.current *= 0.95; // Friction coefficient
+    const step = () => {
+      if (!scrollRef.current) return;
+      
+      scrollRef.current.scrollLeft -= velocity.current;
+      velocity.current *= 0.95; // Friction coefficient
 
-    if (Math.abs(velocity.current) > 0.1) {
-      animationFrame.current = requestAnimationFrame(applyInertia);
-    } else {
-      animationFrame.current = null;
-    }
+      if (Math.abs(velocity.current) > 0.1) {
+        animationFrame.current = requestAnimationFrame(step);
+      } else {
+        animationFrame.current = null;
+      }
+    };
+    step();
   }, []);
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -119,7 +123,6 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
   const verticalContainerRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useAtom(shiftsWeeklyLayoutPreferenceAtom);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Group shifts by day (let's generate a range of days for paging)
@@ -200,47 +203,49 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
 
   const { contextSafe } = useGSAP({ scope: verticalContainerRef });
 
-  const animateWeekChange = contextSafe((dir: 'next' | 'prev') => {
+  const animateWeekChange = useCallback((dir: 'next' | 'prev') => {
     if (isAnimating) return;
     const container = verticalContainerRef.current;
     if (!container) return;
 
-    setIsAnimating(true);
+    contextSafe(() => {
+      setIsAnimating(true);
 
-    const exitX = dir === 'next' ? 150 : -150;
-    const enterX = dir === 'next' ? -150 : 150;
+      const exitX = dir === 'next' ? 150 : -150;
+      const enterX = dir === 'next' ? -150 : 150;
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setIsAnimating(false);
-        gsap.set(container, { clearProps: "all" });
-      }
-    });
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setIsAnimating(false);
+          gsap.set(container, { clearProps: "all" });
+        }
+      });
 
-    // 1. EXIT: Slide and Fade current view
-    tl.to(container, {
-      x: exitX,
-      opacity: 0,
-      duration: 0.5,
-      ease: "power2.in"
-    });
+      // 1. EXIT: Slide and Fade current view
+      tl.to(container, {
+        x: exitX,
+        opacity: 0,
+        duration: 0.5,
+        ease: "power2.in"
+      });
 
-    // 2. SWAP: Change state only after container is fully invisible
-    tl.add(() => {
-      setWeekOffset(prev => dir === 'next' ? prev + 1 : prev - 1);
-    });
+      // 2. SWAP: Change state only after container is fully invisible
+      tl.add(() => {
+        setWeekOffset(prev => dir === 'next' ? prev + 1 : prev - 1);
+      });
 
-    // 3. RESET: Jump to start position of NEW view (still invisible)
-    tl.set(container, { x: enterX, opacity: 0 });
+      // 3. RESET: Jump to start position of NEW view (still invisible)
+      tl.set(container, { x: enterX, opacity: 0 });
 
-    // 4. ENTER: Slide and Fade new view in
-    tl.to(container, {
-      x: 0,
-      opacity: 1,
-      duration: 0.6,
-      ease: "power3.out"
-    }, "+=0.02"); // Small delay to let React render the new cards
-  });
+      // 4. ENTER: Slide and Fade new view in
+      tl.to(container, {
+        x: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power3.out"
+      }, "+=0.02"); // Small delay to let React render the new cards
+    })();
+  }, [isAnimating, contextSafe]);
 
   // Handle entrance for layout mount/switch
   useGSAP(() => {
@@ -340,7 +345,10 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
       </div>
 
       {layout === 'horizontal' ? (
-        <div className="md:left-[calc(50%-(50vw-140px))] md:w-[calc(100vw-280px)] md:max-w-none relative">
+        <div className={cn(
+          "relative",
+          !isConstrained && "md:left-[calc(50%-(50vw-140px))] md:w-[calc(100vw-280px)] md:max-w-none"
+        )}>
           <div 
             ref={scrollRef}
             onMouseDown={onMouseDown}
@@ -350,7 +358,10 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
-            className="flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[70vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none md:px-8 min-[1024px]:px-16"
+            className={cn(
+              "flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[70vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none",
+              !isConstrained && "md:px-8 min-[1024px]:px-16"
+            )}
             style={{ 
               scrollSnapType: 'none', // Changed from 'both proximity' to 'none' for better manual drag feel
               touchAction: 'pan-y' // Allow vertical scroll but handle horizontal drag
@@ -384,7 +395,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                       )}>
                         {day.dayNumber}
                       </span>
-                      <div className="flex flex-col -space-y-1">
+                      <div className="flex items-baseline gap-1">
                         <span className={cn(
                           "text-[12px] font-bold uppercase",
                           isDark ? "text-white/40" : "text-black/40"

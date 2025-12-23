@@ -1,4 +1,4 @@
-import { Modal, Text, Badge, DataTable, Divider, Button, ModalFooter, Tabs, TabsList, TabsTrigger, TabsContent, Select, Input } from '@/components/ui';
+import { Modal, Text, Badge, DataTable, Button, ModalFooter, Tabs, TabsList, TabsTrigger, TabsContent, Select, Input, Heading } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import { useMemberShiftDetail } from '../../../hooks/useMemberShiftDetail';
 import type { ShiftHistoryItem, ShiftPeriod } from '../../../types';

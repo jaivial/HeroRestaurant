@@ -11,6 +11,8 @@ export { Radio, RadioGroup } from './Radio/Radio';
 export { Select } from './Select/Select';
 export { Textarea } from './Textarea/Textarea';
 export { Combobox } from './Combobox/Combobox';
+export { DatePicker } from './DatePicker/DatePicker';
+export { TimePicker } from './TimePicker/TimePicker';
 
 // Feedback Components
 export { Modal, ModalFooter } from './Modal/Modal';

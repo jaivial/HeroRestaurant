@@ -20,11 +20,22 @@ export function useMemberShiftDetail(memberId: string) {
 
     setIsLoading(true);
     try {
-      const response = await wsClient.request<any>('shift' as WSMessageCategory, 'get_personal_stats', { 
-        restaurantId,
-        memberId, 
-        period: 'monthly' 
-      });
+      const [statsResponse, scheduledResponse] = await Promise.all([
+        wsClient.request<any>('shift' as WSMessageCategory, 'get_personal_stats', { 
+          restaurantId,
+          memberId, 
+          period: 'anual' 
+        }),
+        wsClient.request<any>('shift' as WSMessageCategory, 'get_scheduled_shifts', {
+          restaurantId,
+          startDate: new Date(new Date().getFullYear(), 0, 1).toISOString(),
+          endDate: new Date(new Date().getFullYear(), 11, 31).toISOString()
+        })
+      ]);
+
+      const response = statsResponse;
+      
+      const memberScheduled = (scheduledResponse.shifts || []).filter((s: any) => s.membership_id === memberId);
 
       // Transform history from snake_case to camelCase
       if (response.history) {
@@ -37,7 +48,7 @@ export function useMemberShiftDetail(memberId: string) {
         }));
       }
 
-      setData(response);
+      setData({ ...response, scheduled: memberScheduled });
     } catch (error) {
       console.error('Failed to fetch member shift detail:', error);
     } finally {

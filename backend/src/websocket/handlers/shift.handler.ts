@@ -1,5 +1,6 @@
 import type { WSConnection } from '../state/connections';
 import { ShiftService } from '../../services/shift.service';
+import { ScheduledShiftService } from '../../services/scheduled-shift.service';
 import { PermissionService } from '../../services/permission.service';
 import { MembershipService } from '../../services/membership.service';
 import { MembershipRepository } from '../../repositories/membership.repository';
@@ -145,6 +146,120 @@ export const shiftHandlers = {
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'Failed to get team stats',
+        },
+      };
+    }
+  },
+
+  /**
+   * Get scheduled shifts
+   */
+  async getScheduledShifts(ws: WSConnection, payload: any): HandlerResult {
+    const { userId } = ws.data;
+    if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
+
+    const { restaurantId, startDate, endDate } = payload;
+
+    try {
+      const shifts = await ScheduledShiftService.getShifts(
+        restaurantId, 
+        new Date(startDate), 
+        new Date(endDate)
+      );
+      return { data: { shifts } };
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'Failed to get scheduled shifts',
+        },
+      };
+    }
+  },
+
+  /**
+   * Assign a shift (Admin only)
+   */
+  async assignShift(ws: WSConnection, payload: any): HandlerResult {
+    const { userId } = ws.data;
+    if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
+
+    const { restaurantId, shiftData } = payload;
+
+    try {
+      // Check permission
+      const membership = await MembershipService.getMembership(userId, restaurantId);
+      if (!membership || !PermissionService.hasMemberPermission(membership.access_flags, MEMBER_FLAGS.CAN_MANAGE_MEMBERS)) {
+        return {
+          error: {
+            code: 'FORBIDDEN',
+            message: 'You do not have permission to assign shifts',
+          },
+        };
+      }
+
+      const shift = await ScheduledShiftService.createShift(userId, restaurantId, {
+        ...shiftData,
+        start_at: new Date(shiftData.start_at),
+        end_at: new Date(shiftData.end_at),
+      });
+
+      // Broadcast update
+      const event = createEvent('shift', 'scheduled_updated', {
+        shiftId: shift.id,
+        action: 'created',
+      }, { restaurantId });
+
+      connectionManager.broadcastToRestaurant(restaurantId, event);
+
+      return { data: { shift } };
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'Failed to assign shift',
+        },
+      };
+    }
+  },
+
+  /**
+   * Remove a scheduled shift (Admin only)
+   */
+  async removeScheduledShift(ws: WSConnection, payload: any): HandlerResult {
+    const { userId } = ws.data;
+    if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
+
+    const { restaurantId, shiftId } = payload;
+
+    try {
+      // Check permission
+      const membership = await MembershipService.getMembership(userId, restaurantId);
+      if (!membership || !PermissionService.hasMemberPermission(membership.access_flags, MEMBER_FLAGS.CAN_MANAGE_MEMBERS)) {
+        return {
+          error: {
+            code: 'FORBIDDEN',
+            message: 'You do not have permission to remove scheduled shifts',
+          },
+        };
+      }
+
+      await ScheduledShiftService.deleteShift(userId, restaurantId, shiftId);
+
+      // Broadcast update
+      const event = createEvent('shift', 'scheduled_updated', {
+        shiftId,
+        action: 'deleted',
+      }, { restaurantId });
+
+      connectionManager.broadcastToRestaurant(restaurantId, event);
+
+      return { data: { success: true } };
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'Failed to remove scheduled shift',
         },
       };
     }

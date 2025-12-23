@@ -53,4 +53,14 @@ export type {
   MemberShift,
   NewMemberShift,
   MemberShiftUpdate,
+  // Scheduled Shifts
+  ScheduledShiftsTable,
+  ScheduledShift,
+  NewScheduledShift,
+  ScheduledShiftUpdate,
+  // User Preferences
+  UserPreferencesTable,
+  UserPreference,
+  NewUserPreference,
+  UserPreferenceUpdate,
 } from './database.types';
