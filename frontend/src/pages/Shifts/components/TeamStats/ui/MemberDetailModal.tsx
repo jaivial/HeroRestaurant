@@ -60,18 +60,18 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
             Loading history...
           </Text>
         ) : !data ? (
-          <div className="p-12 text-center text-red-500">
+          <Text align="center" color="red" className="p-12">
             Failed to load member shift details.
-          </div>
+          </Text>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className={cn(
                 "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
-                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
+                isDark ? "bg-white/10 border-white/20 text-white" : "bg-black/[0.03] border-black/[0.08] text-black"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Clock size={14} className="opacity-40" />
+                  <Clock size={14} className={isDark ? "text-white/40" : "text-black/40"} />
                   <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Worked (30d)
                   </Text>
@@ -82,10 +82,10 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
               </div>
               <div className={cn(
                 "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
-                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
+                isDark ? "bg-white/10 border-white/20 text-white" : "bg-black/[0.03] border-black/[0.08] text-black"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Briefcase size={14} className="opacity-40" />
+                  <Briefcase size={14} className={isDark ? "text-white/40" : "text-black/40"} />
                   <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Contracted
                   </Text>
@@ -96,10 +96,10 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
               </div>
               <div className={cn(
                 "p-4 rounded-[1rem] border backdrop-blur-[20px] saturate-[180%]",
-                isDark ? "bg-white/5 border-white/20" : "bg-black/[0.03] border-black/[0.08]"
+                isDark ? "bg-white/10 border-white/20 text-white" : "bg-black/[0.03] border-black/[0.08] text-black"
               )}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Activity size={14} className="opacity-40" />
+                  <Activity size={14} className={isDark ? "text-white/40" : "text-black/40"} />
                   <Text variant="caption1" weight="bold" color="tertiary" className="uppercase tracking-widest block">
                     Bank Status
                   </Text>

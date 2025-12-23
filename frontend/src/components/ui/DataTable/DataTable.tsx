@@ -38,8 +38,8 @@ function DataTableComponent<T>({
 
   const baseClasses = "backdrop-blur-[20px] saturate-[180%] overflow-hidden";
   const themeClasses = theme === 'dark'
-    ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
-    : 'bg-white/85 border-black/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.08)]';
+    ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-white'
+    : 'bg-white/85 border-black/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.08)] text-black';
 
   if (isLoading) {
     return (

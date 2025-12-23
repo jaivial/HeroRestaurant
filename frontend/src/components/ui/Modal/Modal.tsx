@@ -72,8 +72,8 @@ export const Modal = memo(function Modal({
     'relative w-full rounded-[2.2rem] backdrop-blur-[20px] saturate-[180%] border',
     'animate-scale-in duration-300 ease-[cubic-bezier(0,0,0.2,1)]',
     theme === 'dark'
-      ? 'bg-black/80 border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)]'
-      : 'bg-white/90 border-black/[0.08] shadow-[0_32px_64px_rgba(0,0,0,0.15)]',
+      ? 'bg-black/80 border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)] text-white'
+      : 'bg-white/90 border-black/[0.08] shadow-[0_32px_64px_rgba(0,0,0,0.15)] text-black',
     className
   );
 
