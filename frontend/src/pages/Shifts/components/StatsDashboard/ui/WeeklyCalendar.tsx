@@ -18,13 +18,111 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
   const theme = useAtomValue(themeAtom);
   const isDark = theme === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const velocity = useRef(0);
+  const lastX = useRef(0);
+  const lastTime = useRef(0);
+  const animationFrame = useRef<number | null>(null);
+
+  const applyInertia = useCallback(() => {
+    if (!scrollRef.current) return;
+    
+    scrollRef.current.scrollLeft -= velocity.current;
+    velocity.current *= 0.95; // Friction coefficient
+
+    if (Math.abs(velocity.current) > 0.1) {
+      animationFrame.current = requestAnimationFrame(applyInertia);
+    } else {
+      animationFrame.current = null;
+    }
+  }, []);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    isDragging.current = true;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeft.current = scrollRef.current.scrollLeft;
+    lastX.current = e.pageX;
+    lastTime.current = Date.now();
+    velocity.current = 0;
+    if (animationFrame.current) {
+      cancelAnimationFrame(animationFrame.current);
+      animationFrame.current = null;
+    }
+    scrollRef.current.style.scrollBehavior = 'auto';
+  };
+
+  const onMouseUp = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.scrollBehavior = '';
+      applyInertia();
+    }
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 2;
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+
+    const now = Date.now();
+    const dt = now - lastTime.current;
+    if (dt > 0) {
+      velocity.current = (e.pageX - lastX.current) / dt * 15; // Velocity based on pixels/ms
+      lastX.current = e.pageX;
+      lastTime.current = now;
+    }
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    isDragging.current = true;
+    startX.current = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    scrollLeft.current = scrollRef.current.scrollLeft;
+    lastX.current = e.touches[0].pageX;
+    lastTime.current = Date.now();
+    velocity.current = 0;
+    if (animationFrame.current) {
+      cancelAnimationFrame(animationFrame.current);
+      animationFrame.current = null;
+    }
+    scrollRef.current.style.scrollBehavior = 'auto';
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current || !scrollRef.current) return;
+    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    scrollRef.current.scrollLeft = scrollLeft.current - walk;
+
+    const now = Date.now();
+    const dt = now - lastTime.current;
+    if (dt > 0) {
+      velocity.current = (e.touches[0].pageX - lastX.current) / dt * 15;
+      lastX.current = e.touches[0].pageX;
+      lastTime.current = now;
+    }
+  };
+
+  const onTouchEnd = () => {
+    isDragging.current = false;
+    if (scrollRef.current) {
+      scrollRef.current.style.scrollBehavior = '';
+      applyInertia();
+    }
+  };
+
   const verticalContainerRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useAtom(shiftsWeeklyLayoutPreferenceAtom);
   const [weekOffset, setWeekOffset] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev' | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Group shifts by day (let's generate a range of 105 days / 15 weeks for better paging)
+  // Group shifts by day (let's generate a range of days for paging)
   const calendarDays = useMemo(() => {
     const days = [];
     const now = new Date();
@@ -35,11 +133,11 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
     const mondayOfCurrentWeek = new Date(now);
     mondayOfCurrentWeek.setDate(now.getDate() + diffToMon);
     
-    // Generate 7 weeks before and 7 weeks after (Total 15 weeks)
+    // Generate 52 weeks before and 52 weeks after (Total 105 weeks)
     const startDate = new Date(mondayOfCurrentWeek);
-    startDate.setDate(mondayOfCurrentWeek.getDate() - (7 * 7));
+    startDate.setDate(mondayOfCurrentWeek.getDate() - (52 * 7));
 
-    for (let i = 0; i < 15 * 7; i++) {
+    for (let i = 0; i < 105 * 7; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       const dateStr = date.toDateString();
@@ -60,9 +158,9 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
     return days;
   }, [history]);
 
-  // Current week for vertical view (7 weeks before, current week, 7 weeks after)
+  // Current week for vertical view (52 weeks before, current week, 52 weeks after)
   const currentVerticalWeek = useMemo(() => {
-    const startIndex = (7 + weekOffset) * 7;
+    const startIndex = (52 + weekOffset) * 7;
     return calendarDays.slice(startIndex, startIndex + 7);
   }, [calendarDays, weekOffset]);
 
@@ -212,7 +310,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                 variant="glass" 
                 size="sm"
                 onClick={() => animateWeekChange('prev')}
-                disabled={weekOffset <= -7 || isAnimating}
+                disabled={weekOffset <= -52 || isAnimating}
               />
               <Text weight="bold" className={cn(
                 "text-[14px] min-w-[180px] text-center",
@@ -225,7 +323,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                 variant="glass" 
                 size="sm"
                 onClick={() => animateWeekChange('next')}
-                disabled={weekOffset >= 7 || isAnimating}
+                disabled={weekOffset >= 52 || isAnimating}
               />
             </div>
           )}
@@ -245,10 +343,17 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
         <div className="md:left-[calc(50%-(50vw-140px))] md:w-[calc(100vw-280px)] md:max-w-none relative">
           <div 
             ref={scrollRef}
+            onMouseDown={onMouseDown}
+            onMouseLeave={onMouseUp}
+            onMouseUp={onMouseUp}
+            onMouseMove={onMouseMove}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
             className="flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[70vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none md:px-8 min-[1024px]:px-16"
             style={{ 
-              scrollSnapType: 'both proximity',
-              touchAction: 'none'
+              scrollSnapType: 'none', // Changed from 'both proximity' to 'none' for better manual drag feel
+              touchAction: 'pan-y' // Allow vertical scroll but handle horizontal drag
             }}
           >
             {calendarDays.map((day, idx) => (
@@ -279,12 +384,20 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                       )}>
                         {day.dayNumber}
                       </span>
-                      <span className={cn(
-                        "text-[14px] font-semibold uppercase",
-                        isDark ? "text-white/40" : "text-black/40"
-                      )}>
-                        {day.month}
-                      </span>
+                      <div className="flex flex-col -space-y-1">
+                        <span className={cn(
+                          "text-[12px] font-bold uppercase",
+                          isDark ? "text-white/40" : "text-black/40"
+                        )}>
+                          {day.month}
+                        </span>
+                        <span className={cn(
+                          "text-[10px] font-medium opacity-30",
+                          isDark ? "text-white" : "text-black"
+                        )}>
+                          {day.date.getFullYear()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   {day.totalMinutes > 0 && (

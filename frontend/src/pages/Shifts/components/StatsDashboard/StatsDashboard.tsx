@@ -112,7 +112,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className={cn(
-          "p-6 w-full min-w-0",
+          "p-6 w-full min-w-0 max-w-md",
           isDark ? "bg-white/5" : "bg-white"
         )}>
           <div className="flex justify-between items-start mb-4">
@@ -132,7 +132,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
         </Card>
 
         <Card className={cn(
-          "p-6",
+          "p-6 max-w-md",
           isDark ? "bg-white/5" : "bg-white"
         )}>
           <div className="flex justify-between items-start mb-4">
@@ -155,7 +155,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
         </Card>
 
         <Card className={cn(
-          "p-6 sm:col-span-2 md:col-span-1",
+          "p-6 sm:col-span-2 md:col-span-1 max-w-md",
           isDark ? "bg-white/5" : "bg-white"
         )}>
           <div className="flex justify-between items-start mb-4">
@@ -204,17 +204,17 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
           )}
         </div>
 
-        <Tabs value={viewMode} onChange={setViewMode} defaultValue="table" className="w-full md:w-auto">
-          <TabsList variant="glass" className="w-full md:w-auto">
-            <TabsTrigger value="table" className="flex-1 md:flex-none gap-2 px-6">
+        <Tabs value={viewMode} onChange={setViewMode} defaultValue="table" className="w-auto">
+          <TabsList variant="glass" className="w-auto">
+            <TabsTrigger value="table" className="flex items-center justify-center gap-2 px-6">
               <TableIcon size={16} />
               <span className="hidden sm:inline">Table</span>
             </TabsTrigger>
-            <TabsTrigger value="weekly" className="flex-1 md:flex-none gap-2 px-6">
+            <TabsTrigger value="weekly" className="flex items-center justify-center gap-2 px-6">
               <CalendarDays size={16} />
               <span className="hidden sm:inline">Weekly</span>
             </TabsTrigger>
-            <TabsTrigger value="monthly" className="flex-1 md:flex-none gap-2 px-6">
+            <TabsTrigger value="monthly" className="flex items-center justify-center gap-2 px-6">
               <Calendar size={16} />
               <span className="hidden sm:inline">Monthly</span>
             </TabsTrigger>

@@ -21,7 +21,7 @@ export function ActiveShiftClock() {
     }
 
     const updateTimer = () => {
-      setElapsedTime(formatDuration(activeShift.punch_in_at, false));
+      setElapsedTime(formatDuration(activeShift.punch_in_at, true));
     };
 
     // Use a small delay for the initial update if we are already punched in
