@@ -6,7 +6,7 @@ import type { Role } from '@/atoms/memberAtoms';
 interface RoleEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: { name: string; description: string; displayOrder: number; color: string; permissions: string }) => Promise<void>;
   role?: Role | null;
   currentUserPriority: number;
 }

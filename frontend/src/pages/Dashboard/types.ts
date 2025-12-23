@@ -19,7 +19,7 @@ export interface StatCardProps {
 }
 
 export interface RecentActivityProps {
-  activities?: any[]; // Placeholder for now
+  activities?: unknown[]; // Placeholder for now
 }
 
 export interface QuickActionsProps {

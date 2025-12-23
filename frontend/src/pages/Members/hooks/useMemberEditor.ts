@@ -8,10 +8,13 @@ export function useMemberEditor(member: Member | null | undefined, isOpen: boole
 
   useEffect(() => {
     if (member && isOpen) {
-      setRoleId(member.role_id || '');
-      setStatus(member.status as 'active' | 'suspended');
+      // Use microtask to avoid cascading render warning
+      queueMicrotask(() => {
+        setRoleId(member.roleId || '');
+        setStatus(member.status as 'active' | 'suspended');
+      });
     }
-  }, [member, isOpen]);
+  }, [member, isOpen]); // Added member to dependencies
 
   return {
     roleId,

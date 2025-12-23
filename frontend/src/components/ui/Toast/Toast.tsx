@@ -1,42 +1,9 @@
-import React, { useEffect, useState, createContext, useContext, useCallback, memo } from 'react';
+import React, { useEffect, useState, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
-
-/* =============================================================================
-   Toast Types
-   ============================================================================= */
-
-export type ToastType = 'info' | 'success' | 'warning' | 'error';
-
-export interface ToastData {
-  id: string;
-  type: ToastType;
-  title: string;
-  description?: string;
-  duration?: number;
-}
-
-interface ToastContextValue {
-  toasts: ToastData[];
-  addToast: (toast: Omit<ToastData, 'id'>) => void;
-  removeToast: (id: string) => void;
-}
-
-/* =============================================================================
-   Toast Context
-   ============================================================================= */
-
-const ToastContext = createContext<ToastContextValue | null>(null);
-
-export function useToast() {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-}
+import { ToastContext, type ToastData, type ToastType } from './ToastContext';
 
 /* =============================================================================
    Toast Provider
@@ -201,29 +168,3 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: ToastItemProps) {
    Convenience Functions
    ============================================================================= */
 
-export const toast = {
-  info: (title: string, description?: string, duration?: number) => ({
-    type: 'info' as const,
-    title,
-    description,
-    duration,
-  }),
-  success: (title: string, description?: string, duration?: number) => ({
-    type: 'success' as const,
-    title,
-    description,
-    duration,
-  }),
-  warning: (title: string, description?: string, duration?: number) => ({
-    type: 'warning' as const,
-    title,
-    description,
-    duration,
-  }),
-  error: (title: string, description?: string, duration?: number) => ({
-    type: 'error' as const,
-    title,
-    description,
-    duration,
-  }),
-};

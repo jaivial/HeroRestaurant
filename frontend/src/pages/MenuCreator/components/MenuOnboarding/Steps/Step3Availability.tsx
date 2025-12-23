@@ -61,7 +61,7 @@ export function Step3Availability() {
               </div>
               <div className="space-y-1">
                 <Text weight="semibold" className={cn("text-xl capitalize", isMealActive && (isDark ? "text-white" : "text-black"))}>{label}</Text>
-                <Text variant="footnote" color="secondary" className="text-base">Select days this menu is available for {label}</Text>
+                <Text variant="footnote" color="primary" className="text-base opacity-70">Select days this menu is available for {label}</Text>
               </div>
             </div>
             <Toggle checked={isMealActive} onChange={() => {}} className="pointer-events-none" />
@@ -102,7 +102,7 @@ export function Step3Availability() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
         <Heading level={2} className="text-3xl font-bold tracking-tight">Availability</Heading>
-        <Text color="secondary" className="text-lg">Configure when this menu is available to your customers.</Text>
+        <Text color="primary" className="text-lg opacity-80">Configure when this menu is available to your customers.</Text>
       </div>
 
       <div className="space-y-8">
@@ -117,7 +117,7 @@ export function Step3Availability() {
             <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth={2} strokeLinecap="round" />
           </svg>
         </div>
-        <Text variant="footnote" weight="medium" className={cn("text-base leading-relaxed", isDark ? "text-[#A1A1A6]" : "text-[#757575]")}>
+        <Text variant="footnote" weight="medium" color="primary" className="text-base leading-relaxed opacity-70">
           Note: Days marked as inactive are currently set as "Closed" in your restaurant settings.
         </Text>
       </div>

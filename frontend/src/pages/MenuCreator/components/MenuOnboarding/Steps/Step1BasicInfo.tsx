@@ -17,7 +17,7 @@ export function Step1BasicInfo() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
         <Heading level={2} className="text-3xl font-bold tracking-tight">General Information</Heading>
-        <Text color="secondary" className="text-lg">Start by giving your menu a name and selecting its type.</Text>
+        <Text color="primary" className="text-lg opacity-80">Start by giving your menu a name and selecting its type.</Text>
       </div>
 
       <div className="space-y-8">
@@ -55,7 +55,7 @@ export function Step1BasicInfo() {
                   </div>
                   <Text weight="semibold" className={cn("text-xl", menu?.type === 'fixed_price' && (isDark ? "text-white" : "text-black"))}>Fixed Price Menu</Text>
                 </div>
-                <Text variant="footnote" color="secondary" className="text-base leading-relaxed">
+                <Text variant="footnote" color="primary" className="text-base leading-relaxed opacity-70">
                   Customers pay a single price for a combination of dishes (e.g. 1 Appetizer + 1 Main + 1 Dessert).
                 </Text>
               </CardContent>
@@ -77,7 +77,7 @@ export function Step1BasicInfo() {
                   </div>
                   <Text weight="semibold" className={cn("text-xl", menu?.type === 'open_menu' && (isDark ? "text-white" : "text-black"))}>Open Menu (à la carte)</Text>
                 </div>
-                <Text variant="footnote" color="secondary" className="text-base leading-relaxed">
+                <Text variant="footnote" color="primary" className="text-base leading-relaxed opacity-70">
                   Each dish has its own price. Customers can choose as many dishes as they want.
                 </Text>
               </CardContent>

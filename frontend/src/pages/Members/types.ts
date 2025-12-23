@@ -1,8 +1,6 @@
 import type { Member, Role } from '@/atoms/memberAtoms';
 
-export interface MembersPageProps {
-  // Add props if needed
-}
+export type MembersPageProps = Record<string, never>;
 
 export type MembersTab = 'members' | 'roles';
 

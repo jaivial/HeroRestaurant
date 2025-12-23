@@ -38,6 +38,7 @@ export const SortableDish = memo(function SortableDish({
   } = useSortable({ id: dish.id });
 
   const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
   const supplementRef = useRef<HTMLDivElement>(null);
 
   const isFirstRender = useRef(true);
@@ -111,9 +112,12 @@ export const SortableDish = memo(function SortableDish({
           "group transition-all duration-500 border-2 rounded-[2.2rem] overflow-hidden relative",
           isDragging
             ? "shadow-apple-xl scale-[1.02] ring-2 ring-apple-blue/20 border-apple-blue"
-            : "border-apple-gray-400 dark:border-apple-gray-600 hover:shadow-apple-xl"
+            : cn(
+                "hover:shadow-apple-xl",
+                isDark ? "border-apple-gray-600" : "border-apple-gray-400"
+              )
         )}
-        style={{ backgroundColor: theme === 'dark' ? '#121212' : '#c7baaa' }}
+        style={{ backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF' }}
       >
         {/* Absolute Controls Wrapper */}
         <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
@@ -121,7 +125,10 @@ export const SortableDish = memo(function SortableDish({
           <div 
             {...attributes}
             {...listeners}
-            className="bg-apple-gray-100 dark:bg-apple-gray-800 p-2.5 rounded-xl border border-apple-gray-200 dark:border-apple-gray-700 cursor-grab active:cursor-grabbing text-content-primary hover:text-apple-blue transition-all hover:scale-105 shadow-sm"
+            className={cn(
+              "p-2.5 rounded-xl border cursor-grab active:cursor-grabbing text-content-primary hover:text-apple-blue transition-all hover:scale-105 shadow-sm",
+              isDark ? "bg-apple-gray-800 border-apple-gray-700" : "bg-apple-gray-100 border-apple-gray-200"
+            )}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="9" cy="8" r="1.5" />
@@ -134,7 +141,10 @@ export const SortableDish = memo(function SortableDish({
           </div>
 
           {/* Move Controls */}
-          <div className="flex items-center gap-1 bg-apple-gray-100 dark:bg-apple-gray-800 p-1.5 rounded-xl border border-apple-gray-200 dark:border-apple-gray-700 shadow-sm">
+          <div className={cn(
+            "flex items-center gap-1 p-1.5 rounded-xl border shadow-sm",
+            isDark ? "bg-apple-gray-800 border-apple-gray-700" : "bg-apple-gray-100 border-apple-gray-200"
+          )}>
             <IconButton
               icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 15l7-7 7 7" strokeWidth={3} /></svg>}
               size="sm"
@@ -161,19 +171,29 @@ export const SortableDish = memo(function SortableDish({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                   <Input
                     placeholder="Dish title"
-                    className="font-bold text-2xl h-14 px-6 rounded-2xl bg-surface-secondary border-2 border-apple-gray-300 dark:border-apple-gray-700 focus:border-apple-blue transition-all"
+                    className={cn(
+                      "font-bold text-2xl h-14 px-6 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all",
+                      isDark ? "border-apple-gray-700" : "border-apple-gray-300"
+                    )}
                     value={dish.title}
                     onChange={(e) => onUpdate(sectionId, dish.id, { title: e.target.value })}
                   />
                   <div className="flex items-center justify-end">
                     <div
-                      className="flex items-center gap-3 cursor-pointer bg-surface-secondary p-3 rounded-2xl border-2 border-apple-gray-300 dark:border-apple-gray-700"
+                      className={cn(
+                        "flex items-center gap-3 cursor-pointer bg-surface-secondary p-3 rounded-2xl border-2",
+                        isDark ? "border-apple-gray-700" : "border-apple-gray-300"
+                      )}
                       onClick={() => onUpdate(sectionId, dish.id, { hasSupplement: !dish.hasSupplement })}
                     >
                       <Text weight="bold" className="text-base">Supplement</Text>
                       <div className={cn(
                         "relative w-12 h-6 rounded-full transition-colors duration-300 border-2",
-                        dish.hasSupplement ? "bg-apple-blue border-apple-blue" : "bg-apple-gray-300 dark:bg-apple-gray-700 border-apple-gray-400 dark:border-apple-gray-600"
+                        dish.hasSupplement 
+                          ? "bg-apple-blue border-apple-blue" 
+                          : cn(
+                              isDark ? "bg-apple-gray-700 border-apple-gray-600" : "bg-apple-gray-300 border-apple-gray-400"
+                            )
                       )}>
                         <div className={cn(
                           "absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300",
@@ -206,7 +226,10 @@ export const SortableDish = memo(function SortableDish({
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300">
                     <Input
                       placeholder="Describe this delicious dish..."
-                      className="text-lg text-content-secondary h-14 px-6 rounded-2xl bg-surface-secondary border-2 border-apple-gray-300 dark:border-apple-gray-700 focus:border-apple-blue transition-all italic"
+                      className={cn(
+                      "text-lg h-14 px-6 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all italic",
+                      isDark ? "border-apple-gray-700 text-white/70" : "border-apple-gray-300 text-black/70"
+                    )}
                       value={dish.description || ''}
                       onChange={(e) => onUpdate(sectionId, dish.id, { description: e.target.value })}
                     />
@@ -214,7 +237,10 @@ export const SortableDish = memo(function SortableDish({
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-8 pt-2 border-t border-apple-gray-100 dark:border-apple-gray-800">
+              <div className={cn(
+                "flex flex-wrap items-center gap-8 pt-2 border-t",
+                isDark ? "border-apple-gray-800" : "border-apple-gray-100"
+              )}>
                 <div className="flex items-center gap-6">
                   <div className="relative group/avatar">
                     <div
@@ -231,7 +257,10 @@ export const SortableDish = memo(function SortableDish({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-xl font-semibold text-content-secondary select-none">
+                        <span className={cn(
+                          "text-xl font-semibold select-none",
+                          isDark ? "text-white/70" : "text-black/70"
+                        )}>
                           {dish.title ? dish.title.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : '?'}
                         </span>
                       )}
@@ -291,23 +320,34 @@ export const SortableDish = memo(function SortableDish({
                   />
                 </div>
 
-                <div className="flex-1 flex items-center justify-end gap-4">
+                  <div className="flex-1 flex items-center justify-end gap-4">
                   <div className="flex flex-wrap items-center gap-2">
                     {dish.allergens.length > 0 ? (
                       dish.allergens.map(aId => {
                         const allergen = ALLERGENS.find(a => a.id === aId);
                         return (
-                          <div key={aId} className="w-11 h-11 rounded-full bg-surface-primary border-2 border-apple-gray-200 flex items-center justify-center text-xl shadow-apple-sm" title={allergen?.name}>
+                          <div key={aId} className={cn(
+                            "w-11 h-11 rounded-full border-2 flex items-center justify-center text-xl shadow-apple-sm",
+                            isDark ? "bg-surface-primary border-apple-gray-700" : "bg-surface-primary border-apple-gray-200"
+                          )} title={allergen?.name}>
                             {allergen?.icon}
                           </div>
                         );
                       })
                     ) : (
-                      <div className="flex items-center gap-2 bg-info-bg-red-light dark:bg-info-bg-red-dark px-4 py-2 rounded-full border-2 border-info-border-red-light dark:border-info-border-red-dark">
-                        <svg className="w-5 h-5 text-info-text-red-light dark:text-info-text-red-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full border-2",
+                        isDark 
+                          ? "bg-info-bg-red-dark border-info-border-red-dark" 
+                          : "bg-info-bg-red-light border-info-border-red-light"
+                      )}>
+                        <svg className={cn(
+                          "w-5 h-5",
+                          isDark ? "text-info-text-red-dark" : "text-info-text-red-light"
+                        )} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeWidth={2} strokeLinecap="round" />
                         </svg>
-                        <Text variant="caption2" weight="bold" className="text-info-text-red-light dark:text-info-text-red-dark">No allergens selected</Text>
+                        <Text variant="caption2" weight="bold" className={isDark ? "text-info-text-red-dark" : "text-info-text-red-light"}>No allergens selected</Text>
                       </div>
                     )}
                   </div>
@@ -318,8 +358,11 @@ export const SortableDish = memo(function SortableDish({
                       "rounded-full px-6 h-11 font-bold transition-all border-2",
                       dish.allergens.length === 0
                         ? "bg-apple-red text-white hover:bg-apple-red-hover shadow-apple-md"
-                        : "border-apple-gray-300 dark:border-apple-gray-700 hover:border-apple-blue hover:text-apple-blue",
-                      dish.allergens.length === 0 && theme === 'light' && "text-black"
+                        : cn(
+                            "hover:border-apple-blue hover:text-apple-blue",
+                            isDark ? "border-apple-gray-700" : "border-apple-gray-300"
+                          ),
+                      dish.allergens.length === 0 && !isDark && "text-black"
                     )}
                     onClick={() => onEditAllergens(sectionId, dish)}
                   >

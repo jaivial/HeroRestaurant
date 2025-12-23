@@ -77,7 +77,7 @@ export function Members() {
         <Tabs
           defaultValue={activeTab}
           value={activeTab}
-          onChange={(id) => setActiveTab(id as any)}
+          onChange={(id) => setActiveTab(id as 'members' | 'roles')}
         >
           <TabsList variant="glass" className="min-w-[240px]">
             {tabs.map(tab => (
@@ -128,7 +128,10 @@ export function Members() {
         isOpen={isMemberEditorOpen}
         onClose={closeMemberEditor}
         onSave={async (memberId, data) => {
-          await updateMember(memberId, data);
+          await updateMember(memberId, {
+            roleId: data.roleId || undefined,
+            status: data.status
+          });
         }}
         member={selectedMember}
         roles={roles}

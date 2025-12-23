@@ -18,6 +18,7 @@ import { Heading, Text } from '../../../../../components/ui/Text/Text';
 import { Button } from '../../../../../components/ui/Button/Button';
 import { SortableDish } from './ui/SortableDish';
 import { AllergenModal } from './ui/AllergenModal';
+import type { Dish } from '../../../types';
 
 export function Step4Dishes() {
   // ✅ Layer 2: Business logic in custom hook
@@ -47,7 +48,7 @@ export function Step4Dishes() {
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
         <Heading level={2} className="text-3xl font-bold tracking-tight">Dishes</Heading>
-        <Text color="secondary" className="text-lg">Add dishes to each section and configure their details.</Text>
+        <Text color="primary" className="text-lg opacity-80">Add dishes to each section and configure their details.</Text>
       </div>
 
       <div className="space-y-16">
@@ -76,7 +77,7 @@ export function Step4Dishes() {
               <div className="grid grid-cols-1 gap-6">
                 {section.dishes.length === 0 ? (
                   <div className="p-12 text-center bg-surface-secondary/50 rounded-[2.2rem] border-2 border-dashed">
-                    <Text color="secondary" className="text-lg">No dishes in this section yet.</Text>
+                    <Text color="primary" className="text-lg opacity-70">No dishes in this section yet.</Text>
                   </div>
                 ) : (
                   <SortableContext
@@ -93,7 +94,7 @@ export function Step4Dishes() {
                         onUpdate={updateDish}
                         onRemove={removeDish}
                         onMove={moveDish}
-                        onEditAllergens={(sId: string, d: any) => {
+                        onEditAllergens={(sId: string, d: Dish) => {
                           setEditingDishInfo({ sectionId: sId, dishId: d.id });
                           setShowAllergenModal(true);
                         }}

@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { themeAtom, toggleThemeAtom } from '@/atoms/themeAtoms';
 import { useAuth } from '@/hooks/useAuth';

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { membersAtom, membersLoadingAtom } from '@/atoms/memberAtoms';
+import { membersAtom, membersLoadingAtom, type Member } from '@/atoms/memberAtoms';
 import { useWSRequest, useWSMutation } from '@/hooks/useWSRequest';
 import { useParams } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ export function useMembers() {
   const [members, setMembers] = useAtom(membersAtom);
   const [isLoading, setIsLoading] = useAtom(membersLoadingAtom);
   
-  const { execute: fetchMembersRequest } = useWSRequest<any, { members: any[] }>('member', 'list');
+  const { execute: fetchMembersRequest } = useWSRequest<{ restaurantId: string }, { members: Member[] }>('member', 'list');
   const { mutate: inviteMemberMutation } = useWSMutation('member', 'invite');
   const { mutate: updateMemberMutation } = useWSMutation('member', 'update');
   const { mutate: removeMemberMutation } = useWSMutation('member', 'remove');

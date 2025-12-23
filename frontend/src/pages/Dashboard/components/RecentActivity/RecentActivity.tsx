@@ -1,9 +1,8 @@
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '@/utils/cn';
-import type { RecentActivityProps } from '../../types';
 
-export function RecentActivity({ activities }: RecentActivityProps) {
+export function RecentActivity() {
   const theme = useAtomValue(themeAtom);
   const isDark = theme === 'dark';
 

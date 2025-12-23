@@ -2,6 +2,8 @@
 import { memo, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '../../../../../../atoms/themeAtoms';
 import { Card } from '../../../../../../components/ui/Card/Card';
 import { Input } from '../../../../../../components/ui/Input/Input';
 import { IconButton } from '../../../../../../components/ui/IconButton/IconButton';
@@ -26,6 +28,9 @@ export const SortableSection = memo(function SortableSection({
     isDragging,
   } = useSortable({ id: section.id });
 
+  const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -39,11 +44,17 @@ export const SortableSection = memo(function SortableSection({
           "group overflow-hidden transition-all duration-300 border-2 rounded-[2.2rem]",
           isDragging 
             ? "shadow-apple-xl scale-[1.02] ring-2 ring-apple-blue/20 border-apple-blue bg-surface-primary" 
-            : "border-apple-gray-100 dark:border-apple-gray-800 bg-surface-primary hover:border-apple-blue/30 hover:shadow-apple-md"
+            : cn(
+                "bg-surface-primary hover:border-apple-blue/30 hover:shadow-apple-md",
+                isDark ? "border-apple-gray-800" : "border-apple-gray-100"
+              )
         )}
       >
         <div className="flex items-center gap-6 p-6">
-          <div className="flex items-center gap-2 bg-apple-gray-50 dark:bg-apple-gray-900/50 p-2.5 rounded-[1.2rem] border border-apple-gray-100 dark:border-apple-gray-800">
+          <div className={cn(
+            "flex items-center gap-2 p-2.5 rounded-[1.2rem] border",
+            isDark ? "bg-apple-gray-900/50 border-apple-gray-800" : "bg-apple-gray-50 border-apple-gray-100"
+          )}>
             <div 
               {...attributes} 
               {...listeners}
@@ -82,7 +93,12 @@ export const SortableSection = memo(function SortableSection({
             <Input 
               ref={inputRef}
               variant="ghost" 
-              wrapperClassName="group/input-wrap rounded-2xl transition-all duration-300 hover:bg-apple-gray-100 dark:hover:bg-apple-gray-800 focus-within:bg-apple-gray-100 dark:focus-within:bg-apple-gray-800 focus-within:ring-4 focus-within:ring-apple-blue/15"
+              wrapperClassName={cn(
+                "group/input-wrap rounded-2xl transition-all duration-300 focus-within:ring-4 focus-within:ring-apple-blue/15",
+                isDark 
+                  ? "hover:bg-apple-gray-800 focus-within:bg-apple-gray-800" 
+                  : "hover:bg-apple-gray-100 focus-within:bg-apple-gray-100"
+              )}
               className={cn(
                 "font-bold text-2xl h-auto border-none placeholder:text-apple-gray-300 cursor-text w-full bg-transparent"
               )}

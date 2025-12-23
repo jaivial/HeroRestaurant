@@ -1,4 +1,5 @@
 // src/pages/MenuCreator/components/MenuOnboarding/MenuOnboarding.tsx
+import { Button } from '@/components/ui/Button/Button';
 import { OnboardingHeader } from './ui/OnboardingHeader';
 import { OnboardingFooter } from './ui/OnboardingFooter';
 import { Step1BasicInfo } from './Steps/Step1BasicInfo';
@@ -23,9 +24,23 @@ export function MenuOnboarding({ step, onCancel, onNext, onBack, isValid }: Menu
 
   return (
     <div className="max-w-[95%] xl:max-w-[1400px] mx-auto py-4 px-4">
+      {/* External Cancel Button */}
+      <div className="flex justify-start mb-6 px-4">
+        <Button 
+          variant="ghost" 
+          onClick={onCancel}
+          className="rounded-full hover:bg-surface-secondary text-content-primary font-bold h-12 px-6"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path d="M6 18L18 6M6 6l12 12" strokeWidth={2.5} strokeLinecap="round" />
+          </svg>
+          Cancel
+        </Button>
+      </div>
+
       <div className="bg-surface-primary backdrop-blur-md rounded-[2.2rem] border-2 border-apple-gray-100 shadow-apple-float overflow-hidden">
         {/* Header (Layer 3) */}
-        <OnboardingHeader step={step} onCancel={onCancel} />
+        <OnboardingHeader step={step} />
 
         {/* Step Content */}
         <div className="p-6 md:p-10 pt-0 min-h-[500px]">

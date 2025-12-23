@@ -47,7 +47,10 @@ export const CustomToggle: React.FC<CustomToggleProps> = ({
           {label}
         </span>
         {description && (
-          <span className="text-base text-content-secondary">
+          <span className={cn(
+            "text-base transition-colors duration-300",
+            isDark ? "text-white/70" : "text-black/70"
+          )}>
             {description}
           </span>
         )}

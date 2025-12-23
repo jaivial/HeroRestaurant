@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef, memo } from 'react';
+import React, { forwardRef, useEffect, useRef, memo, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
@@ -43,7 +43,7 @@ export const Textarea = memo(
       const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
       const hasError = Boolean(error);
 
-      const adjustHeight = () => {
+      const adjustHeight = useCallback(() => {
         const textarea = textareaRef.current;
         if (!textarea || !autoResize) return;
 
@@ -58,11 +58,11 @@ export const Textarea = memo(
 
         const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
         textarea.style.height = `${newHeight}px`;
-      };
+      }, [autoResize, minRows, maxRows, textareaRef]);
 
       useEffect(() => {
         adjustHeight();
-      }, [props.value, autoResize]);
+      }, [props.value, adjustHeight]);
 
       const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         onChange?.(e);

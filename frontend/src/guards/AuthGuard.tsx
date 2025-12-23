@@ -26,8 +26,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     if (!token) {
       console.log('[AuthGuard] No session token found - redirecting to login');
-      setAuthStatus('unauthenticated');
-      setIsValidating(false);
+      // Use microtask to avoid cascading render warning
+      Promise.resolve().then(() => {
+        setAuthStatus('unauthenticated');
+        setIsValidating(false);
+      });
       return;
     }
 
@@ -61,8 +64,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   // Validate session on mount and when location changes
   useEffect(() => {
-    setIsValidating(true);
-    validateSession();
+    queueMicrotask(() => {
+      validateSession();
+    });
   }, [validateSession, location.pathname]);
 
   // Redirect to login if unauthenticated

@@ -14,13 +14,13 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
   const theme = useAtomValue(themeAtom);
 
   const formatDate = (value: unknown) => {
-    const d = new Date(value as any);
+    const d = new Date(value as string | number | Date);
     if (Number.isNaN(d.getTime())) return '—';
     return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(d);
   };
 
   const formatDateTime = (value: unknown) => {
-    const d = new Date(value as any);
+    const d = new Date(value as string | number | Date);
     if (Number.isNaN(d.getTime())) return '—';
     return new Intl.DateTimeFormat(undefined, {
       year: 'numeric',
@@ -31,9 +31,6 @@ export function MemberDetailModal({ isOpen, onClose, member }: MemberDetailModal
     }).format(d);
   };
 
-  // #region agent log
-  fetch('http://127.0.0.1:7245/ingest/827a7c12-9c88-49e1-8128-1dae51d828e7',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MemberDetailModal.tsx:13',message:'MemberDetailModal render',data:{isOpen, hasMember:!!member, memberId:member?.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'D/E'})}).catch(()=>{});
-  // #endregion
   if (!member) return null;
 
   const surfaceCard = cn(

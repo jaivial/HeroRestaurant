@@ -14,7 +14,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '../../../../../atoms/themeAtoms';
 import { useStep2Structure } from '../../../hooks/useStep2Structure';
+import { cn } from '@/utils/cn';
 import { Heading, Text, Label } from '../../../../../components/ui/Text/Text';
 import { Card, CardContent } from '../../../../../components/ui/Card/Card';
 import { Button } from '../../../../../components/ui/Button/Button';
@@ -34,6 +37,9 @@ export function Step2Structure() {
     updateInclusions,
   } = useStep2Structure();
 
+  const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
+
   const [newSectionName, setNewSectionName] = useState('');
 
   const sensors = useSensors(
@@ -51,7 +57,7 @@ export function Step2Structure() {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
         <Heading level={2} className="text-3xl font-bold tracking-tight">Menu Structure</Heading>
-        <Text color="secondary" className="text-lg">Define the sections of your menu and what's included.</Text>
+        <Text color="primary" className="text-lg opacity-80">Define the sections of your menu and what's included.</Text>
       </div>
 
       <Card className="border-2 border-apple-gray-100 bg-surface-primary rounded-[2.2rem] shadow-sm">
@@ -77,7 +83,10 @@ export function Step2Structure() {
             <div className="w-2.5 h-10 bg-apple-blue rounded-full shadow-[0_0_15px_rgba(0,122,255,0.3)]" />
             <Label className="text-3xl font-bold tracking-tight">Menu Sections</Label>
           </div>
-          <div className="px-5 py-2 bg-apple-gray-100 dark:bg-apple-gray-800 rounded-full border border-apple-gray-200 dark:border-apple-gray-700 shadow-sm">
+          <div className={cn(
+            "px-5 py-2 rounded-full border shadow-sm",
+            isDark ? "bg-apple-gray-800 border-apple-gray-700" : "bg-apple-gray-100 border-apple-gray-200"
+          )}>
             <Text variant="footnote" color="tertiary" className="text-base font-bold">{menu?.sections?.length || 0} sections</Text>
           </div>
         </div>
@@ -107,13 +116,19 @@ export function Step2Structure() {
           </div>
         </DndContext>
 
-        <div className="flex gap-6 p-6 bg-surface-primary/50 rounded-[2.2rem] border-2 border-dashed border-apple-gray-200 dark:border-apple-gray-800 mt-12 shadow-sm transition-all hover:border-apple-blue/40 hover:bg-surface-primary group/add">
+        <div className={cn(
+          "flex gap-6 p-6 rounded-[2.2rem] border-2 border-dashed mt-12 shadow-sm transition-all hover:border-apple-blue/40 group/add",
+          isDark ? "bg-surface-primary/50 border-apple-gray-800 hover:bg-surface-primary" : "bg-surface-primary/50 border-apple-gray-200 hover:bg-surface-primary"
+        )}>
           <Input 
             placeholder="Add new section (e.g. Salads, To share...)" 
             value={newSectionName}
             onChange={(e) => setNewSectionName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddSection()}
-            className="bg-transparent border-none focus:ring-0 text-2xl font-bold h-16 px-4 placeholder:text-apple-gray-300 dark:placeholder:text-apple-gray-600"
+            className={cn(
+              "bg-transparent border-none focus:ring-0 text-2xl font-bold h-16 px-4",
+              isDark ? "placeholder:text-apple-gray-600" : "placeholder:text-apple-gray-300"
+            )}
           />
           <Button 
             onClick={handleAddSection} 

@@ -11,16 +11,19 @@ export function useStep2Structure() {
 
   useEffect(() => {
     if (menu && (!menu.sections || menu.sections.length === 0)) {
-      setMenu(prev => ({
-        ...prev!,
-        sections: [
-          { id: crypto.randomUUID(), name: 'Appetizers', displayOrder: 0, dishes: [] },
-          { id: crypto.randomUUID(), name: 'Main Course', displayOrder: 1, dishes: [] },
-          { id: crypto.randomUUID(), name: 'Desserts', displayOrder: 2, dishes: [] },
-        ]
-      }));
+      setMenu(prev => {
+        if (!prev || (prev.sections && prev.sections.length > 0)) return prev;
+        return {
+          ...prev,
+          sections: [
+            { id: crypto.randomUUID(), name: 'Appetizers', displayOrder: 0, dishes: [] },
+            { id: crypto.randomUUID(), name: 'Main Course', displayOrder: 1, dishes: [] },
+            { id: crypto.randomUUID(), name: 'Desserts', displayOrder: 2, dishes: [] },
+          ]
+        };
+      });
     }
-  }, [menu?.sections?.length, setMenu]);
+  }, [menu, setMenu]);
 
   const addSection = useCallback((name: string) => {
     if (!name.trim()) return;
@@ -44,13 +47,15 @@ export function useStep2Structure() {
   }, [setMenu]);
 
   const moveSection = useCallback((index: number, direction: 'up' | 'down') => {
-    if (!menu?.sections) return;
-    const newSections = [...menu.sections];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newSections.length) return;
-    [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
-    setMenu(prev => ({ ...prev!, sections: newSections.map((s, i) => ({ ...s, displayOrder: i })) }));
-  }, [menu?.sections, setMenu]);
+    setMenu(prev => {
+      if (!prev?.sections) return prev;
+      const newSections = [...prev.sections];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= newSections.length) return prev;
+      [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+      return { ...prev, sections: newSections.map((s, i) => ({ ...s, displayOrder: i })) };
+    });
+  }, [setMenu]);
 
   const updateSectionName = useCallback((id: string, name: string) => {
     setMenu(prev => ({

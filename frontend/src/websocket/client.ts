@@ -346,8 +346,8 @@ class WebSocketClient {
         if (response.success) {
           request.resolve(response.data);
         } else {
-          const error = new Error(response.error?.message || 'Request failed');
-          (error as any).code = response.error?.code;
+          const error = new Error(response.error?.message || 'Request failed') as Error & { code?: string };
+          error.code = response.error?.code;
           request.reject(error);
         }
         return;

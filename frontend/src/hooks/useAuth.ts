@@ -95,7 +95,7 @@ export function useAuth() {
           permissions: BigInt(targetWorkspace.accessFlags),
         });
         setPermissions(BigInt(targetWorkspace.accessFlags));
-        setPriority((targetWorkspace as any).rolePriority || 0);
+        setPriority((targetWorkspace as RestaurantMinimalDTO & { rolePriority?: number }).rolePriority || 0);
       }
 
       // Connect WebSocket with the session token

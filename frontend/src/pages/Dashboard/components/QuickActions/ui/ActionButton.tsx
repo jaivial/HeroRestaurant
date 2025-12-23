@@ -44,7 +44,7 @@ export function ActionButton({ label, icon, color, onClick }: ActionButtonProps)
   );
 }
 
-interface SvgProps extends React.SVGProps<SVGSVGElement> {}
+type SvgProps = React.SVGProps<SVGSVGElement>;
 
 export const IconPlus = (props: SvgProps) => (
   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>

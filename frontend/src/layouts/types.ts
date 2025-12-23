@@ -1,5 +1,3 @@
-import type { PERMISSIONS } from '@/utils/permissions';
-
 export interface NavItem {
   label: string;
   path: string;
@@ -7,7 +5,7 @@ export interface NavItem {
   permission?: bigint;
 }
 
-export interface SidebarProps {}
+export type SidebarProps = Record<string, never>;
 
 export interface SidebarData {
   sidebarOpen: boolean;

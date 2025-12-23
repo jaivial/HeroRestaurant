@@ -5,7 +5,7 @@ import type { Member, Role } from '@/atoms/memberAtoms';
 interface MemberEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (memberId: string, data: any) => Promise<void>;
+  onSave: (memberId: string, data: { roleId: string | null; status: string }) => Promise<void>;
   member: Member | null;
   roles: Role[];
   currentUserPriority: number;

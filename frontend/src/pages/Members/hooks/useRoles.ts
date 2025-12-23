@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useAtom } from 'jotai';
-import { rolesAtom, rolesLoadingAtom } from '@/atoms/memberAtoms';
+import { rolesAtom, rolesLoadingAtom, type Role } from '@/atoms/memberAtoms';
 import { useWSRequest, useWSMutation } from '@/hooks/useWSRequest';
 import { useParams } from 'react-router-dom';
 
@@ -9,7 +9,7 @@ export function useRoles() {
   const [roles, setRoles] = useAtom(rolesAtom);
   const [isLoading, setIsLoading] = useAtom(rolesLoadingAtom);
   
-  const { execute: fetchRolesRequest } = useWSRequest<any, { roles: any[] }>('role', 'list');
+  const { execute: fetchRolesRequest } = useWSRequest<{ restaurantId: string }, { roles: Role[] }>('role', 'list');
   const { mutate: createRoleMutation } = useWSMutation('role', 'create');
   const { mutate: updateRoleMutation } = useWSMutation('role', 'update');
   const { mutate: deleteRoleMutation } = useWSMutation('role', 'delete');

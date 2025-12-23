@@ -1,7 +1,9 @@
 // src/pages/MenuCreator/components/MenuOnboarding/ui/OnboardingFooter.tsx
 import { memo } from 'react';
-import { Button } from '../../../../../components/ui/Button/Button';
-import { cn } from '../../../../../utils/cn';
+import { useAtomValue } from 'jotai';
+import { themeAtom } from '@/atoms/themeAtoms';
+import { Button } from '@/components/ui/Button/Button';
+import { cn } from '@/utils/cn';
 import type { OnboardingStep } from '../../../types';
 
 interface OnboardingFooterProps {
@@ -12,6 +14,9 @@ interface OnboardingFooterProps {
 }
 
 export const OnboardingFooter = memo(function OnboardingFooter({ step, onNext, onBack, isValid }: OnboardingFooterProps) {
+  const theme = useAtomValue(themeAtom);
+  const isDark = theme === 'dark';
+
   return (
     <div className="flex items-center justify-between p-8 md:p-12 pt-12 border-t bg-surface-secondary">
       <Button 
@@ -33,7 +38,12 @@ export const OnboardingFooter = memo(function OnboardingFooter({ step, onNext, o
           "rounded-full h-14 px-12 text-lg font-bold transition-all shadow-apple-md hover:scale-105 active:scale-95",
           step === 5 
             ? "bg-apple-green hover:bg-apple-green-hover text-white" 
-            : "bg-black dark:bg-white text-white dark:text-black hover:bg-apple-gray-800 dark:hover:bg-apple-gray-100"
+            : cn(
+                "text-lg font-bold transition-all",
+                isDark 
+                  ? "bg-white text-black hover:bg-apple-gray-100" 
+                  : "bg-black text-white hover:bg-apple-gray-800"
+              )
         )}
       >
         {step === 5 ? 'Create Menu' : 'Continue'}

@@ -57,7 +57,7 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
   const finishOnboarding = useCallback(async () => {
     if (!menu || !workspaceId) return;
     try {
-      const createdMenu = await wsClient.request<any>('menu', 'create', {
+      const createdMenu = await wsClient.request<Menu>('menu', 'create', {
         title: menu.title,
         type: menu.type,
         price: menu.price || 0,
@@ -69,7 +69,7 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
 
       if (menu.sections) {
         for (const section of menu.sections) {
-          const createdSection = await wsClient.request<any>('section', 'create', {
+          const createdSection = await wsClient.request<{ id: string }>('section', 'create', {
             menuId: createdMenu.id,
             menuType: menu.type === 'fixed_price' ? 'fixed' : 'open',
             name: section.name,

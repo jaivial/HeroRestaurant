@@ -13,7 +13,8 @@ export { Textarea } from './Textarea/Textarea';
 
 // Feedback Components
 export { Modal, ModalFooter } from './Modal/Modal';
-export { ToastProvider, useToast, toast } from './Toast/Toast';
+export { ToastProvider } from './Toast/Toast';
+export { useToast, toast } from './Toast/ToastContext';
 export { Alert } from './Alert/Alert';
 export { Skeleton, SkeletonCard, SkeletonAvatar, SkeletonTable } from './Skeleton/Skeleton';
 export { Progress, CircularProgress, Spinner } from './Progress/Progress';
