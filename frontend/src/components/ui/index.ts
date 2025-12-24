@@ -26,3 +26,4 @@ export { Avatar, AvatarGroup } from './Avatar/Avatar';
 export { IconButton } from './IconButton/IconButton';
 export { Divider } from './Divider/Divider';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs/Tabs';
+export { Tooltip } from './Tooltip/Tooltip';

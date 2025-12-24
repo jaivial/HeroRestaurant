@@ -29,6 +29,15 @@ export function Step3Availability() {
   const theme = useAtomValue(themeAtom);
   const isDark = theme === 'dark';
 
+  const getSelectedDaysSummary = (selectedIds: string[]) => {
+    if (selectedIds.length === 0) return 'No days selected';
+    if (selectedIds.length === 7) return 'Every day';
+    return DAYS
+      .filter(d => selectedIds.includes(d.id))
+      .map(d => d.label)
+      .join(', ');
+  };
+
   const renderSchedule = (meal: 'breakfast' | 'lunch' | 'dinner', label: string) => {
     const isMealOpen = settings?.mealSchedules?.[meal] ?? true;
     if (!isMealOpen) return null;
@@ -39,16 +48,16 @@ export function Step3Availability() {
     return (
       <Card 
         className={cn(
-          "transition-all duration-500 border-2 p-2 rounded-[2.2rem]",
+          "transition-all duration-500 border-2 p-2 rounded-[2.2rem] cursor-pointer",
           isMealActive 
             ? isDark ? "border-apple-blue bg-[#252525] shadow-apple-xl" : "border-black bg-black/5 shadow-apple-xl"
             : isDark ? "border-[#616161] bg-[#000000] hover:border-[#9E9E9E] hover:bg-[#252525]" : "border-[#BDBDBD] bg-[#FFFFFF] hover:border-black/30 hover:bg-[#F2F2F7]"
         )}
+        onClick={() => toggleMealCompletely(meal, !isMealActive)}
       >
         <CardContent className="p-6 space-y-6">
           <div 
-            className="flex items-center justify-between p-4 rounded-2xl transition-colors cursor-pointer group"
-            onClick={() => toggleMealCompletely(meal, !isMealActive)}
+            className="flex items-center justify-between p-4 rounded-2xl transition-colors group"
           >
             <div className="flex items-center gap-4">
               <div className={cn(
@@ -68,29 +77,52 @@ export function Step3Availability() {
           </div>
 
           {isMealActive && (
-            <div className="flex flex-wrap gap-3 px-4 animate-in fade-in slide-in-from-top-2 duration-300">
-              {DAYS.map((day) => {
-                const isRestaurantOpen = settings?.openingDays?.includes(day.id) ?? true;
-                const isSelected = selectedDays.includes(day.id);
-                
-                return (
-                  <button
-                    key={day.id}
-                    onClick={() => toggleDay(meal, day.id)}
-                    disabled={!isRestaurantOpen}
-                    type="button"
-                    className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 border-2",
-                      isSelected 
-                        ? isDark ? "bg-black border-[#616161] text-white shadow-apple-md scale-105 hover:border-[#9E9E9E]" : "bg-black border-black text-white shadow-apple-md scale-105 hover:bg-apple-gray-800"
-                        : isDark ? "bg-white/80 border-[#616161] text-black/90 hover:border-[#9E9E9E] hover:bg-white hover:text-black hover:scale-105 shadow-sm" : "bg-[#F5F5F7] border-[#BDBDBD] text-[#757575] hover:border-black hover:bg-[#E5E5EA] hover:text-black hover:scale-105 shadow-sm",
-                      !isRestaurantOpen && (isDark ? "opacity-30 cursor-not-allowed grayscale border-[#2C2C2E] bg-[#161617]" : "opacity-30 cursor-not-allowed grayscale border-[#E5E5EA] bg-[#F5F5F7] hover:scale-100 hover:border-[#E5E5EA] hover:bg-[#F5F5F7]")
-                    )}
-                  >
-                    <Text weight="bold" variant="subheadline" className={cn("text-lg", isSelected ? "text-white" : "")}>{day.label}</Text>
-                  </button>
-                );
-              })}
+            <div className="px-4 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "py-1.5 px-4 rounded-full border shadow-sm",
+                  isDark ? "bg-apple-blue/10 border-apple-blue/20" : "bg-black/5 border-black/10"
+                )}>
+                  <Text variant="footnote" weight="bold" className={cn("tracking-wide uppercase text-[10px]", isDark ? "text-apple-blue" : "text-black")}>
+                    Selected: {getSelectedDaysSummary(selectedDays)}
+                  </Text>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+                {DAYS.map((day) => {
+                  const isRestaurantOpen = settings?.openingDays?.includes(day.id) ?? true;
+                  const isSelected = selectedDays.includes(day.id);
+                  
+                  return (
+                    <button
+                      key={day.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleDay(meal, day.id);
+                      }}
+                      disabled={!isRestaurantOpen}
+                      type="button"
+                      className={cn(
+                        "relative group/day w-full aspect-square rounded-[1.2rem] flex flex-col items-center justify-center transition-all duration-300 border-2 overflow-hidden",
+                        isSelected 
+                          ? isDark ? "bg-apple-blue border-apple-blue text-white shadow-apple-md scale-105" : "bg-black border-black text-white shadow-apple-md scale-105"
+                          : isDark ? "bg-white/5 border-[#424245] text-white/60 hover:border-[#616161] hover:bg-white/10 hover:text-white hover:scale-105" : "bg-[#F5F5F7] border-[#E5E5EA] text-[#757575] hover:border-black/20 hover:bg-[#E5E5EA] hover:text-black hover:scale-105",
+                        !isRestaurantOpen && (isDark ? "opacity-20 cursor-not-allowed grayscale border-[#2C2C2E] bg-[#161617]" : "opacity-30 cursor-not-allowed grayscale border-[#E5E5EA] bg-[#F5F5F7] hover:scale-100")
+                      )}
+                    >
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 animate-in zoom-in duration-300">
+                          <svg className="w-3.5 h-3.5 text-white drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                      <Text weight="bold" variant="subheadline" className={cn("text-base transition-transform group-hover/day:scale-110", isSelected ? "text-white" : "")}>{day.label}</Text>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </CardContent>

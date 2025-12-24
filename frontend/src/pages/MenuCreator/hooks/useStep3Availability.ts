@@ -27,11 +27,16 @@ export function useStep3Availability() {
     setMenu(prev => {
       if (!prev) return prev;
       const availability = prev.availability || { breakfast: [], lunch: [], dinner: [] };
+      
+      // Default to all days if openingDays is missing
+      const defaultDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+      const targetDays = enabled ? (settings?.openingDays || defaultDays) : [];
+      
       return {
         ...prev,
         availability: {
           ...availability,
-          [meal]: enabled ? (settings?.openingDays || []) : []
+          [meal]: targetDays
         }
       };
     });

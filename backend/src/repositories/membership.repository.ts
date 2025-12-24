@@ -36,7 +36,7 @@ export class MembershipRepository {
         'memberships.created_at',
         'memberships.updated_at',
         'memberships.deleted_at',
-        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${1n << 27n} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
+        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${sql.raw((1n << 27n).toString())} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
       ])
       .where('memberships.user_id', '=', userId)
       .where('memberships.restaurant_id', '=', restaurantId)
@@ -60,7 +60,7 @@ export class MembershipRepository {
         'memberships.status',
         'memberships.joined_at',
         'memberships.last_active_at',
-        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${1n << 27n} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
+        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${sql.raw((1n << 27n).toString())} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
       ])
       .where('memberships.user_id', '=', userId)
       .where('memberships.deleted_at', 'is', null)
@@ -88,7 +88,7 @@ export class MembershipRepository {
         'users.avatar_url as user_avatar_url',
         'roles.name as role_name',
         'roles.color as role_color',
-        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${1n << 27n} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
+        sql<number>`GREATEST(COALESCE(roles.display_order, 0), CASE WHEN memberships.access_flags & ${sql.raw((1n << 27n).toString())} != 0 THEN 100 ELSE 0 END)`.as('role_priority')
       ])
       .where('memberships.restaurant_id', '=', restaurantId)
       .where('memberships.deleted_at', 'is', null)

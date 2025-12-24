@@ -5,6 +5,19 @@ import { CSS } from '@dnd-kit/utilities';
 import { useAtomValue } from 'jotai';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { 
+  MoreVertical, 
+  Image as ImageIcon, 
+  FileText, 
+  DollarSign, 
+  Maximize2,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  GripVertical,
+  Plus,
+  AlertTriangle
+} from 'lucide-react';
 import { themeAtom } from '../../../../../../atoms/themeAtoms';
 import { Card, CardContent } from '../../../../../../components/ui/Card/Card';
 import { Button } from '../../../../../../components/ui/Button/Button';
@@ -12,6 +25,9 @@ import { Input } from '../../../../../../components/ui/Input/Input';
 import { IconButton } from '../../../../../../components/ui/IconButton/IconButton';
 import { Toggle } from '../../../../../../components/ui/Toggle/Toggle';
 import { Text } from '../../../../../../components/ui/Text/Text';
+import { Textarea } from '../../../../../../components/ui/Textarea/Textarea';
+import { Tooltip } from '../../../../../../components/ui/Tooltip/Tooltip';
+import { Badge } from '../../../../../../components/ui/Badge/Badge';
 import { cn } from '../../../../../../utils/cn';
 import { ALLERGENS } from '../../../../types';
 import type { SortableDishProps } from '../../../../types';
@@ -126,18 +142,11 @@ export const SortableDish = memo(function SortableDish({
             {...attributes}
             {...listeners}
             className={cn(
-              "p-2.5 rounded-xl border cursor-grab active:cursor-grabbing text-content-primary hover:text-apple-blue transition-all hover:scale-105 shadow-sm",
+              "p-2.5 rounded-xl border cursor-grab active:cursor-grabbing text-content-primary hover:text-apple-blue transition-all hover:scale-105 shadow-sm flex items-center justify-center",
               isDark ? "bg-apple-gray-800 border-apple-gray-700" : "bg-apple-gray-100 border-apple-gray-200"
             )}
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="9" cy="8" r="1.5" />
-              <circle cx="15" cy="8" r="1.5" />
-              <circle cx="9" cy="12" r="1.5" />
-              <circle cx="15" cy="12" r="1.5" />
-              <circle cx="9" cy="16" r="1.5" />
-              <circle cx="15" cy="16" r="1.5" />
-            </svg>
+            <GripVertical size={20} />
           </div>
 
           {/* Move Controls */}
@@ -146,90 +155,175 @@ export const SortableDish = memo(function SortableDish({
             isDark ? "bg-apple-gray-800 border-apple-gray-700" : "bg-apple-gray-100 border-apple-gray-200"
           )}>
             <IconButton
-              icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M5 15l7-7 7 7" strokeWidth={3} /></svg>}
+              icon={<ChevronUp size={16} strokeWidth={3} />}
               size="sm"
               variant="ghost"
-              className="h-7 w-7 hover:bg-apple-blue/10 hover:text-apple-blue"
+              className="h-7 w-7 hover:bg-apple-blue/10 hover:text-apple-blue flex items-center justify-center"
               onClick={() => onMove(sectionId, index, 'up')}
               disabled={index === 0}
             />
             <IconButton
-              icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 9l-7 7-7-7" strokeWidth={3} /></svg>}
+              icon={<ChevronDown size={16} strokeWidth={3} />}
               size="sm"
               variant="ghost"
-              className="h-7 w-7 hover:bg-apple-blue/10 hover:text-apple-blue"
+              className="h-7 w-7 hover:bg-apple-blue/10 hover:text-apple-blue flex items-center justify-center"
               onClick={() => onMove(sectionId, index, 'down')}
               disabled={index === total - 1}
             />
           </div>
         </div>
 
+        {/* Top Right Controls (Tooltip + Delete) */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-2">
+          <Tooltip 
+            openOnClick 
+            position="bottom"
+            className="w-72"
+            trigger={
+              <IconButton
+                icon={<MoreVertical size={20} strokeWidth={2.5} />}
+                variant="gray"
+                size="sm"
+                className="hover:bg-apple-blue/10 hover:text-apple-blue border-none shadow-apple-sm flex items-center justify-center"
+              />
+            }
+          >
+            <div className="flex flex-col gap-5">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <Text weight="bold" variant="caption2" className="opacity-50 uppercase tracking-widest text-[10px]">Dish Options</Text>
+                <div className="w-1.5 h-1.5 rounded-full bg-apple-blue shadow-[0_0_8px_rgba(10,132,255,0.5)]" />
+              </div>
+
+              <div className="space-y-1">
+                {[
+                  { label: 'Show Image', key: 'showImage', icon: <ImageIcon size={18} /> },
+                  { label: 'Show Description', key: 'showDescription', icon: <FileText size={18} /> },
+                  { label: 'Has Supplement', key: 'hasSupplement', icon: <DollarSign size={18} /> },
+                  { label: 'Modal View', key: 'openModal', icon: <Maximize2 size={18} /> }
+                ].map((item) => (
+                  <div 
+                    key={item.key}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-xl transition-all duration-200 cursor-pointer group/item",
+                      isDark ? "hover:bg-white/5" : "hover:bg-black/5"
+                    )}
+                    onClick={() => onUpdate(sectionId, dish.id, { [item.key]: !dish[item.key as keyof typeof dish] })}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={cn(
+                        "transition-transform group-hover/item:scale-110",
+                        isDark ? "text-white/60 group-hover/item:text-apple-blue" : "text-black/60 group-hover/item:text-apple-blue"
+                      )}>
+                        {item.icon}
+                      </span>
+                      <Text weight="semibold" className="text-[15px]">{item.label}</Text>
+                    </div>
+                    <div className={cn(
+                      "relative w-10 h-5 rounded-full transition-all duration-300 border-2",
+                      dish[item.key as keyof typeof dish]
+                        ? "bg-apple-blue border-apple-blue shadow-[0_0_10px_rgba(10,132,255,0.3)]"
+                        : isDark ? "bg-white/10 border-white/10" : "bg-black/10 border-black/10"
+                    )}>
+                      <div className={cn(
+                        "absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform duration-300 shadow-sm",
+                        dish[item.key as keyof typeof dish] ? "translate-x-5" : "translate-x-0"
+                      )} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Tooltip>
+
+          <IconButton
+            icon={<Trash2 size={20} />}
+            variant="ghost"
+            className="text-apple-red opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-apple-red/10 flex items-center justify-center"
+            onClick={() => onRemove(sectionId, dish.id)}
+          />
+        </div>
+
         <CardContent className="p-8 pt-20">
-          <div className="flex items-center gap-6">
-            <div className="flex-1 space-y-6">
+          <div className="flex flex-col md:flex-row items-start gap-8">
+            {/* Left: Image (if enabled and set) */}
+            {dish.showImage && (
+              <div className="relative group/avatar shrink-0 self-center md:self-stretch">
+                <div
+                  className={cn(
+                    "cursor-pointer transition-all duration-300 hover:scale-105 ring-4 ring-transparent hover:ring-apple-blue/20 border-2 border-apple-gray-200 rounded-[2.2rem] w-32 md:w-40 h-32 md:h-full min-h-[160px] overflow-hidden bg-surface-tertiary flex items-center justify-center",
+                    uploadingDishId === dish.id && "opacity-50"
+                  )}
+                  onClick={() => document.getElementById(`file-input-${dish.id}`)?.click()}
+                >
+                  {dish.imageUrl ? (
+                    <img
+                      src={dish.imageUrl}
+                      alt={dish.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 p-4 text-center">
+                      <ImageIcon className={cn("w-8 h-8", isDark ? "text-white/40" : "text-black/40")} />
+                      <Text variant="caption2" className="opacity-40 font-semibold">Click to upload photo</Text>
+                    </div>
+                  )}
+                </div>
+                {uploadingDishId === dish.id && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-6 h-6 border-3 border-apple-blue border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                <input
+                  id={`file-input-${dish.id}`}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onImageUpload(sectionId, dish.id, file);
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="flex-1 w-full space-y-6">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <Input
                     placeholder="Dish title"
                     className={cn(
-                      "font-bold text-2xl h-14 px-6 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all",
+                      "flex-1 font-bold text-2xl h-14 px-6 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all",
                       isDark ? "border-apple-gray-700" : "border-apple-gray-300"
                     )}
                     value={dish.title}
                     onChange={(e) => onUpdate(sectionId, dish.id, { title: e.target.value })}
                   />
-                  <div className="flex items-center justify-end">
-                    <div
-                      className={cn(
-                        "flex items-center gap-3 cursor-pointer bg-surface-secondary p-3 rounded-2xl border-2",
-                        isDark ? "border-apple-gray-700" : "border-apple-gray-300"
-                      )}
-                      onClick={() => onUpdate(sectionId, dish.id, { hasSupplement: !dish.hasSupplement })}
-                    >
-                      <Text weight="bold" className="text-base">Supplement</Text>
-                      <div className={cn(
-                        "relative w-12 h-6 rounded-full transition-colors duration-300 border-2",
-                        dish.hasSupplement 
-                          ? "bg-apple-blue border-apple-blue" 
-                          : cn(
-                              isDark ? "bg-apple-gray-700 border-apple-gray-600" : "bg-apple-gray-300 border-apple-gray-400"
-                            )
-                      )}>
-                        <div className={cn(
-                          "absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300",
-                          dish.hasSupplement ? "translate-x-6" : "translate-x-0"
-                        )} />
-                      </div>
-                    </div>
+                  
+                  {dish.hasSupplement && (
                     <div 
                       ref={supplementRef}
-                      className="relative whitespace-nowrap"
-                      style={{ 
-                        opacity: 0, // Initial state, GSAP will take over
-                        overflow: 'hidden',
-                        display: 'none' // Default to none, GSAP set will fix on mount
-                      }}
+                      className="relative whitespace-nowrap animate-in slide-in-from-right-4 duration-500"
                     >
                       <Input
                         type="number"
                         placeholder="0.00"
-                        className="w-32 h-12 pl-10 rounded-2xl bg-surface-primary border-2 border-apple-blue"
+                        className="w-full sm:w-32 h-14 pl-10 rounded-2xl bg-surface-primary border-2 border-apple-blue font-bold text-lg"
                         value={dish.supplementPrice ?? 0}
                         onChange={(e) => onUpdate(sectionId, dish.id, { supplementPrice: parseFloat(e.target.value) || 0 })}
                       />
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-apple-blue font-bold text-lg">+</span>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {dish.showDescription && (
                   <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <Input
+                    <Textarea
                       placeholder="Describe this delicious dish..."
                       className={cn(
-                      "text-lg h-14 px-6 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all italic",
-                      isDark ? "border-apple-gray-700 text-white/70" : "border-apple-gray-300 text-black/70"
-                    )}
+                        "text-lg min-h-[80px] px-6 py-4 rounded-2xl bg-surface-secondary border-2 focus:border-apple-blue transition-all italic resize-none",
+                        isDark ? "border-apple-gray-700 text-white/70" : "border-apple-gray-300 text-black/70"
+                      )}
                       value={dish.description || ''}
                       onChange={(e) => onUpdate(sectionId, dish.id, { description: e.target.value })}
                     />
@@ -238,96 +332,18 @@ export const SortableDish = memo(function SortableDish({
               </div>
 
               <div className={cn(
-                "flex flex-wrap items-center gap-8 pt-2 border-t",
+                "flex flex-wrap items-center justify-between gap-6 pt-6 border-t",
                 isDark ? "border-apple-gray-800" : "border-apple-gray-100"
               )}>
-                <div className="flex items-center gap-6">
-                  <div className="relative group/avatar">
-                    <div
-                      className={cn(
-                        "cursor-pointer transition-all duration-300 hover:scale-105 ring-4 ring-transparent hover:ring-apple-blue/20 border-2 border-apple-gray-200 rounded-[2.2rem] w-24 h-24 overflow-hidden bg-surface-tertiary flex items-center justify-center",
-                        uploadingDishId === dish.id && "opacity-50"
-                      )}
-                      onClick={() => document.getElementById(`file-input-${dish.id}`)?.click()}
-                    >
-                      {dish.imageUrl ? (
-                        <img
-                          src={dish.imageUrl}
-                          alt={dish.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className={cn(
-                          "text-xl font-semibold select-none",
-                          isDark ? "text-white/70" : "text-black/70"
-                        )}>
-                          {dish.title ? dish.title.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : '?'}
-                        </span>
-                      )}
-                    </div>
-                    {uploadingDishId === dish.id && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-6 h-6 border-3 border-apple-blue border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                    <input
-                      id={`file-input-${dish.id}`}
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) onImageUpload(sectionId, dish.id, file);
-                      }}
-                    />
-                    <div className="absolute -bottom-1 -right-1 bg-apple-blue text-white rounded-full p-2 shadow-apple-md opacity-100 transition-opacity">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path d="M12 4v16m8-8H4" strokeWidth={3} strokeLinecap="round" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="rounded-full px-4 h-9 text-xs font-bold"
-                      onClick={() => document.getElementById(`file-input-${dish.id}`)?.click()}
-                    >
-                      Upload Image
-                    </Button>
-                    <Toggle
-                      size="sm"
-                      label="Show Image"
-                      checked={dish.showImage}
-                      onChange={(checked) => onUpdate(sectionId, dish.id, { showImage: checked })}
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-4">
-                  <Toggle
-                    size="sm"
-                    label="Description"
-                    checked={dish.showDescription}
-                    onChange={(checked) => onUpdate(sectionId, dish.id, { showDescription: checked })}
-                  />
-                  
-                  <Toggle
-                    size="sm"
-                    label="Modal View"
-                    checked={dish.openModal}
-                    onChange={(checked) => onUpdate(sectionId, dish.id, { openModal: checked })}
-                  />
-                </div>
-
-                  <div className="flex-1 flex items-center justify-end gap-4">
+                <div className="flex items-center gap-3">
+                  <Text weight="bold" variant="caption2" className="opacity-50 uppercase tracking-wider">Allergens</Text>
                   <div className="flex flex-wrap items-center gap-2">
                     {dish.allergens.length > 0 ? (
                       dish.allergens.map(aId => {
                         const allergen = ALLERGENS.find(a => a.id === aId);
                         return (
                           <div key={aId} className={cn(
-                            "w-11 h-11 rounded-full border-2 flex items-center justify-center text-xl shadow-apple-sm",
+                            "w-10 h-10 rounded-full border flex items-center justify-center text-lg shadow-apple-sm transition-transform hover:scale-110",
                             isDark ? "bg-surface-primary border-apple-gray-700" : "bg-surface-primary border-apple-gray-200"
                           )} title={allergen?.name}>
                             {allergen?.icon}
@@ -335,53 +351,34 @@ export const SortableDish = memo(function SortableDish({
                         );
                       })
                     ) : (
-                      <div className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full border-2",
-                        isDark 
-                          ? "bg-info-bg-red-dark border-info-border-red-dark" 
-                          : "bg-info-bg-red-light border-info-border-red-light"
-                      )}>
-                        <svg className={cn(
-                          "w-5 h-5",
-                          isDark ? "text-info-text-red-dark" : "text-info-text-red-light"
-                        )} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" strokeWidth={2} strokeLinecap="round" />
-                        </svg>
-                        <Text variant="caption2" weight="bold" className={isDark ? "text-info-text-red-dark" : "text-info-text-red-light"}>No allergens selected</Text>
-                      </div>
+                      <Badge variant="error" size="sm" icon={<AlertTriangle size={12} />} dot>No allergens</Badge>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    variant={dish.allergens.length === 0 ? 'danger' : 'secondary'}
-                    className={cn(
-                      "rounded-full px-6 h-11 font-bold transition-all border-2",
-                      dish.allergens.length === 0
-                        ? "bg-apple-red text-white hover:bg-apple-red-hover shadow-apple-md"
-                        : cn(
-                            "hover:border-apple-blue hover:text-apple-blue",
-                            isDark ? "border-apple-gray-700" : "border-apple-gray-300"
-                          ),
-                      dish.allergens.length === 0 && !isDark && "text-black"
-                    )}
-                    onClick={() => onEditAllergens(sectionId, dish)}
-                  >
-                    {dish.allergens.length === 0 ? 'Select Allergens' : 'Edit Allergens'}
-                  </Button>
                 </div>
+                
+                <Button
+                  size="sm"
+                  variant={dish.allergens.length === 0 ? 'danger' : 'secondary'}
+                  className={cn(
+                    "rounded-full px-6 h-11 font-bold transition-all border-2",
+                    dish.allergens.length === 0
+                      ? "bg-apple-red text-white hover:bg-apple-red-hover shadow-apple-md"
+                      : cn(
+                          "hover:border-apple-blue hover:text-apple-blue",
+                          isDark ? "border-apple-gray-700" : "border-apple-gray-300"
+                        ),
+                    dish.allergens.length === 0 && !isDark && "text-black"
+                  )}
+                  onClick={() => onEditAllergens(sectionId, dish)}
+                >
+                  <Plus size={18} className="mr-2" />
+                  {dish.allergens.length === 0 ? 'Select Allergens' : 'Edit Allergens'}
+                </Button>
               </div>
             </div>
-
-            <IconButton
-              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h14" strokeWidth={2} /></svg>}
-              variant="ghost"
-              className="text-apple-red opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-apple-red/10 mt-2"
-              onClick={() => onRemove(sectionId, dish.id)}
-            />
           </div>
         </CardContent>
       </Card>
     </div>
   );
 });
-

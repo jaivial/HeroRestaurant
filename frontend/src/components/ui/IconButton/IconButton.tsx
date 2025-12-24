@@ -93,7 +93,7 @@ export const IconButton = memo(function IconButton({
           />
         </svg>
       ) : (
-        <span className={iconSizeClasses[size]}>{icon}</span>
+        <span className={cn(iconSizeClasses[size], "flex items-center justify-center")}>{icon}</span>
       )}
     </button>
   );

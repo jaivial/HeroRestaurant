@@ -92,11 +92,17 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
   })
 
   .post('/login', async ({ body, headers }) => {
+    console.log('[LOGIN] Request received for:', body.email);
     const ip = headers['x-forwarded-for']?.toString() || headers['x-real-ip']?.toString();
+    
+    console.log('[LOGIN] Calling AuthService.login...');
     const { user, sessionId, session } = await AuthService.login(body, ip);
+    console.log('[LOGIN] AuthService.login success, user:', user.id);
 
     // Get user's restaurants
+    console.log('[LOGIN] Fetching user restaurants...');
     const restaurants = await getUserRestaurants(user.id);
+    console.log('[LOGIN] Found restaurants:', restaurants.length);
 
     return {
       success: true,
