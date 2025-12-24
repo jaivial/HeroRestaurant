@@ -87,6 +87,8 @@ export class ScheduledShiftRepository {
         'scheduled_shifts.start_at',
         'scheduled_shifts.end_at',
         'scheduled_shifts.notes',
+        'scheduled_shifts.color',
+        'scheduled_shifts.label',
         'users.name as member_name',
         'users.email as member_email'
       ])

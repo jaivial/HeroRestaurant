@@ -312,6 +312,8 @@ export interface ScheduledShiftsTable {
   start_at: Date;
   end_at: Date;
   notes: string | null;
+  color: string | null;
+  label: string | null;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
 }
