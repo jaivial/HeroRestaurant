@@ -1,66 +1,46 @@
 // frontend/src/pages/Shifts/components/ShiftAssignment/ShiftAssignment.tsx
 
-import { useMemo, useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Input,
   Select, 
-  Heading, 
-  Text,
   Card,
-  Spinner
+  Spinner,
+  Text,
+  Heading
 } from '@/components/ui';
 import type { ShiftAssignmentProps } from '../../types';
 import { useShiftAssignment } from '../../hooks/useShiftAssignment';
 import { useTeamShifts } from '../../hooks/useTeamShifts';
+import { useShiftAssignmentFilters } from '../../hooks/useShiftAssignmentFilters';
 import { Search, UserX } from 'lucide-react';
-import { AssignShiftModal } from './ui/AssignShiftModal';
-import { MemberCard } from './ui/MemberCard';
-import { MemberShiftOverview } from './ui/MemberShiftOverview';
+import { AssignShiftModal } from '../AssignShiftModal/AssignShiftModal';
+import { MemberCard } from '../MemberCard/MemberCard';
+import { MemberShiftOverview } from '../MemberShiftOverview/MemberShiftOverview';
 
 export function ShiftAssignment({ restaurantId }: ShiftAssignmentProps) {
   const { assignShift } = useShiftAssignment(restaurantId);
   const { members, isLoading } = useTeamShifts(restaurantId);
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [punchFilter, setPunchFilter] = useState('all');
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const {
+    searchTerm,
+    setSearchTerm,
+    roleFilter,
+    setRoleFilter,
+    punchFilter,
+    setPunchFilter,
+    selectedMemberId,
+    setSelectedMemberId,
+    filteredMembers,
+    selectedMember,
+    roles
+  } = useShiftAssignmentFilters(members);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Auto-select first member if none selected
-  useEffect(() => {
-    if (!selectedMemberId && members.length > 0) {
-      const firstId = members[0].id;
-      // Use requestAnimationFrame to avoid cascading renders
-      requestAnimationFrame(() => setSelectedMemberId(firstId));
-    }
-  }, [members, selectedMemberId]);
-
-  const filteredMembers = useMemo(() => {
-    return members.filter(m => {
-      const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           m.email.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesRole = roleFilter === 'all' || m.role_name === roleFilter;
-      const matchesPunch = punchFilter === 'all' || 
-                          (punchFilter === 'in' ? !!m.active_punch_in_at : !m.active_punch_in_at);
-      
-      return matchesSearch && matchesRole && matchesPunch;
-    });
-  }, [members, searchTerm, roleFilter, punchFilter]);
-
-  const selectedMember = useMemo(() => 
-    members.find(m => m.id === selectedMemberId), 
-  [members, selectedMemberId]);
-
-  const roles = useMemo(() => {
-    const uniqueRoles = Array.from(new Set(members.map(m => m.role_name).filter(Boolean)));
-    return [{ label: 'All Roles', value: 'all' }, ...uniqueRoles.map(r => ({ label: r as string, value: r as string }))];
-  }, [members]);
 
   return (
     <div className="flex flex-col h-full space-y-6">
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Left Side: Member List */}
         <div className="w-full md:w-[380px] flex flex-col gap-4">
           <Card className="p-4 flex flex-col gap-4">
             <div className="relative">
@@ -104,19 +84,19 @@ export function ShiftAssignment({ restaurantId }: ShiftAssignmentProps) {
                 <Text>No members found</Text>
               </div>
             ) : (
-              filteredMembers.map(member => (
+              filteredMembers.map((member, idx) => (
                 <MemberCard 
                   key={member.id}
                   member={member}
                   isSelected={selectedMemberId === member.id}
                   onClick={() => setSelectedMemberId(member.id)}
+                  index={idx}
                 />
               ))
             )}
           </div>
         </div>
 
-        {/* Right Side: Member Detail & Shifts */}
         <div className="flex-1 min-w-0">
           <Card className="p-8 h-full overflow-hidden">
             {selectedMember ? (

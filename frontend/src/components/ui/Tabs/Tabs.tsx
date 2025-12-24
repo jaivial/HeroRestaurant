@@ -3,6 +3,16 @@ import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
+const noScrollbarStyle = `
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
 /* =============================================================================
    Tabs Context
    ============================================================================= */
@@ -59,6 +69,7 @@ export const Tabs = memo(function Tabs({
 
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      <style>{noScrollbarStyle}</style>
       <div className={className} style={style}>{children}</div>
     </TabsContext.Provider>
   );
@@ -91,8 +102,15 @@ export const TabsList = memo(function TabsList({ children, className = '', style
       const buttonRect = activeButton.getBoundingClientRect();
 
       setIndicatorStyle({
-        left: buttonRect.left - listRect.left,
+        left: (buttonRect.left - listRect.left) + listRef.current.scrollLeft,
         width: buttonRect.width,
+      });
+
+      // Scroll active tab into view
+      activeButton.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
       });
     }
   }, [activeTab]);
@@ -103,7 +121,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
         ref={listRef}
         style={style}
         className={cn(
-          'relative inline-flex p-1 rounded-[1.2rem] overflow-hidden border backdrop-blur-[20px] saturate-[180%]',
+          'relative inline-flex p-1 rounded-[1.2rem] overflow-x-auto overflow-y-hidden border backdrop-blur-[20px] saturate-[180%] max-w-full no-scrollbar',
           theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/5',
           className
         )}
@@ -127,7 +145,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
         ref={listRef}
         style={style}
         className={cn(
-          'relative flex border-b',
+          'relative flex border-b overflow-x-auto overflow-y-hidden max-w-full no-scrollbar',
           theme === 'dark' ? 'border-white/10' : 'border-black/5',
           className
         )}
@@ -150,7 +168,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
       <div
         ref={listRef}
         style={style}
-        className={cn('flex gap-2', className)}
+        className={cn('flex gap-2 overflow-x-auto overflow-y-hidden max-w-full no-scrollbar', className)}
         role="tablist"
       >
         {children}
@@ -164,7 +182,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
       ref={listRef}
       style={style}
       className={cn(
-        'relative inline-flex p-1 rounded-[1rem] transition-colors',
+        'relative inline-flex p-1 rounded-[1rem] transition-colors overflow-x-auto overflow-y-hidden max-w-full no-scrollbar',
         theme === 'dark' ? 'bg-white/5' : 'bg-black/5',
         className
       )}
@@ -216,7 +234,7 @@ export const TabsTrigger = memo(function TabsTrigger({
       disabled={disabled}
       onClick={() => setActiveTab(value)}
       className={cn(
-        'relative z-10 px-6 py-2 text-[15px] font-semibold rounded-[0.8rem] transition-all duration-200 focus:outline-none',
+        'relative z-10 px-6 py-2 text-[15px] font-semibold rounded-[0.8rem] transition-all duration-200 focus:outline-none whitespace-nowrap flex-shrink-0',
         'disabled:opacity-30 disabled:cursor-not-allowed',
         isActive
           ? (theme === 'dark' ? 'text-white' : 'text-black')

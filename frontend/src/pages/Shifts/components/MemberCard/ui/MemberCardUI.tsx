@@ -1,59 +1,33 @@
-import { memo, useState, useEffect } from 'react';
-import { useAtomValue } from 'jotai';
-import { themeAtom } from '@/atoms/themeAtoms';
+// frontend/src/pages/Shifts/components/MemberCard/ui/MemberCardUI.tsx
+
+import { memo } from 'react';
 import { Text, Badge } from '@/components/ui';
-import type { MemberShiftSummary } from '../../../types';
 import { cn } from '@/utils/cn';
 import { User, Clock } from 'lucide-react';
+import type { MemberShiftSummary } from '../../../types';
 
-interface MemberCardProps {
+interface MemberCardUIProps {
   member: MemberShiftSummary;
   isSelected: boolean;
+  isDark: boolean;
+  isPunchedIn: boolean;
+  duration?: string;
   onClick: () => void;
+  cardRef: React.RefObject<HTMLDivElement>;
 }
 
-function useTimer(startTime: string) {
-  const [duration, setDuration] = useState('');
-  
-  useEffect(() => {
-    const update = () => {
-      const start = new Date(startTime).getTime();
-      const now = new Date().getTime();
-      const diff = Math.max(0, now - start);
-      
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      setDuration(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
-    };
-    
-    update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  
-  return duration;
-}
-
-function RealTimeTracker({ punchInAt }: { punchInAt: string }) {
-  const duration = useTimer(punchInAt);
-  return (
-    <div className="flex items-center gap-1.5 text-apple-blue font-medium animate-pulse">
-      <Clock size={12} />
-      <span>{duration}</span>
-    </div>
-  );
-}
-
-export const MemberCard = memo(function MemberCard({ member, isSelected, onClick }: MemberCardProps) {
-  const theme = useAtomValue(themeAtom);
-  const isDark = theme === 'dark';
-
-  const isPunchedIn = !!member.active_punch_in_at;
-
+export const MemberCardUI = memo(function MemberCardUI({ 
+  member, 
+  isSelected, 
+  isDark, 
+  isPunchedIn, 
+  duration, 
+  onClick,
+  cardRef
+}: MemberCardUIProps) {
   return (
     <div 
+      ref={cardRef}
       onClick={onClick}
       className={cn(
         "p-4 rounded-[1.5rem] cursor-pointer transition-all duration-200 border",
@@ -93,9 +67,12 @@ export const MemberCard = memo(function MemberCard({ member, isSelected, onClick
             )}
           </div>
 
-          {isPunchedIn && member.active_punch_in_at && (
+          {isPunchedIn && duration && (
             <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
-              <RealTimeTracker punchInAt={member.active_punch_in_at} />
+              <div className="flex items-center gap-1.5 text-apple-blue font-medium animate-pulse">
+                <Clock size={12} />
+                <span>{duration}</span>
+              </div>
             </div>
           )}
         </div>

@@ -264,5 +264,51 @@ export const shiftHandlers = {
       };
     }
   },
+
+  /**
+   * Update a scheduled shift (Admin only)
+   */
+  async updateScheduledShift(ws: WSConnection, payload: any): HandlerResult {
+    const { userId } = ws.data;
+    if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
+
+    const { restaurantId, shiftId, shiftData } = payload;
+
+    try {
+      // Check permission
+      const membership = await MembershipService.getMembership(userId, restaurantId);
+      if (!membership || !PermissionService.hasMemberPermission(membership.access_flags, MEMBER_FLAGS.CAN_MANAGE_MEMBERS)) {
+        return {
+          error: {
+            code: 'FORBIDDEN',
+            message: 'You do not have permission to update scheduled shifts',
+          },
+        };
+      }
+
+      const shift = await ScheduledShiftService.updateShift(userId, restaurantId, shiftId, {
+        ...shiftData,
+        start_at: shiftData.start_at ? new Date(shiftData.start_at) : undefined,
+        end_at: shiftData.end_at ? new Date(shiftData.end_at) : undefined,
+      });
+
+      // Broadcast update
+      const event = createEvent('shift', 'scheduled_updated', {
+        shiftId,
+        action: 'updated',
+      }, { restaurantId });
+
+      connectionManager.broadcastToRestaurant(restaurantId, event);
+
+      return { data: { shift } };
+    } catch (error: any) {
+      return {
+        error: {
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'Failed to update scheduled shift',
+        },
+      };
+    }
+  },
 };
 

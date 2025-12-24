@@ -38,7 +38,9 @@ export function useTeamShifts(restaurantId: string) {
 
     const unsubscribe = wsClient.onMessage((event) => {
       if ((event.category as string) === 'shift' && event.event === 'status_updated') {
-        fetchTeamStats();
+        if (event.restaurantId === restaurantId) {
+          fetchTeamStats();
+        }
       }
     });
 

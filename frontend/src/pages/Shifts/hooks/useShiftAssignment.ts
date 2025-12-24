@@ -63,6 +63,23 @@ export function useShiftAssignment(restaurantId: string) {
     }
   }, [isConnected, restaurantId]);
 
+  const updateShift = useCallback(async (shiftId: string, shiftData: NewScheduledShift) => {
+    if (!isConnected || !restaurantId) return;
+
+    try {
+      const response = await wsClient.request<any>('shift' as WSMessageCategory, 'update_scheduled', { 
+        restaurantId,
+        shiftId,
+        shiftData
+      });
+      setShifts(prev => prev.map(s => s.id === shiftId ? response.shift : s));
+      return response.shift;
+    } catch (error) {
+      console.error('Failed to update shift:', error);
+      throw error;
+    }
+  }, [isConnected, restaurantId]);
+
   useEffect(() => {
     fetchScheduledShifts();
   }, [fetchScheduledShifts]);
@@ -87,6 +104,7 @@ export function useShiftAssignment(restaurantId: string) {
     setDateRange,
     assignShift,
     removeShift,
+    updateShift,
     refresh: fetchScheduledShifts,
   };
 }

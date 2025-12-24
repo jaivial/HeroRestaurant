@@ -1,75 +1,55 @@
-import { Modal, Text, Badge, DataTable, Button, ModalFooter, Tabs, TabsList, TabsTrigger, TabsContent, Select, Input, Heading } from '@/components/ui';
-import type { Column } from '@/components/ui';
-import { useMemberShiftDetail } from '../../../hooks/useMemberShiftDetail';
-import type { ShiftHistoryItem, ShiftPeriod } from '../../../types';
-import { Clock, Briefcase, Activity, Calendar, List, BarChart3, Filter, Search } from 'lucide-react';
-import { safeParseDate, formatMinutes, formatTime } from '@/utils/time';
-import { useAtomValue } from 'jotai';
-import { useState, useMemo } from 'react';
-import { timeFormatAtom } from '@/atoms/shiftAtoms';
-import { themeAtom } from '@/atoms/themeAtoms';
-import { cn } from '@/utils/cn';
+// frontend/src/pages/Shifts/components/TeamStats/ui/MemberDetailModalUI.tsx
 
-interface MemberDetailModalProps {
-  memberId: string;
+import { memo } from 'react';
+import { 
+  Modal, 
+  Text, 
+  Badge, 
+  DataTable, 
+  Button, 
+  ModalFooter, 
+  Tabs, 
+  TabsList, 
+  TabsTrigger, 
+  TabsContent, 
+  Select, 
+  Input, 
+  Heading 
+} from '@/components/ui';
+import { Clock, Briefcase, Activity, Calendar, List, BarChart3, Filter, Search } from 'lucide-react';
+import { cn } from '@/utils/cn';
+import type { ShiftHistoryItem, ShiftPeriod } from '../../../types';
+import type { Column } from '@/components/ui';
+
+interface MemberDetailModalUIProps {
   onClose: () => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  period: ShiftPeriod;
+  setPeriod: (period: ShiftPeriod) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  isLoading: boolean;
+  data: any;
+  isDark: boolean;
+  filteredHistory: ShiftHistoryItem[];
+  historyColumns: Column<ShiftHistoryItem>[];
 }
 
-export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps) {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [period, setPeriod] = useState<ShiftPeriod>('monthly');
-  const [searchQuery, setSearchQuery] = useState('');
-  const { data, isLoading } = useMemberShiftDetail(memberId);
-  const timeFormat = useAtomValue(timeFormatAtom);
-  const theme = useAtomValue(themeAtom);
-  const use24h = timeFormat === '24h';
-  const isDark = theme === 'dark';
-
-  const filteredHistory = useMemo(() => {
-    if (!data?.history) return [];
-    let filtered = data.history;
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(s => 
-        safeParseDate(s.punchInAt).toLocaleDateString().toLowerCase().includes(query) ||
-        (s.totalMinutes && formatMinutes(s.totalMinutes).includes(query))
-      );
-    }
-    
-    return filtered;
-  }, [data?.history, searchQuery]);
-
-  const historyColumns: Column<ShiftHistoryItem>[] = [
-    {
-      header: 'Date',
-      key: 'punchInAt',
-      render: (s) => (
-        <div className="flex items-center gap-2">
-          <Calendar size={14} className="opacity-40" />
-          <span>{safeParseDate(s.punchInAt).toLocaleDateString()}</span>
-        </div>
-      )
-    },
-    {
-      header: 'Punch In',
-      key: 'punchInAtTime',
-      render: (s) => formatTime(s.punchInAt, use24h)
-    },
-    {
-      header: 'Punch Out',
-      key: 'punchOutAt',
-      render: (s) => s.punchOutAt 
-        ? formatTime(s.punchOutAt, use24h)
-        : <Badge variant="info" size="sm">Active</Badge>
-    },
-    {
-      header: 'Total',
-      key: 'totalMinutes',
-      render: (s) => s.totalMinutes ? `${formatMinutes(s.totalMinutes)}h` : '-'
-    }
-  ];
-
+export const MemberDetailModalUI = memo(function MemberDetailModalUI({
+  onClose,
+  activeTab,
+  setActiveTab,
+  period,
+  setPeriod,
+  searchQuery,
+  setSearchQuery,
+  isLoading,
+  data,
+  isDark,
+  filteredHistory,
+  historyColumns
+}: MemberDetailModalUIProps) {
   return (
     <Modal
       isOpen={true}
@@ -256,5 +236,4 @@ export function MemberDetailModal({ memberId, onClose }: MemberDetailModalProps)
       </ModalFooter>
     </Modal>
   );
-}
-
+});

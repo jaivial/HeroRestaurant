@@ -108,7 +108,7 @@ export const Text = memo(function Text({
     tertiary: theme === 'dark' ? 'text-white/45' : 'text-black/55',
     quaternary: theme === 'dark' ? 'text-white/30' : 'text-black/35',
     blue: theme === 'dark' ? 'text-[#0A84FF]' : 'text-[#007AFF]',
-    green: theme === 'dark' ? 'text-[#30D158]' : 'text-[#34C759]',
+    green: theme === 'dark' ? 'text-[#30D158]' : 'text-[#248A3D]',
     red: theme === 'dark' ? 'text-[#FF453A]' : 'text-[#FF3B30]',
     orange: theme === 'dark' ? 'text-[#FF9F0A]' : 'text-[#FF9500]',
   };

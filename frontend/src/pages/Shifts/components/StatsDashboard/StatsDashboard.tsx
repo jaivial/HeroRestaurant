@@ -1,22 +1,20 @@
 // frontend/src/pages/Shifts/components/StatsDashboard/StatsDashboard.tsx
 import { usePersonalStats } from '../../hooks/usePersonalStats';
 import { 
-  Card, 
-  Text, 
   Heading, 
   Select, 
-  Badge, 
   DataTable, 
   Tabs, 
   TabsList, 
   TabsTrigger,
-  IconButton
+  IconButton,
+  Text
 } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import type { ShiftPeriod, ShiftHistoryItem } from '../../types';
-import { Clock, TrendingUp, ShieldCheck, Table as TableIcon, Calendar, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
-import { WeeklyCalendar } from './ui/WeeklyCalendar';
-import { MonthlyCalendar } from './ui/MonthlyCalendar';
+import { Table as TableIcon, Calendar, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { WeeklyCalendar } from '../WeeklyCalendar/WeeklyCalendar';
+import { MonthlyCalendar } from '../MonthlyCalendar/MonthlyCalendar';
 import { safeParseDate, formatMinutes, formatTime } from '@/utils/time';
 import { useAtomValue, useAtom } from 'jotai';
 import { timeFormatAtom } from '@/atoms/shiftAtoms';
@@ -24,6 +22,7 @@ import { themeAtom } from '@/atoms/themeAtoms';
 import { shiftsStatsPeriodPreferenceAtom, shiftsHistoryTabPreferenceAtom } from '@/atoms/preferenceAtoms';
 import { cn } from '@/utils/cn';
 import { useMemo } from 'react';
+import { StatsCards } from './ui/StatsCards';
 
 interface StatsDashboardProps {
   restaurantId: string;
@@ -58,7 +57,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
     return `${start.toLocaleDateString(undefined, { dateStyle: 'medium' })} - ${end.toLocaleDateString(undefined, { dateStyle: 'medium' })}`;
   }, [periodStats, period]);
 
-  const historyColumns: Column<ShiftHistoryItem>[] = [
+  const historyColumns: Column<ShiftHistoryItem>[] = useMemo(() => [
     {
       header: 'Date',
       key: 'punchInAt',
@@ -81,7 +80,7 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
       key: 'totalMinutes',
       render: (s) => s.totalMinutes ? `${formatMinutes(s.totalMinutes)}h` : 'Active'
     }
-  ];
+  ], [use24h]);
 
   if (statsLoading && !periodStats) {
     return <div className={cn(
@@ -118,68 +117,14 @@ export function StatsDashboard({ restaurantId }: StatsDashboardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={cn(
-          "p-6 w-full min-w-0 max-w-md",
-          isDark ? "bg-white/5" : "bg-white"
-        )}>
-          <div className="flex justify-between items-start mb-4">
-            <Text className={cn(
-              "text-[13px] font-bold uppercase tracking-wider",
-              isDark ? "text-white/60" : "text-black/60"
-            )}>Hours Worked</Text>
-            <Clock size={18} className={isDark ? "text-white/40" : "text-black/40"} />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className={cn(
-              "text-[34px] font-bold",
-              isDark ? "text-white" : "text-black"
-            )}>{hoursWorked}h</span>
-            <span className={isDark ? "text-white/40 text-sm" : "text-black/40 text-sm"}>/ {hoursContracted}h</span>
-          </div>
-        </Card>
-
-        <Card className={cn(
-          "p-6 max-w-md",
-          isDark ? "bg-white/5" : "bg-white"
-        )}>
-          <div className="flex justify-between items-start mb-4">
-            <Text className={cn(
-              "text-[13px] font-bold uppercase tracking-wider",
-              isDark ? "text-white/60" : "text-black/60"
-            )}>Bank Balance</Text>
-            <TrendingUp size={18} className={isDark ? "text-white/40" : "text-black/40"} />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className={cn(
-              "text-[34px] font-bold",
-              isPositive 
-                ? (isDark ? 'text-[#30D158]' : 'text-[#34C759]') 
-                : (isDark ? 'text-[#FF453A]' : 'text-[#FF3B30]')
-            )}>
-              {isPositive ? '+' : ''}{diff}h
-            </span>
-          </div>
-        </Card>
-
-        <Card className={cn(
-          "p-6 sm:col-span-2 md:col-span-1 max-w-md",
-          isDark ? "bg-white/5" : "bg-white"
-        )}>
-          <div className="flex justify-between items-start mb-4">
-            <Text className={cn(
-              "text-[13px] font-bold uppercase tracking-wider",
-              isDark ? "text-white/60" : "text-black/60"
-            )}>Status</Text>
-            <ShieldCheck size={18} className={isDark ? "text-white/40" : "text-black/40"} />
-          </div>
-          <div>
-            <Badge variant={periodStats?.status === 'healthy' ? 'success' : periodStats?.status === 'caution' ? 'info' : 'warning'} size="lg">
-              {periodStats?.status?.toUpperCase() || 'UNKNOWN'}
-            </Badge>
-          </div>
-        </Card>
-      </div>
+      <StatsCards 
+        isDark={isDark}
+        hoursWorked={hoursWorked}
+        hoursContracted={hoursContracted}
+        diff={diff}
+        isPositive={isPositive}
+        status={periodStats?.status || 'UNKNOWN'}
+      />
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div className="flex items-center gap-6">

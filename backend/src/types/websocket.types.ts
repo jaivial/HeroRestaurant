@@ -69,7 +69,11 @@ export type ShiftAction =
   | 'punch'
   | 'get_status'
   | 'get_personal_stats'
-  | 'get_team_stats';
+  | 'get_team_stats'
+  | 'get_scheduled_shifts'
+  | 'assign'
+  | 'remove_scheduled'
+  | 'update_scheduled';
 
 export type PreferenceAction = 'get' | 'set';
 
@@ -615,6 +619,42 @@ export const shiftGetTeamStatsPayloadSchema = z.object({
   restaurantId: z.string().min(1),
 });
 
+export const shiftGetScheduledShiftsPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  startDate: z.string(),
+  endDate: z.string(),
+});
+
+export const shiftAssignPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  shiftData: z.object({
+    membership_id: z.string().min(1),
+    start_at: z.string(),
+    end_at: z.string(),
+    notes: z.string().optional(),
+    color: z.string().optional(),
+    label: z.string().optional(),
+  }),
+});
+
+export const shiftRemoveScheduledPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  shiftId: z.string().min(1),
+});
+
+export const shiftUpdateScheduledPayloadSchema = z.object({
+  restaurantId: z.string().min(1),
+  shiftId: z.string().min(1),
+  shiftData: z.object({
+    membership_id: z.string().optional(),
+    start_at: z.string().optional(),
+    end_at: z.string().optional(),
+    notes: z.string().optional(),
+    color: z.string().optional(),
+    label: z.string().optional(),
+  }),
+});
+
 export const preferenceGetPayloadSchema = z.object({
   restaurantId: z.string().min(1),
 });
@@ -690,6 +730,10 @@ export const actionSchemaMap: Record<string, z.ZodSchema> = {
   'shift.get_status': shiftGetStatusPayloadSchema,
   'shift.get_personal_stats': shiftGetPersonalStatsPayloadSchema,
   'shift.get_team_stats': shiftGetTeamStatsPayloadSchema,
+  'shift.get_scheduled_shifts': shiftGetScheduledShiftsPayloadSchema,
+  'shift.assign': shiftAssignPayloadSchema,
+  'shift.remove_scheduled': shiftRemoveScheduledPayloadSchema,
+  'shift.update_scheduled': shiftUpdateScheduledPayloadSchema,
   'preference.get': preferenceGetPayloadSchema,
   'preference.set': preferenceSetPayloadSchema,
 };

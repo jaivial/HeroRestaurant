@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+// frontend/src/pages/Shifts/components/MemberShiftOverview/ui/MemberShiftOverviewUI.tsx
+
+import { memo } from 'react';
 import { 
   Card, 
   Text, 
@@ -10,48 +12,44 @@ import {
   Button,
   DataTable
 } from '@/components/ui';
-import type { Column } from '@/components/ui';
-import { useMemberShiftDetail } from '../../../hooks/useMemberShiftDetail';
-import { WeeklyCalendar } from '../../StatsDashboard/ui/WeeklyCalendar';
-import { MonthlyCalendar } from '../../StatsDashboard/ui/MonthlyCalendar';
+import { WeeklyCalendar } from '../../WeeklyCalendar/WeeklyCalendar';
+import { MonthlyCalendar } from '../../MonthlyCalendar/MonthlyCalendar';
 import { Plus, Table as TableIcon, Calendar, CalendarDays, Activity, BarChart3 } from 'lucide-react';
-import { formatMinutes, formatTime } from '@/utils/time';
-import type { ShiftHistoryItem } from '../../../types';
+import type { ShiftHistoryItem, ScheduledShift } from '../../../types';
+import type { Column } from '@/components/ui';
+import { MemberActivityHeatmap } from '../../MemberActivityHeatmap/MemberActivityHeatmap';
+import { MemberAnalysis } from '../../MemberAnalysis/MemberAnalysis';
 
-interface MemberShiftOverviewProps {
+interface MemberShiftOverviewUIProps {
   memberId: string;
   memberName: string;
   restaurantId: string;
+  isLoading: boolean;
+  data: {
+    history: ShiftHistoryItem[];
+    scheduled: ScheduledShift[];
+    workedMinutes: number;
+    differenceMinutes: number;
+  } | null;
+  viewMode: string;
+  setViewMode: (mode: string) => void;
   onQuickAssign: () => void;
+  historyColumns: Column<ShiftHistoryItem>[];
+  onShiftClick?: (shift: ScheduledShift | ShiftHistoryItem, type: 'scheduled' | 'history') => void;
 }
 
-export function MemberShiftOverview({ memberId, memberName, onQuickAssign }: MemberShiftOverviewProps) {
-  const [viewMode, setViewMode] = useState('weekly');
-  const { data, isLoading } = useMemberShiftDetail(memberId);
-
-  const historyColumns: Column<ShiftHistoryItem>[] = useMemo(() => [
-    {
-      header: 'Date',
-      key: 'punchInAt',
-      render: (s) => new Date(s.punchInAt).toLocaleDateString()
-    },
-    {
-      header: 'Punch In',
-      key: 'punchInAtTime',
-      render: (s) => formatTime(s.punchInAt, true)
-    },
-    {
-      header: 'Punch Out',
-      key: 'punchOutAt',
-      render: (s) => s.punchOutAt ? formatTime(s.punchOutAt, true) : '-'
-    },
-    {
-      header: 'Duration',
-      key: 'totalMinutes',
-      render: (s) => s.totalMinutes ? `${formatMinutes(s.totalMinutes)}h` : 'Active'
-    }
-  ], []);
-
+export const MemberShiftOverviewUI = memo(function MemberShiftOverviewUI({
+  memberId,
+  memberName,
+  restaurantId,
+  isLoading,
+  data,
+  viewMode,
+  setViewMode,
+  onQuickAssign,
+  historyColumns,
+  onShiftClick
+}: MemberShiftOverviewUIProps) {
   if (isLoading) {
     return <div className="p-12 text-center opacity-50">Loading member details...</div>;
   }
@@ -72,12 +70,12 @@ export function MemberShiftOverview({ memberId, memberName, onQuickAssign }: Mem
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4">
           <Text variant="caption" weight="bold" className="uppercase opacity-50 mb-1">Worked (Year)</Text>
-          <Text variant="title2" weight="bold">{(data?.workedMinutes / 60 || 0).toFixed(1)}h</Text>
+          <Text variant="title2" weight="bold">{(data?.workedMinutes ? data.workedMinutes / 60 : 0).toFixed(1)}h</Text>
         </Card>
         <Card className="p-4">
           <Text variant="caption" weight="bold" className="uppercase opacity-50 mb-1">Bank Balance</Text>
-          <Text variant="title2" weight="bold" className={data?.differenceMinutes >= 0 ? 'text-systemGreen' : 'text-systemRed'}>
-            {(data?.differenceMinutes / 60 || 0).toFixed(1)}h
+          <Text variant="title2" weight="bold" className={(data?.differenceMinutes || 0) >= 0 ? 'text-apple-green' : 'text-apple-red'}>
+            {(data?.differenceMinutes ? data.differenceMinutes / 60 : 0).toFixed(1)}h
           </Text>
         </Card>
         <Card className="p-4">
@@ -113,7 +111,12 @@ export function MemberShiftOverview({ memberId, memberName, onQuickAssign }: Mem
         </div>
 
         <TabsContent value="weekly">
-          <WeeklyCalendar history={data?.history || []} isConstrained />
+          <WeeklyCalendar 
+            history={data?.history || []} 
+            scheduled={data?.scheduled || []}
+            isConstrained 
+            onShiftClick={onShiftClick}
+          />
         </TabsContent>
         <TabsContent value="monthly">
           <MonthlyCalendar history={data?.history || []} />
@@ -122,16 +125,19 @@ export function MemberShiftOverview({ memberId, memberName, onQuickAssign }: Mem
           <DataTable data={data?.history || []} columns={historyColumns} />
         </TabsContent>
         <TabsContent value="heatmap">
-          <div className="p-8 text-center border rounded-[2.2rem] opacity-50 italic">
-            Heatmap view coming soon - Visualizing busy hours and peak performance.
-          </div>
+          <MemberActivityHeatmap history={data?.history || []} />
         </TabsContent>
         <TabsContent value="comparison">
-          <div className="p-8 text-center border rounded-[2.2rem] opacity-50 italic">
-            Comparison view coming soon - Benchmarking member stats against team averages.
-          </div>
+          <MemberAnalysis 
+            memberId={memberId}
+            restaurantId={restaurantId}
+            memberStats={{
+              workedMinutes: data?.workedMinutes || 0,
+              differenceMinutes: data?.differenceMinutes || 0
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>
   );
-}
+});

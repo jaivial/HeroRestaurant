@@ -1,75 +1,20 @@
-import { useMemo, useState } from 'react';
-import { useAtomValue } from 'jotai';
-import { themeAtom } from '@/atoms/themeAtoms';
+// frontend/src/pages/Shifts/components/MonthlyCalendar/ui/MonthlyCalendarUI.tsx
+
+import { memo } from 'react';
 import { Text, IconButton, Button } from '@/components/ui';
-import type { ShiftHistoryItem } from '../../../types';
 import { cn } from '@/utils/cn';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { safeParseDate } from '@/utils/time';
+import type { MonthlyCalendarUIProps } from '../../../types';
 
-interface MonthlyCalendarProps {
-  history: ShiftHistoryItem[];
-}
-
-export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
-  const theme = useAtomValue(themeAtom);
-  const isDark = theme === 'dark';
-  const [viewDate, setViewDate] = useState(new Date());
-
-  const calendarData = useMemo(() => {
-    const year = viewDate.getFullYear();
-    const month = viewDate.getMonth();
-
-    // First day of month
-    const firstDay = new Date(year, month, 1);
-    // Last day of month
-    const lastDay = new Date(year, month + 1, 0);
-    
-    // Days in month
-    const daysInMonth = lastDay.getDate();
-    // Starting weekday (0-6, Sun-Sat). Let's use Mon-Sun (0-6)
-    const startDay = (firstDay.getDay() + 6) % 7; // Mon=0, Sun=6
-
-    const days = [];
-    
-    // Previous month padding
-    for (let i = 0; i < startDay; i++) {
-      days.push({ type: 'padding', day: null });
-    }
-
-    // Actual days
-    for (let d = 1; d <= daysInMonth; d++) {
-      const currentDate = new Date(year, month, d);
-      const dateStr = currentDate.toDateString();
-      const dayShifts = history.filter(s => safeParseDate(s.punchInAt).toDateString() === dateStr);
-      const totalMinutes = dayShifts.reduce((acc, s) => acc + (s.totalMinutes || 0), 0);
-      
-      days.push({
-        type: 'day',
-        day: d,
-        shifts: dayShifts,
-        totalMinutes,
-        isToday: dateStr === new Date().toDateString()
-      });
-    }
-
-    return days;
-  }, [history, viewDate]);
-
-  const changeMonth = (offset: number) => {
-    const nextDate = new Date(viewDate);
-    nextDate.setMonth(viewDate.getMonth() + offset);
-    setViewDate(nextDate);
-  };
-
-  const goToToday = () => {
-    setViewDate(new Date());
-  };
-
-  const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const monthName = viewDate.toLocaleString('default', { month: 'long' });
-  const yearName = viewDate.getFullYear();
-
+export const MonthlyCalendarUI = memo(function MonthlyCalendarUI({
+  isDark,
+  calendarData,
+  monthName,
+  yearName,
+  weekdays,
+  onChangeMonth,
+  onGoToToday
+}: MonthlyCalendarUIProps) {
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex justify-between items-center px-2">
@@ -80,33 +25,33 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
           )}>
             {monthName}
           </Text>
-            <Text variant="caption1" className={isDark ? "text-white/40" : "text-black/40"}>{yearName}</Text>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="glass" 
-              size="sm" 
-              onClick={goToToday}
-              className="rounded-full font-bold text-[13px] mr-2"
-            >
-              Today
-            </Button>
-            <div className="flex gap-2">
-              <IconButton 
-                icon={<ChevronLeft size={20} />} 
-                variant="gray"
-                onClick={() => changeMonth(-1)}
-                className="rounded-full"
-              />
-              <IconButton 
-                icon={<ChevronRight size={20} />} 
-                variant="gray"
-                onClick={() => changeMonth(1)}
-                className="rounded-full"
-              />
-            </div>
+          <Text variant="caption1" className={isDark ? "text-white/40" : "text-black/40"}>{yearName}</Text>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="glass" 
+            size="sm" 
+            onClick={onGoToToday}
+            className="rounded-full font-bold text-[13px] mr-2"
+          >
+            Today
+          </Button>
+          <div className="flex gap-2">
+            <IconButton 
+              icon={<ChevronLeft size={20} />} 
+              variant="gray"
+              onClick={() => onChangeMonth(-1)}
+              className="rounded-full"
+            />
+            <IconButton 
+              icon={<ChevronRight size={20} />} 
+              variant="gray"
+              onClick={() => onChangeMonth(1)}
+              className="rounded-full"
+            />
           </div>
         </div>
+      </div>
 
       <div className="flex flex-col space-y-4">
         <div className="grid grid-cols-7 gap-2">
@@ -150,7 +95,7 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                     )}
                   </div>
                   <div className="space-y-1">
-                    {item.shifts && item.shifts.slice(0, 2).map(s => (
+                    {item.shifts && item.shifts.slice(0, 2).map((s: any) => (
                       <div 
                         key={s.id} 
                         className={cn(
@@ -175,4 +120,4 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
       </div>
     </div>
   );
-}
+});

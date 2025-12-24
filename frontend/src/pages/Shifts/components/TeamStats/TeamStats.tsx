@@ -1,35 +1,23 @@
 // frontend/src/pages/Shifts/components/TeamStats/TeamStats.tsx
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { DataTable, Badge, IconButton, Select, Heading, Text } from '@/components/ui';
 import type { Column } from '@/components/ui';
 import type { TeamStatsProps, MemberShiftSummary, ShiftPeriod } from '../../types';
-import { useTeamShifts } from '../../hooks/useTeamShifts';
-import { MemberDetailModal } from './ui/MemberDetailModal';
+import { MemberDetailModal } from '../MemberDetailModal/MemberDetailModal';
 import { Eye } from 'lucide-react';
+import { useTeamStats } from '../../hooks/useTeamStats';
 
 export function TeamStats({ restaurantId }: TeamStatsProps) {
-  const [period, setPeriod] = useState<ShiftPeriod>('monthly');
-  const { members, isLoading, setFilters } = useTeamShifts(restaurantId);
-  
-  // Update filters when period changes
-  useEffect(() => {
-    setFilters({ period });
-  }, [period, setFilters]);
-
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
-
-  const periodLabel = useMemo(() => {
-    const labels: Record<string, string> = {
-      daily: 'Daily',
-      weekly: 'Weekly',
-      monthly: 'Monthly',
-      trimestral: 'Trimestral',
-      semmestral: 'Semmestral',
-      anual: 'Anual'
-    };
-    return labels[period] || 'Weekly';
-  }, [period]);
+  const {
+    period,
+    setPeriod,
+    members,
+    isLoading,
+    selectedMemberId,
+    setSelectedMemberId,
+    periodLabel
+  } = useTeamStats(restaurantId);
 
   const columns = useMemo<Column<MemberShiftSummary>[]>(() => [
     {
@@ -95,7 +83,7 @@ export function TeamStats({ restaurantId }: TeamStatsProps) {
         />
       )
     }
-  ], [periodLabel]);
+  ], [periodLabel, setSelectedMemberId]);
 
   return (
     <div className="space-y-6">

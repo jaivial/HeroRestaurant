@@ -87,6 +87,7 @@ const handlers: Record<string, MessageHandler> = {
   'shift.get_scheduled_shifts': shiftHandlers.getScheduledShifts,
   'shift.assign': shiftHandlers.assignShift,
   'shift.remove_scheduled': shiftHandlers.removeScheduledShift,
+  'shift.update_scheduled': shiftHandlers.updateScheduledShift,
   // Preference handlers
   'preference.get': preferenceHandlers.get,
   'preference.set': preferenceHandlers.set,

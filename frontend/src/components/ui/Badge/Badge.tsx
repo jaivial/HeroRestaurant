@@ -33,7 +33,7 @@ export const Badge = memo(function Badge({
   const variantClasses: Record<BadgeVariant, string> = {
     default: theme === 'dark' ? 'bg-white/10 text-white' : 'bg-black/5 text-black',
     secondary: theme === 'dark' ? 'bg-white/5 text-white/60' : 'bg-black/[0.03] text-black/60',
-    success: theme === 'dark' ? 'bg-[#30D158]/15 text-[#30D158]' : 'bg-[#34C759]/15 text-[#34C759]',
+    success: theme === 'dark' ? 'bg-[#30D158]/15 text-[#30D158]' : 'bg-[#248A3D]/15 text-[#248A3D]',
     warning: theme === 'dark' ? 'bg-[#FF9F0A]/15 text-[#FF9F0A]' : 'bg-[#FF9500]/15 text-[#FF9500]',
     error: theme === 'dark' ? 'bg-[#FF453A]/15 text-[#FF453A]' : 'bg-[#FF3B30]/15 text-[#FF3B30]',
     info: theme === 'dark' ? 'bg-[#0A84FF]/15 text-[#0A84FF]' : 'bg-[#007AFF]/15 text-[#007AFF]',
@@ -42,7 +42,7 @@ export const Badge = memo(function Badge({
   const dotColors: Record<BadgeVariant, string> = {
     default: theme === 'dark' ? 'bg-white/40' : 'bg-black/40',
     secondary: theme === 'dark' ? 'bg-white/20' : 'bg-black/20',
-    success: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#34C759]',
+    success: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#248A3D]',
     warning: theme === 'dark' ? 'bg-[#FF9F0A]' : 'bg-[#FF9500]',
     error: theme === 'dark' ? 'bg-[#FF453A]' : 'bg-[#FF3B30]',
     info: theme === 'dark' ? 'bg-[#0A84FF]' : 'bg-[#007AFF]',
