@@ -49,7 +49,6 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
           onInvite={handleInviteByEmail} 
           isLoading={isGenerating} 
           roles={roles}
-          isDark={isDark}
         />
 
         <Divider className={cn(

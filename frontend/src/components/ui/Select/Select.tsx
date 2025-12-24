@@ -1,5 +1,4 @@
 import React, { forwardRef, useState, memo } from 'react';
-import { createPortal } from 'react-dom';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
@@ -9,6 +8,7 @@ import {
   offset, 
   flip, 
   shift, 
+  size,
   useDismiss, 
   useRole, 
   useClick, 
@@ -36,6 +36,7 @@ interface SelectProps {
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
+  theme?: 'light' | 'dark';
 }
 
 /**
@@ -59,10 +60,12 @@ export const Select = memo(
         className = '',
         style,
         icon,
+        theme: propTheme,
       },
       _ref
     ) => {
-      const theme = useAtomValue(themeAtom);
+      const globalTheme = useAtomValue(themeAtom);
+      const theme = propTheme || globalTheme;
       const [isOpen, setIsOpen] = useState(false);
       const [internalValue, setInternalValue] = useState(defaultValue || '');
 
@@ -73,9 +76,18 @@ export const Select = memo(
           offset(8),
           flip({ padding: 8 }),
           shift({ padding: 8 }),
+          size({
+            apply({ rects, elements }) {
+              Object.assign(elements.floating.style, {
+                width: `${rects.reference.width}px`,
+              });
+            },
+          }),
         ],
         whileElementsMounted: autoUpdate,
       });
+
+      const { setReference, setFloating } = refs;
 
       const click = useClick(context);
       const dismiss = useDismiss(context);
@@ -109,7 +121,7 @@ export const Select = memo(
         'w-full h-[44px] px-4 rounded-[1rem] flex items-center justify-between gap-2 transition-all duration-200 focus:outline-none',
         'text-[17px] border-[1.5px]',
         theme === 'dark'
-          ? 'bg-white/10 border-white/20 text-white focus:border-[#0A84FF]'
+          ? 'bg-[#1C1C1E] border-white/20 text-white focus:border-[#0A84FF]'
           : 'bg-black/[0.08] border-black/[0.12] text-[#1D1D1F] focus:border-[#007AFF]',
         disabled && 'opacity-50 cursor-not-allowed',
         hasError && (theme === 'dark' ? 'border-[#FF453A]' : 'border-[#FF3B30]'),
@@ -120,8 +132,8 @@ export const Select = memo(
         'z-50 py-2 rounded-[1rem] backdrop-blur-[20px] saturate-[180%] border',
         'animate-scale-in origin-top shadow-xl',
         theme === 'dark'
-          ? 'bg-black/80 border-white/10 text-white'
-          : 'bg-white/80 border-black/5 text-black'
+          ? 'bg-[#1C1C1E]/95 border-white/20 text-white'
+          : 'bg-white/90 border-black/5 text-black'
       );
 
       const helperClasses = cn(
@@ -136,7 +148,7 @@ export const Select = memo(
           {label && <label className={labelClasses}>{label}</label>}
 
           <button
-            ref={refs.setReference}
+            ref={setReference}
             type="button"
             disabled={disabled}
             className={triggerClasses}
@@ -166,11 +178,8 @@ export const Select = memo(
             <FloatingPortal>
               <FloatingFocusManager context={context} modal={false}>
                 <div
-                  ref={refs.setFloating}
-                  style={{
-                    ...floatingStyles,
-                    width: refs.domReference.current?.getBoundingClientRect().width,
-                  }}
+                  ref={setFloating}
+                  style={floatingStyles}
                   className={dropdownClasses}
                   {...getFloatingProps()}
                 >

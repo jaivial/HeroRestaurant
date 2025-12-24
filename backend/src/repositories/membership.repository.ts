@@ -146,6 +146,15 @@ export class MembershipRepository {
       .execute();
   }
 
+  static async updateLastActiveByUserAndRestaurant(userId: string, restaurantId: string): Promise<void> {
+    await db
+      .updateTable('memberships')
+      .set({ last_active_at: new Date() })
+      .where('user_id', '=', userId)
+      .where('restaurant_id', '=', restaurantId)
+      .execute();
+  }
+
   static async softDelete(id: string): Promise<void> {
     await db
       .updateTable('memberships')

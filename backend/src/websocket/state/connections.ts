@@ -21,6 +21,9 @@ class ConnectionManager {
   // sessionId -> connectionId (one session per connection)
   private sessionConnections = new Map<string, string>();
 
+  // userId -> timestamp (when they first connected in this session)
+  private userConnectedAt = new Map<string, Date>();
+
   // ============================================================================
   // Connection Lifecycle
   // ============================================================================
@@ -50,6 +53,7 @@ class ConnectionManager {
         userConns.delete(connectionId);
         if (userConns.size === 0) {
           this.userConnections.delete(userId);
+          this.userConnectedAt.delete(userId);
         }
       }
     }
@@ -88,6 +92,7 @@ class ConnectionManager {
     // Track user connection
     if (!this.userConnections.has(userId)) {
       this.userConnections.set(userId, new Set());
+      this.userConnectedAt.set(userId, new Date());
     }
     this.userConnections.get(userId)!.add(connectionId);
 
@@ -113,6 +118,7 @@ class ConnectionManager {
         userConns.delete(connectionId);
         if (userConns.size === 0) {
           this.userConnections.delete(userId);
+          this.userConnectedAt.delete(userId);
         }
       }
     }
@@ -169,6 +175,13 @@ class ConnectionManager {
   isUserConnected(userId: string): boolean {
     const conns = this.userConnections.get(userId);
     return conns !== undefined && conns.size > 0;
+  }
+
+  /**
+   * Get when a user first connected in the current session
+   */
+  getUserConnectedAt(userId: string): Date | undefined {
+    return this.userConnectedAt.get(userId);
   }
 
   // ============================================================================

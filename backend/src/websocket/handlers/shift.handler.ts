@@ -54,11 +54,44 @@ export const shiftHandlers = {
     const { userId } = ws.data;
     if (!userId) return { error: { code: 'WS_NOT_AUTHENTICATED', message: 'Not authenticated' } };
 
-    const { restaurantId } = payload;
+    const { restaurantId, memberId } = payload;
 
     try {
-      const status = await ShiftService.getCurrentStatus(userId, restaurantId);
-      return { data: status };
+      let targetUserId = userId;
+
+      // If memberId is provided, check if requester is admin
+      if (memberId && memberId !== userId) {
+        const membership = await MembershipService.getMembership(userId, restaurantId);
+        if (!membership || !PermissionService.hasMemberPermission(membership.access_flags, MEMBER_FLAGS.CAN_VIEW_MEMBERS)) {
+          return {
+            error: {
+              code: 'FORBIDDEN',
+              message: 'You do not have permission to view other members status',
+            },
+          };
+        }
+        const targetMembership = await MembershipRepository.findById(memberId);
+        if (!targetMembership || targetMembership.restaurant_id !== restaurantId) {
+          return {
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Member not found in this restaurant',
+            },
+          };
+        }
+        targetUserId = targetMembership.user_id;
+      }
+
+      const status = await ShiftService.getCurrentStatus(targetUserId, restaurantId);
+      return { 
+        data: {
+          ...status,
+          presence: {
+            isConnected: connectionManager.isUserConnected(targetUserId),
+            connectedAt: connectionManager.getUserConnectedAt(targetUserId)?.toISOString() || null,
+          }
+        } 
+      };
     } catch (error: any) {
       return {
         error: {

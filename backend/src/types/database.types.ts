@@ -30,6 +30,7 @@ export interface DB {
   dishes: DishesTable;
   member_contracts: MemberContractsTable;
   member_shifts: MemberShiftsTable;
+  user_preferences: UserPreferencesTable;
 }
 
 // ============= Users Table =============
@@ -324,3 +325,17 @@ export interface InvitationsTable {
 export type Invitation = Selectable<InvitationsTable>;
 export type NewInvitation = Insertable<InvitationsTable>;
 export type InvitationUpdate = Updateable<InvitationsTable>;
+
+// ============= User Preferences Table =============
+export interface UserPreferencesTable {
+  id: Generated<string>;
+  user_id: string;
+  workspace_id: string;
+  preference_key: string;
+  preference_value: any;
+  updated_at: Generated<Date | null>;
+}
+
+export type UserPreference = Selectable<UserPreferencesTable>;
+export type NewUserPreference = Insertable<UserPreferencesTable>;
+export type UserPreferenceUpdate = Updateable<UserPreferencesTable>;

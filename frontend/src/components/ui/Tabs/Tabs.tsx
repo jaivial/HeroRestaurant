@@ -10,6 +10,7 @@ import { cn } from '../../../utils/cn';
 interface TabsContextValue {
   activeTab: string;
   setActiveTab: (id: string) => void;
+  theme?: 'light' | 'dark';
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -33,6 +34,7 @@ interface TabsProps {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  theme?: 'light' | 'dark';
 }
 
 /**
@@ -45,7 +47,10 @@ export const Tabs = memo(function Tabs({
   children,
   className = '',
   style,
+  theme: propTheme,
 }: TabsProps) {
+  const globalTheme = useAtomValue(themeAtom);
+  const theme = propTheme || globalTheme;
   const [internalValue, setInternalValue] = useState(defaultValue);
 
   const activeTab = value !== undefined ? value : internalValue;
@@ -58,7 +63,7 @@ export const Tabs = memo(function Tabs({
   };
 
   return (
-    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+    <TabsContext.Provider value={{ activeTab, setActiveTab, theme }}>
       <div className={className} style={style}>{children}</div>
     </TabsContext.Provider>
   );
@@ -76,8 +81,9 @@ interface TabsListProps {
 }
 
 export const TabsList = memo(function TabsList({ children, className = '', style, variant = 'default' }: TabsListProps) {
-  const theme = useAtomValue(themeAtom);
-  const { activeTab } = useTabsContext();
+  const globalTheme = useAtomValue(themeAtom);
+  const { activeTab, theme: contextTheme } = useTabsContext();
+  const theme = contextTheme || globalTheme;
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +110,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
         style={style}
         className={cn(
           'relative inline-flex p-1 rounded-[1.2rem] overflow-hidden border backdrop-blur-[20px] saturate-[180%]',
-          theme === 'dark' ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/5',
+          theme === 'dark' ? 'bg-[#1C1C1E]/60 border-white/15' : 'bg-black/5 border-black/5',
           className
         )}
         role="tablist"
@@ -112,7 +118,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
         <div
           className={cn(
             'absolute top-1 h-[calc(100%-0.5rem)] rounded-[1rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-sm',
-            theme === 'dark' ? 'bg-white/10' : 'bg-white'
+            theme === 'dark' ? 'bg-white/[0.12]' : 'bg-white'
           )}
           style={indicatorStyle}
         />
@@ -165,7 +171,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
       style={style}
       className={cn(
         'relative inline-flex p-1 rounded-[1rem] transition-colors',
-        theme === 'dark' ? 'bg-white/5' : 'bg-black/5',
+        theme === 'dark' ? 'bg-white/[0.08] border border-white/10' : 'bg-black/5',
         className
       )}
       role="tablist"
@@ -174,7 +180,7 @@ export const TabsList = memo(function TabsList({ children, className = '', style
       <div
         className={cn(
           'absolute top-1 h-[calc(100%-0.5rem)] rounded-[0.8rem] transition-all duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] shadow-sm',
-          theme === 'dark' ? 'bg-white/10' : 'bg-white'
+          theme === 'dark' ? 'bg-white/[0.12]' : 'bg-white'
         )}
         style={indicatorStyle}
       />
@@ -202,8 +208,9 @@ export const TabsTrigger = memo(function TabsTrigger({
   style,
   disabled,
 }: TabsTriggerProps) {
-  const theme = useAtomValue(themeAtom);
-  const { activeTab, setActiveTab } = useTabsContext();
+  const globalTheme = useAtomValue(themeAtom);
+  const { activeTab, setActiveTab, theme: contextTheme } = useTabsContext();
+  const theme = contextTheme || globalTheme;
   const isActive = activeTab === value;
 
   return (

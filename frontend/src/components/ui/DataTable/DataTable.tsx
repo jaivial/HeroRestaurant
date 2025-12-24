@@ -17,6 +17,7 @@ interface DataTableProps<T> {
   isLoading?: boolean;
   className?: string;
   emptyMessage?: string;
+  theme?: 'light' | 'dark';
 }
 
 /**
@@ -33,13 +34,15 @@ function DataTableComponent<T>({
   onRowClick, 
   isLoading, 
   className = '',
-  emptyMessage = 'No data available'
+  emptyMessage = 'No data available',
+  theme: propTheme
 }: DataTableProps<T>) {
-  const theme = useAtomValue(themeAtom);
+  const globalTheme = useAtomValue(themeAtom);
+  const theme = propTheme || globalTheme;
 
   const baseClasses = "backdrop-blur-[20px] saturate-[180%] overflow-hidden";
   const themeClasses = theme === 'dark'
-    ? 'bg-black/50 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
+    ? 'bg-[#1C1C1E]/80 border-white/[0.12] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]'
     : 'bg-white/85 border-black/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.08)]';
 
   if (isLoading) {
@@ -53,19 +56,22 @@ function DataTableComponent<T>({
   }
 
   return (
-    <div className={cn("border rounded-[2.2rem]", baseClasses, themeClasses, className)}>
+    <div className={cn("border rounded-[1.2rem] ring-1 ring-inset", 
+      theme === 'dark' ? 'ring-white/[0.05]' : 'ring-black/[0.02]',
+      baseClasses, themeClasses, className)}>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className={cn(
               "border-b",
-              theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-black/[0.05] bg-black/[0.02]'
+              theme === 'dark' ? 'border-white/10 bg-white/[0.02]' : 'border-black/[0.05] bg-black/[0.02]'
             )}>
               {columns.map((col) => (
                 <th 
                   key={col.key} 
                   className={cn(
-                    "p-6 text-[12px] font-bold uppercase tracking-widest opacity-60",
+                    "p-6 text-[12px] font-bold uppercase tracking-widest",
+                    theme === 'dark' ? 'text-white/60' : 'text-black/50',
                     col.className
                   )}
                 >
@@ -79,7 +85,10 @@ function DataTableComponent<T>({
               <tr>
                 <td 
                   colSpan={columns.length} 
-                  className="p-12 text-center opacity-40 text-[17px]"
+                  className={cn(
+                    "p-12 text-center text-[17px]",
+                    theme === 'dark' ? 'text-white/40' : 'text-black/40'
+                  )}
                 >
                   {emptyMessage}
                 </td>
@@ -92,14 +101,18 @@ function DataTableComponent<T>({
                   className={cn(
                     "transition-all duration-200",
                     onRowClick && "cursor-pointer",
-                    theme === 'dark' ? 'hover:bg-white/5' : 'hover:bg-black/5',
-                    idx !== data.length - 1 && (theme === 'dark' ? 'border-b border-white/5' : 'border-b border-black/[0.03]')
+                    theme === 'dark' ? 'hover:bg-white/[0.04]' : 'hover:bg-black/5',
+                    idx !== data.length - 1 && (theme === 'dark' ? 'border-b border-white/[0.06]' : 'border-b border-black/[0.03]')
                   )}
                 >
                   {columns.map((col) => (
                     <td 
                       key={col.key} 
-                      className={cn("p-6 text-[17px]", col.className)}
+                      className={cn(
+                        "p-6 text-[17px]", 
+                        theme === 'dark' ? 'text-white' : 'text-[#1D1D1F]',
+                        col.className
+                      )}
                     >
                       {col.render ? col.render(item) : (item[col.key as keyof T] as React.ReactNode)}
                     </td>

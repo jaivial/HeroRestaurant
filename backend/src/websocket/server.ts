@@ -144,10 +144,19 @@ export const createWebSocketServer = () => {
       },
 
       // Connection closed
-      close(ws) {
+      async close(ws) {
         const connectionId = ws.id;
         const connectionData = getConnectionData(connectionId);
         if (connectionData) {
+          const { userId, currentRestaurantId } = connectionData;
+          if (userId && currentRestaurantId) {
+            try {
+              const { MembershipRepository } = await import('../repositories/membership.repository');
+              await MembershipRepository.updateLastActiveByUserAndRestaurant(userId, currentRestaurantId);
+            } catch (err) {
+              console.error('[WS] Failed to update last active on close:', err);
+            }
+          }
           connectionManager.unregister(connectionId);
         }
         deleteConnectionData(connectionId);

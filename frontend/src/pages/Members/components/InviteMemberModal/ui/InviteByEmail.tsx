@@ -1,15 +1,13 @@
 import { Input, Button, Select, Text } from '@/components/ui';
 import { useState } from 'react';
-import { cn } from '@/utils/cn';
 
 interface InviteByEmailProps {
   onInvite: (email: string, roleId?: string) => Promise<void>;
   isLoading: boolean;
   roles: { id: string; name: string }[];
-  isDark: boolean;
 }
 
-export function InviteByEmail({ onInvite, isLoading, roles, isDark }: InviteByEmailProps) {
+export function InviteByEmail({ onInvite, isLoading, roles }: InviteByEmailProps) {
   const [email, setEmail] = useState('');
   const [roleId, setRoleId] = useState('');
 

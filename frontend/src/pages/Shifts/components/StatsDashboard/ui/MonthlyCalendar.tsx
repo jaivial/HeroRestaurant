@@ -9,11 +9,12 @@ import { safeParseDate } from '@/utils/time';
 
 interface MonthlyCalendarProps {
   history: ShiftHistoryItem[];
+  isDark?: boolean;
 }
 
-export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
+export function MonthlyCalendar({ history, isDark: propIsDark }: MonthlyCalendarProps) {
   const theme = useAtomValue(themeAtom);
-  const isDark = theme === 'dark';
+  const isDark = propIsDark !== undefined ? propIsDark : theme === 'dark';
   const [viewDate, setViewDate] = useState(new Date());
 
   const calendarData = useMemo(() => {
@@ -128,10 +129,10 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                 "min-h-[60px] md:min-h-[100px] p-2 rounded-[1rem] transition-all duration-300",
                 item.type === 'padding' ? "opacity-0 pointer-events-none" : "border",
                 isDark 
-                  ? "bg-white/5 border-white/5" 
+                  ? "bg-[#1C1C1E]/80 border-white/[0.08]" 
                   : "bg-white/60 border-black/[0.03]",
-                item.type === 'day' && item.totalMinutes && item.totalMinutes > 0 && (isDark ? "bg-apple-blue/10 border-apple-blue/20" : "bg-apple-blue/5 border-apple-blue/10"),
-                item.type === 'day' && item.isToday && (isDark ? "border-apple-blue/50 border-white/20" : "border-apple-blue/40 border-black/[0.08]")
+                item.type === 'day' && item.totalMinutes && item.totalMinutes > 0 && (isDark ? "bg-apple-blue/20 border-apple-blue/40" : "bg-apple-blue/5 border-apple-blue/10"),
+                item.type === 'day' && item.isToday && (isDark ? "border-apple-blue/60 bg-apple-blue/10" : "border-apple-blue/40 border-black/[0.08]")
               )}
             >
               {item.type === 'day' && (
@@ -139,7 +140,7 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                   <div className="flex justify-between items-start mb-1">
                     <Text weight="semibold" className={cn(
                       "text-[12px] md:text-[14px]",
-                      item.isToday ? "text-apple-blue font-bold" : (item.totalMinutes && item.totalMinutes > 0 ? "text-apple-blue" : (isDark ? "text-white/40" : "text-black/40"))
+                      item.isToday ? "text-apple-blue font-bold" : (item.totalMinutes && item.totalMinutes > 0 ? "text-apple-blue" : (isDark ? "text-white/60" : "text-black/40"))
                     )}>
                       {item.day}
                     </Text>
@@ -156,7 +157,7 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                         key={s.id} 
                         className={cn(
                           "h-1 md:h-1.5 rounded-full w-full",
-                          isDark ? "bg-apple-blue/40" : "bg-apple-blue/30"
+                          isDark ? "bg-apple-blue/60" : "bg-apple-blue/30"
                         )} 
                         title={`${((s.totalMinutes || 0)/60).toFixed(1)}h shift`}
                       />
@@ -164,7 +165,7 @@ export function MonthlyCalendar({ history }: MonthlyCalendarProps) {
                     {item.shifts && item.shifts.length > 2 && (
                       <div className={cn(
                         "text-[8px] md:text-[10px] text-center",
-                        isDark ? "text-white/30" : "text-black/30"
+                        isDark ? "text-white/40" : "text-black/30"
                       )}>+{item.shifts.length - 2}</div>
                     )}
                   </div>

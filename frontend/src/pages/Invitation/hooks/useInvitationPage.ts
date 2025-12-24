@@ -44,14 +44,20 @@ export function useInvitationPage() {
   }, [token, isAuthenticated, acceptInvitation]);
 
   useEffect(() => {
-    handleValidate();
+    const validate = async () => {
+      await handleValidate();
+    };
+    validate();
   }, [handleValidate]);
 
   // If valid and authenticated, auto-accept
   useEffect(() => {
-    if (status === 'valid' && isAuthenticated) {
-      handleAccept();
-    }
+    const accept = async () => {
+      if (status === 'valid' && isAuthenticated) {
+        await handleAccept();
+      }
+    };
+    accept();
   }, [status, isAuthenticated, handleAccept]);
 
   // Countdown and redirect

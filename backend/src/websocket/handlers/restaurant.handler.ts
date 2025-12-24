@@ -1,5 +1,6 @@
 import type { WSConnection } from '../state/connections';
 import { RestaurantService } from '../../services/restaurant.service';
+import { MembershipRepository } from '../../repositories/membership.repository';
 import { MembershipService } from '../../services/membership.service';
 import { PermissionService } from '../../services/permission.service';
 import { GLOBAL_FLAGS, MEMBER_FLAGS } from '../../constants/permissions';
@@ -300,6 +301,11 @@ export const restaurantHandlers = {
 
       // Update connection context
       ws.data.currentRestaurantId = restaurantId;
+
+      // Update last active in DB
+      if (restaurantId) {
+        await MembershipRepository.updateLastActiveByUserAndRestaurant(userId, restaurantId);
+      }
 
       return {
         data: {

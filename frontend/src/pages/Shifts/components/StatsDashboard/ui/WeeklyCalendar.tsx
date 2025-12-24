@@ -10,11 +10,12 @@ import { safeParseDate } from '@/utils/time';
 
 interface WeeklyCalendarProps {
   history: ShiftHistoryItem[];
+  isDark?: boolean;
 }
 
-export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ history, isDark: propIsDark }: WeeklyCalendarProps) {
   const theme = useAtomValue(themeAtom);
-  const isDark = theme === 'dark';
+  const isDark = propIsDark !== undefined ? propIsDark : theme === 'dark';
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Group shifts by day (let's generate a range of 90 days around today for better scroll feel)
@@ -183,12 +184,12 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
   }, { scope: scrollRef });
 
   return (
-    <div className="relative group md:left-[calc(50%-(50vw-140px))] md:w-[calc(100vw-280px)] md:max-w-none">
+    <div className="relative group w-full">
       <style dangerouslySetInnerHTML={{ __html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
-      <div className="flex justify-end mb-4 px-4 md:px-8 min-[1024px]:px-16">
+      <div className="flex justify-end mb-4 px-4 min-[1024px]:px-8">
         <Button 
           variant="glass" 
           size="sm" 
@@ -200,7 +201,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
       </div>
       <div 
         ref={scrollRef}
-        className="flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[60vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none md:px-8 min-[1024px]:px-16"
+        className="flex flex-col md:flex-row gap-4 overflow-y-auto md:overflow-x-auto max-h-[60vh] md:max-h-none pb-6 cursor-grab active:cursor-grabbing no-scrollbar select-none px-4 min-[1024px]:px-8"
         style={{ 
           scrollSnapType: 'both proximity',
           touchAction: 'none' // Essential for custom physics on mobile
@@ -215,16 +216,16 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
             "border backdrop-blur-[20px] saturate-[180%] scroll-snap-align-center",
             day.isToday
               ? (isDark 
-                  ? "bg-apple-blue/20 border-apple-blue/40 border-white/20" 
+                  ? "bg-apple-blue/20 border-apple-blue/50 border-white/20" 
                   : "bg-apple-blue/10 border-apple-blue/30 border-black/[0.08]")
               : (isDark 
-                  ? "bg-white/5 border-white/10" 
-                  : "bg-white/80 border-black/[0.05]")
+                  ? "bg-[#1C1C1E]/90 border-white/[0.12] shadow-apple-md" 
+                  : "bg-white/80 border-black/[0.05] shadow-apple-sm")
           )}
         >
           <div className="flex justify-between items-start mb-6">
             <div className="flex flex-col">
-              <Text weight="bold" className={day.isToday ? "text-apple-blue" : (isDark ? "text-white/40" : "text-black/40")}>
+              <Text weight="bold" className={day.isToday ? "text-apple-blue" : (isDark ? "text-white/60" : "text-black/40")}>
                 {day.name}
               </Text>
               <div className="flex items-baseline gap-1">
@@ -236,7 +237,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                 </span>
                 <span className={cn(
                   "text-[14px] font-semibold uppercase",
-                  isDark ? "text-white/40" : "text-black/40"
+                  isDark ? "text-white/60" : "text-black/40"
                 )}>
                   {day.month}
                 </span>
@@ -254,7 +255,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
               <div className="h-full flex flex-col items-center justify-center">
                 <Text variant="caption" className={cn(
                   "italic font-medium",
-                  isDark ? "text-white/20" : "text-black/20"
+                  isDark ? "text-white/30" : "text-black/20"
                 )}>No activity</Text>
               </div>
             ) : (
@@ -263,7 +264,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                   key={shift.id}
                   className={cn(
                     "p-3 rounded-[1rem] transition-colors",
-                    isDark ? "bg-white/10 hover:bg-white/15" : "bg-black/5 hover:bg-black/[0.08]"
+                    isDark ? "bg-white/[0.08] hover:bg-white/[0.12]" : "bg-black/5 hover:bg-black/[0.08]"
                   )}
                 >
                   <div className={cn(
@@ -274,8 +275,10 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                       <div className="w-1.5 h-1.5 rounded-full bg-apple-blue" />
                       {safeParseDate(shift.punchInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
-                    <span className={isDark ? "text-white/30" : "text-black/30"}>—</span>
-                    <span>
+                    <span className={isDark ? "text-white/40" : "text-black/30"}>—</span>
+                    <span className={cn(
+                      !shift.punchOutAt && (isDark ? "text-[#28A745]" : "text-[#1E7E34]")
+                    )}>
                       {shift.punchOutAt 
                         ? safeParseDate(shift.punchOutAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : 'Active'}
@@ -284,7 +287,7 @@ export function WeeklyCalendar({ history }: WeeklyCalendarProps) {
                   {shift.notes && (
                     <Text variant="caption1" className={cn(
                       "mt-1.5 text-[11px] leading-tight line-clamp-2",
-                      isDark ? "text-white/60" : "text-black/60"
+                      isDark ? "text-white/70" : "text-black/60"
                     )} title={shift.notes}>
                       {shift.notes}
                     </Text>

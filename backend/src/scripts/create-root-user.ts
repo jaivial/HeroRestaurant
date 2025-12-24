@@ -67,18 +67,40 @@ async function createRootUser() {
 
     if (!existingMembership) {
       console.log('Adding root user to test restaurant...');
+      
+      // Get the Root role ID (fixed in 003_test_restaurant.ts)
+      const ROOT_ROLE_ID = 'f9e8d7c6-b5a4-3210-fedc-ba0987654321';
+      const MAX_PERMISSIONS = (1n << 64n) - 1n;
+
       await db
         .insertInto('memberships')
         .values({
           id: crypto.randomUUID(),
           user_id: userId,
           restaurant_id: testRestaurant.id,
-          access_flags: ROLE_OWNER,
+          role_id: ROOT_ROLE_ID,
+          access_flags: MAX_PERMISSIONS,
           status: 'active',
           joined_at: new Date(),
         })
         .execute();
-      console.log('✓ Added root user to test restaurant.');
+      console.log('✓ Added root user to test restaurant with Root role.');
+    } else {
+      console.log('Root user already member of test restaurant, updating role...');
+      
+      const ROOT_ROLE_ID = 'f9e8d7c6-b5a4-3210-fedc-ba0987654321';
+      const MAX_PERMISSIONS = (1n << 64n) - 1n;
+
+      await db
+        .updateTable('memberships')
+        .set({
+          role_id: ROOT_ROLE_ID,
+          access_flags: MAX_PERMISSIONS,
+        })
+        .where('user_id', '=', userId)
+        .where('restaurant_id', '=', testRestaurant.id)
+        .execute();
+      console.log('✓ Updated root user to Root role.');
     }
   }
 

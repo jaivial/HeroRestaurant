@@ -59,4 +59,9 @@ export type {
   MemberShift,
   NewMemberShift,
   MemberShiftUpdate,
+  // User Preferences
+  UserPreferencesTable,
+  UserPreference,
+  NewUserPreference,
+  UserPreferenceUpdate,
 } from './database.types';

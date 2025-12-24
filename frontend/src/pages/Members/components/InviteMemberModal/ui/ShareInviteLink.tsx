@@ -1,4 +1,4 @@
-import { IconButton, Text, Button } from '@/components/ui';
+import { Text, Button } from '@/components/ui';
 import { cn } from '@/utils/cn';
 import { useState } from 'react';
 
@@ -38,7 +38,7 @@ export function ShareInviteLink({ inviteLink, onGenerate, isGenerating, isDark }
         </svg>
       ),
       color: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]',
-      href: (link: string) => `https://www.instagram.com/`, // Instagram doesn't support direct link sharing via URL
+      href: (_link: string) => `https://www.instagram.com/`, // Instagram doesn't support direct link sharing via URL
     },
     {
       name: 'Email',

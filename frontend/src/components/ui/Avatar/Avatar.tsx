@@ -4,7 +4,7 @@ import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '../../../utils/cn';
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away';
+export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away' | 'suspended';
 
 interface AvatarProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'size'> {
   src?: string;
@@ -54,10 +54,11 @@ export const Avatar = memo(function Avatar({
   };
 
   const statusColors: Record<AvatarStatus, string> = {
-    online: theme === 'dark' ? 'bg-[#30D158]' : 'bg-[#34C759]',
+    online: theme === 'dark' ? 'bg-[#28A745]' : 'bg-[#1E7E34]',
     offline: theme === 'dark' ? 'bg-white/20' : 'bg-black/20',
     busy: theme === 'dark' ? 'bg-[#FF453A]' : 'bg-[#FF3B30]',
     away: theme === 'dark' ? 'bg-[#FF9F0A]' : 'bg-[#FF9500]',
+    suspended: theme === 'dark' ? 'bg-[#636366]' : 'bg-[#8E8E93]',
   };
 
   const getInitials = (name: string) => {

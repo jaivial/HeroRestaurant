@@ -64,7 +64,13 @@ export const MemberCard = memo(function MemberCard({
             src={member.user.avatarUrl || undefined} 
             name={member.user.name} 
             size="xl"
-            status={member.status === 'active' ? 'online' : 'offline'}
+            status={
+              member.status === 'active' 
+                ? 'online' 
+                : member.status === 'suspended' 
+                  ? 'suspended' 
+                  : 'offline'
+            }
             className={cn(
               "ring-4 transition-all duration-500 shadow-apple-md",
               isDark ? "ring-white/10 group-hover:ring-apple-blue/30" : "ring-black/5 group-hover:ring-apple-blue/20"
@@ -105,8 +111,11 @@ export const MemberCard = memo(function MemberCard({
           <div className={cn("h-8 w-px", isDark ? "bg-white/10" : "bg-black/10")} />
           <div className="flex flex-col items-center">
             <Text variant="caption2" color="tertiary" className="uppercase tracking-[0.12em] mb-1 font-bold text-[10px]">Status</Text>
-            <Text variant="body" weight="bold" className={cn("text-[15px]", member.status === 'active' ? 'text-apple-green' : 'text-apple-red')}>
-              {member.status === 'active' ? 'Active' : 'Inactive'}
+            <Text variant="body" weight="bold" className={cn(
+              "text-[15px]", 
+              member.status === 'active' ? 'text-apple-green' : member.status === 'suspended' ? 'text-apple-red' : 'text-tertiary'
+            )}>
+              {member.status === 'active' ? 'Active' : member.status === 'suspended' ? 'Suspended' : 'Inactive'}
             </Text>
           </div>
         </div>

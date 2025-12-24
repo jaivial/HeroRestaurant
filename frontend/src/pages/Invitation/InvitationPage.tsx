@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useInvitationPage } from './hooks/useInvitationPage';
-import { Container, Text, Heading, Button, Card, Avatar, Divider } from '@/components/ui';
+import { Text, Heading, Button, Card, Avatar, Divider } from '@/components/ui';
 import { useAtomValue } from 'jotai';
 import { themeAtom } from '@/atoms/themeAtoms';
 import { cn } from '@/utils/cn';
-import gsap from 'gsap';
+import { gsap } from 'gsap';
 import { useNavigate } from 'react-router-dom';
-
-const SUCCESS_LOTTIE_URL = "https://assets10.lottiefiles.com/packages/lf20_pqnfbxw9.json";
 
 export function InvitationPage() {
   const theme = useAtomValue(themeAtom);

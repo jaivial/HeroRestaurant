@@ -4,6 +4,8 @@ export type MembersPageProps = Record<string, never>;
 
 export type MembersTab = 'members' | 'roles';
 
+export type ShiftPeriod = 'daily' | 'weekly' | 'monthly' | 'trimestral' | 'semmestral' | 'anual';
+
 export interface MembersListProps {
   members: Member[];
   isLoading: boolean;
@@ -34,5 +36,31 @@ export interface RoleRowProps {
   onDelete: (role: Role) => void;
   className?: string;
   style?: React.CSSProperties;
+}
+
+// ─── Shift Types ──────────────────────────────────────────
+export interface ShiftHistoryItem {
+  id: string;
+  punchInAt: string;
+  punchOutAt: string | null;
+  totalMinutes: number | null;
+  notes: string | null;
+}
+
+export interface MemberShiftStats {
+  workedMinutes: number;
+  contractedMinutes: number;
+  differenceMinutes: number;
+  status: 'healthy' | 'caution' | 'overworked' | 'critical';
+  history: ShiftHistoryItem[];
+}
+
+export interface MemberShiftStatus {
+  isPunchedIn: boolean;
+  activeShift: ShiftHistoryItem | null;
+  presence?: {
+    isConnected: boolean;
+    connectedAt: string | null;
+  };
 }
 
