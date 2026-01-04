@@ -66,9 +66,12 @@ const handlers: Record<string, MessageHandler> = {
   // Menu Creator handlers
   'menu.create': menuHandlers.create,
   'menu.list': menuHandlers.list,
+  'menu.get': menuHandlers.get,
   'menu.update': menuHandlers.update,
   'menu.delete': menuHandlers.delete,
   'section.create': menuHandlers.createSection,
+  'section.update': menuHandlers.updateSection,
+  'section.delete': menuHandlers.deleteSection,
   'dish.create': menuHandlers.createDish,
   'dish.update': menuHandlers.updateDish,
   'dish.delete': menuHandlers.deleteDish,

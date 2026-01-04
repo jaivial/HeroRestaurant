@@ -8,6 +8,7 @@ import { Login } from '@/pages/Login/Login';
 import { Dashboard } from '@/pages/Dashboard/Dashboard';
 import { MenuCreator } from '@/pages/MenuCreator/MenuCreator';
 import { Members } from '@/pages/Members/Members';
+import { PublicMenu } from '@/pages/PublicMenu/PublicMenu';
 import { PERMISSIONS, USER_ACCESS_FLAGS } from '@/utils/permissions';
 
 function App() {
@@ -15,6 +16,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
+        <Route path="/menu/:restaurantSlug/:menuId" element={<PublicMenu />} />
+        
         <Route element={<GuestGuard />}>
           <Route path="/login" element={<Login />} />
         </Route>

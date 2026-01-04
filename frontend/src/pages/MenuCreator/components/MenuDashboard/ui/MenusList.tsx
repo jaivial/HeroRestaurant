@@ -5,7 +5,7 @@ import { MenuCard } from './MenuCard';
 import { EmptyMenus } from './EmptyMenus';
 import type { MenusListProps } from '../../../types';
 
-export const MenusList = memo(function MenusList({ menus, onAddMenu, onToggleStatus }: MenusListProps) {
+export const MenusList = memo(function MenusList({ menus, onAddMenu, onToggleStatus, onEdit, onDelete, onCopyLink, onPreview, onGenerateQR }: MenusListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
@@ -21,7 +21,12 @@ export const MenusList = memo(function MenusList({ menus, onAddMenu, onToggleSta
             <MenuCard 
               key={menu.id} 
               menu={menu} 
-              onToggleStatus={onToggleStatus} 
+              onToggleStatus={onToggleStatus}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onCopyLink={onCopyLink}
+              onPreview={onPreview}
+              onGenerateQR={onGenerateQR}
             />
           ))
         )}

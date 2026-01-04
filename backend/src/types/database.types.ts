@@ -26,6 +26,7 @@ export interface DB {
   open_menus: OpenMenusTable;
   menu_sections: MenuSectionsTable;
   dishes: DishesTable;
+  short_urls: ShortUrlsTable;
 }
 
 // ============= Users Table =============
@@ -241,3 +242,15 @@ export interface DishesTable {
 export type Dish = Selectable<DishesTable>;
 export type NewDish = Insertable<DishesTable>;
 export type DishUpdate = Updateable<DishesTable>;
+
+// ============= Short URLs Table =============
+export interface ShortUrlsTable {
+  id: Generated<string>;
+  code: string;
+  menu_id: string;
+  created_at: Generated<Date>;
+}
+
+export type ShortUrl = Selectable<ShortUrlsTable>;
+export type NewShortUrl = Insertable<ShortUrlsTable>;
+export type ShortUrlUpdate = Updateable<ShortUrlsTable>;

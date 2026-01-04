@@ -8,6 +8,7 @@ import { authRoutes } from './routes/auth.routes';
 import { userRoutes } from './routes/user.routes';
 import { restaurantRoutes } from './routes/restaurant.routes';
 import { uploadRoutes } from './routes/upload.routes';
+import { menuRoutes, shortUrlRedirect } from './routes/menu.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 // Add global BigInt toJSON fix for JSON.stringify support
@@ -44,6 +45,8 @@ const app = new Elysia()
   .use(userRoutes)
   .use(restaurantRoutes)
   .use(uploadRoutes)
+  .use(menuRoutes)
+  .use(shortUrlRedirect)
 
   // WebSocket server (for real-time features after authentication)
   .use(createWebSocketServer())

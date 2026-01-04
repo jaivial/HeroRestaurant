@@ -9,7 +9,7 @@ import { Container } from '../../components/ui/Container';
 export function MenuCreator() {
   // ✅ Layer 1: Hooks only
   const { menus, stats, isAdding, onboardingStep } = useMenuData();
-  const { startNewMenu, cancelNewMenu, toggleMenuStatus } = useMenuActions();
+  const { startNewMenu, startEditMenu, cancelNewMenu, toggleMenuStatus, deleteMenu, copyMenuLink } = useMenuActions();
   const { nextStep, prevStep, isValid, finishOnboarding } = useMenuOnboarding();
 
   // ✅ Layer 1: Minimal JSX
@@ -27,8 +27,13 @@ export function MenuCreator() {
         <MenuDashboard 
           menus={menus} 
           stats={stats}
-          onAddMenu={startNewMenu} 
-          onToggleStatus={toggleMenuStatus} 
+          onAddMenu={startNewMenu}
+          onEdit={startEditMenu}
+          onToggleStatus={toggleMenuStatus}
+          onDelete={deleteMenu}
+          onCopyLink={copyMenuLink}
+          onPreview={() => {}}
+          onGenerateQR={() => {}}
         />
       )}
     </Container>

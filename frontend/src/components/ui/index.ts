@@ -25,3 +25,5 @@ export { Avatar, AvatarGroup } from './Avatar/Avatar';
 export { IconButton } from './IconButton/IconButton';
 export { Divider } from './Divider/Divider';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs/Tabs';
+export { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from './DropdownMenu';
+export { SlideOut } from './SlideOut';

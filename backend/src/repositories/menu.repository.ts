@@ -21,6 +21,7 @@ export const menuRepository = {
     return await db.selectFrom('fixed_menus')
       .selectAll()
       .where('id', '=', id)
+      .where('deleted_at', 'is', null)
       .executeTakeFirst();
   },
 
@@ -28,6 +29,7 @@ export const menuRepository = {
     return await db.selectFrom('fixed_menus')
       .selectAll()
       .where('restaurant_id', '=', restaurantId)
+      .where('deleted_at', 'is', null)
       .orderBy('created_at', 'desc')
       .execute();
   },
@@ -40,9 +42,25 @@ export const menuRepository = {
   },
 
   async deleteFixed(id: string): Promise<void> {
-    await db.deleteFrom('fixed_menus')
+    await db.updateTable('fixed_menus')
+      .set({ deleted_at: new Date() })
       .where('id', '=', id)
       .execute();
+  },
+
+  async getFixedWithSectionsAndDishes(id: string): Promise<any> {
+    const menu = await this.getFixedById(id);
+    if (!menu) return undefined;
+
+    const sections = await this.listSectionsByMenu(id, 'fixed');
+    const sectionsWithDishes = await Promise.all(
+      sections.map(async (section) => {
+        const dishes = await this.listDishesBySection(section.id);
+        return { ...section, dishes };
+      })
+    );
+
+    return { ...menu, sections: sectionsWithDishes };
   },
 
   // Section Methods
@@ -55,7 +73,7 @@ export const menuRepository = {
   },
 
   async listSectionsByMenu(menuId: string, type: 'fixed' | 'open'): Promise<MenuSection[]> {
-    const query = db.selectFrom('menu_sections').selectAll();
+    const query = db.selectFrom('menu_sections').selectAll().where('deleted_at', 'is', null);
     if (type === 'fixed') {
       return await query.where('fixed_menu_id', '=', menuId).orderBy('display_order', 'asc').execute();
     } else {
@@ -71,7 +89,8 @@ export const menuRepository = {
   },
 
   async deleteSection(id: string): Promise<void> {
-    await db.deleteFrom('menu_sections')
+    await db.updateTable('menu_sections')
+      .set({ deleted_at: new Date() })
       .where('id', '=', id)
       .execute();
   },
@@ -89,6 +108,7 @@ export const menuRepository = {
     return await db.selectFrom('dishes')
       .selectAll()
       .where('section_id', '=', sectionId)
+      .where('deleted_at', 'is', null)
       .orderBy('display_order', 'asc')
       .execute();
   },
@@ -101,7 +121,8 @@ export const menuRepository = {
   },
 
   async deleteDish(id: string): Promise<void> {
-    await db.deleteFrom('dishes')
+    await db.updateTable('dishes')
+      .set({ deleted_at: new Date() })
       .where('id', '=', id)
       .execute();
   },

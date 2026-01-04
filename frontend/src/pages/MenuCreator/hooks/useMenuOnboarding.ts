@@ -1,12 +1,13 @@
 // src/pages/MenuCreator/hooks/useMenuOnboarding.ts
 import { useCallback, useMemo } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom, useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { wsClient } from '../../../websocket';
 import { 
   onboardingStepAtom, 
   currentMenuAtom, 
-  isAddingMenuAtom 
+  isAddingMenuAtom,
+  editingMenuIdAtom
 } from '../../../atoms/menuCreatorAtoms';
 import type { MenuOnboardingData, MenuOnboardingActions, Menu, OnboardingStep } from '../types';
 
@@ -15,6 +16,7 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
   const [step, setStep] = useAtom(onboardingStepAtom);
   const [menu, setMenu] = useAtom(currentMenuAtom);
   const setIsAdding = useSetAtom(isAddingMenuAtom);
+  const [editingMenuId, setEditingMenuId] = useAtom(editingMenuIdAtom);
 
   const isValid = useMemo(() => {
     if (!menu) return false;
@@ -56,21 +58,48 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
 
   const finishOnboarding = useCallback(async () => {
     if (!menu || !workspaceId) return;
+    
+    const isEditMode = !!editingMenuId;
+    
     try {
-      const createdMenu = await wsClient.request<any>('menu', 'create', {
-        title: menu.title,
-        type: menu.type,
-        price: menu.price || 0,
-        drinkIncluded: !!menu.drinkIncluded,
-        coffeeIncluded: !!menu.coffeeIncluded,
-        availability: menu.availability || { breakfast: [], lunch: [], dinner: [] },
-        restaurantId: workspaceId
-      });
+      let menuId: string;
+      
+      if (isEditMode) {
+        const existingMenu = await wsClient.request<any>('menu', 'get', { menuId: editingMenuId });
+        
+        if (existingMenu.sections) {
+          for (const section of existingMenu.sections) {
+            await wsClient.request('section', 'delete', { sectionId: section.id });
+          }
+        }
+        
+        await wsClient.request('menu', 'update', {
+          menuId: editingMenuId,
+          title: menu.title,
+          type: menu.type,
+          price: menu.price || 0,
+          drinkIncluded: !!menu.drinkIncluded,
+          coffeeIncluded: !!menu.coffeeIncluded,
+          availability: menu.availability || { breakfast: [], lunch: [], dinner: [] }
+        });
+        menuId = editingMenuId;
+      } else {
+        const createdMenu = await wsClient.request<any>('menu', 'create', {
+          title: menu.title,
+          type: menu.type,
+          price: menu.price || 0,
+          drinkIncluded: !!menu.drinkIncluded,
+          coffeeIncluded: !!menu.coffeeIncluded,
+          availability: menu.availability || { breakfast: [], lunch: [], dinner: [] },
+          restaurantId: workspaceId
+        });
+        menuId = createdMenu.id;
+      }
 
       if (menu.sections) {
         for (const section of menu.sections) {
           const createdSection = await wsClient.request<any>('section', 'create', {
-            menuId: createdMenu.id,
+            menuId,
             menuType: menu.type === 'fixed_price' ? 'fixed' : 'open',
             name: section.name,
             displayOrder: section.displayOrder || 0
@@ -79,7 +108,7 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
           for (const dish of section.dishes) {
             await wsClient.request('dish', 'create', {
               sectionId: createdSection.id,
-              menuId: createdMenu.id,
+              menuId,
               menuType: menu.type === 'fixed_price' ? 'fixed' : 'open',
               title: dish.title,
               description: dish.description || '',
@@ -99,10 +128,11 @@ export function useMenuOnboarding(): MenuOnboardingData & MenuOnboardingActions 
       setIsAdding(false);
       setStep(1);
       setMenu(null);
+      setEditingMenuId(null);
     } catch (error) {
-      console.error('Failed to create menu:', error);
+      console.error(`Failed to ${isEditMode ? 'update' : 'create'} menu:`, error);
     }
-  }, [menu, workspaceId, setIsAdding, setStep, setMenu]);
+  }, [menu, workspaceId, editingMenuId, setIsAdding, setStep, setMenu, setEditingMenuId]);
 
   return {
     menu,

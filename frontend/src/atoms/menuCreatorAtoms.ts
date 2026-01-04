@@ -6,6 +6,7 @@ export const menusAtom = atom<Menu[]>([]);
 export const currentMenuAtom = atom<Partial<Menu> | null>(null);
 export const onboardingStepAtom = atom<OnboardingStep>(1);
 export const isAddingMenuAtom = atom<boolean>(false);
+export const editingMenuIdAtom = atom<string | null>(null);
 export const restaurantSettingsAtom = atom<RestaurantSettings | null>(null);
 
 export const menuStatsAtom = atom((get) => {

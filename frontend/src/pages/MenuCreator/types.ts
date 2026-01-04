@@ -93,6 +93,11 @@ export interface MenuDashboardProps {
   stats: MenuCreatorStats;
   onAddMenu: () => void;
   onToggleStatus: (id: string, active: boolean) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
+  onCopyLink: (id: string) => Promise<void>;
+  onPreview: (id: string) => void;
+  onGenerateQR: (id: string, title: string) => void;
 }
 
 export interface MenuOnboardingProps {
@@ -115,11 +120,21 @@ export interface MenusListProps {
   menus: Menu[];
   onAddMenu: () => void;
   onToggleStatus: (id: string, active: boolean) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
+  onCopyLink: (id: string) => Promise<void>;
+  onPreview: (id: string) => void;
+  onGenerateQR: (id: string, title: string) => void;
 }
 
 export interface MenuCardProps {
   menu: Menu;
   onToggleStatus: (id: string, active: boolean) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
+  onCopyLink: (id: string) => Promise<void>;
+  onPreview: (id: string) => void;
+  onGenerateQR: (id: string, title: string) => void;
 }
 
 export interface SortableSectionProps {
@@ -163,9 +178,12 @@ export interface MenuData {
 
 export interface MenuActions {
   startNewMenu: () => void;
+  startEditMenu: (menuId: string) => Promise<void>;
   cancelNewMenu: () => void;
   toggleMenuStatus: (menuId: string, isActive: boolean) => Promise<void>;
+  deleteMenu: (menuId: string) => Promise<void>;
   refreshMenus: () => Promise<void>;
+  copyMenuLink: (menuId: string) => Promise<void>;
 }
 
 export interface MenuOnboardingData {
