@@ -19,6 +19,7 @@ import { restaurantHandlers } from './restaurant.handler';
 import { memberHandlers } from './member.handler';
 import { roleHandlers } from './role.handler';
 import { menuHandlers } from './menu.handler';
+import { bookingHandlers } from './booking.handler';
 
 // Type for handler functions
 type MessageHandler = (
@@ -79,6 +80,19 @@ const handlers: Record<string, MessageHandler> = {
   'dish.uploadImage': menuHandlers.uploadImage,
   'settings.get': menuHandlers.getSettings,
   'settings.update': menuHandlers.updateSettings,
+
+  // Booking handlers
+  'booking.list': bookingHandlers.list,
+  'booking.get': bookingHandlers.get,
+  'booking.create': bookingHandlers.create,
+  'booking.updateStatus': bookingHandlers.updateStatus,
+  'booking.assignTable': bookingHandlers.assignTable,
+  'booking.getAvailableTables': bookingHandlers.getAvailableTables,
+  'booking.searchGuests': bookingHandlers.searchGuests,
+  'booking.getStats': bookingHandlers.getStats,
+  'booking.getWaitlist': bookingHandlers.getWaitlist,
+  'booking.addToWaitlist': bookingHandlers.addToWaitlist,
+  'booking.seatFromWaitlist': bookingHandlers.seatFromWaitlist,
 };
 
 /**

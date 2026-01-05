@@ -27,6 +27,11 @@ export interface DB {
   menu_sections: MenuSectionsTable;
   dishes: DishesTable;
   short_urls: ShortUrlsTable;
+  tables: TablesTable;
+  table_groups: TableGroupsTable;
+  guests: GuestsTable;
+  bookings: BookingsTable;
+  waitlist: WaitlistTable;
 }
 
 // ============= Users Table =============
@@ -254,3 +259,137 @@ export interface ShortUrlsTable {
 export type ShortUrl = Selectable<ShortUrlsTable>;
 export type NewShortUrl = Insertable<ShortUrlsTable>;
 export type ShortUrlUpdate = Updateable<ShortUrlsTable>;
+
+// ============================================================================
+// Booking Manager Types
+// ============================================================================
+
+export type BookingStatus = 'pending' | 'confirmed' | 'seated' | 'completed' | 'cancelled' | 'no_show';
+export type BookingSource = 'phone' | 'walk_in' | 'online' | 'third_party' | 'staff';
+export type TableShape = 'round' | 'square' | 'rectangle' | 'custom';
+export type WaitlistStatus = 'waiting' | 'notified' | 'seated' | 'left';
+export type CancelledBy = 'staff' | 'guest';
+
+// ============= Tables Table =============
+export interface TablesTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  name: string;
+  capacity: number;
+  min_capacity: number;
+  section: string | null;
+  position_x: number | null;
+  position_y: number | null;
+  shape: TableShape;
+  is_active: boolean;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type Table = Selectable<TablesTable>;
+export type NewTable = Insertable<TablesTable>;
+export type TableUpdate = Updateable<TablesTable>;
+
+// ============= Table Groups Table =============
+export interface TableGroupsTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  name: string;
+  min_capacity: number;
+  max_capacity: number;
+  table_ids: string; // JSON string: string[]
+  is_active: boolean;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type TableGroup = Selectable<TableGroupsTable>;
+export type NewTableGroup = Insertable<TableGroupsTable>;
+export type TableGroupUpdate = Updateable<TableGroupsTable>;
+
+// ============= Guests Table =============
+export interface GuestsTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  email: string | null;
+  phone: string;
+  name: string;
+  notes: string | null;
+  total_visits: Generated<number>;
+  total_no_shows: Generated<number>;
+  total_cancellations: Generated<number>;
+  last_visit_at: Date | null;
+  preferences: string; // JSON string: string[]
+  tags: string; // JSON string: string[]
+  blocked: boolean;
+  blocked_reason: string | null;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type Guest = Selectable<GuestsTable>;
+export type NewGuest = Insertable<GuestsTable>;
+export type GuestUpdate = Updateable<GuestsTable>;
+
+// ============= Bookings Table =============
+export interface BookingsTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  guest_id: string | null;
+  table_id: string | null;
+  table_group_id: string | null;
+  guest_name: string;
+  guest_email: string | null;
+  guest_phone: string;
+  party_size: number;
+  date: string; // ISO date string
+  start_time: string; // HH:mm format
+  end_time: string; // HH:mm format
+  duration_minutes: number;
+  status: BookingStatus;
+  source: BookingSource;
+  notes: string | null;
+  dietary_requirements: string; // JSON string: string[]
+  confirmation_sent_at: Date | null;
+  reminder_sent_at: Date | null;
+  cancelled_at: Date | null;
+  cancelled_by: CancelledBy | null;
+  cancellation_reason: string | null;
+  created_by_user_id: string;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type Booking = Selectable<BookingsTable>;
+export type NewBooking = Insertable<BookingsTable>;
+export type BookingUpdate = Updateable<BookingsTable>;
+
+// ============= Waitlist Table =============
+export interface WaitlistTable {
+  id: Generated<string>;
+  restaurant_id: string;
+  guest_name: string;
+  guest_phone: string;
+  guest_email: string | null;
+  party_size: number;
+  quoted_wait_minutes: number | null;
+  notes: string | null;
+  notified_at: Date | null;
+  seated_at: Date | null;
+  status: WaitlistStatus;
+  position: number;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+  deleted_at: Date | null;
+}
+
+export type WaitlistEntry = Selectable<WaitlistTable>;
+export type NewWaitlistEntry = Insertable<WaitlistTable>;
+export type WaitlistEntryUpdate = Updateable<WaitlistTable>;
+
+// Input type for waitlist (status and position are auto-assigned by repository)
+export type WaitlistEntryInput = Omit<NewWaitlistEntry, 'status' | 'position' | 'id' | 'created_at' | 'updated_at' | 'deleted_at' | 'notified_at' | 'seated_at'>;
